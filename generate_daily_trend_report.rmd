@@ -1,0 +1,102 @@
+---
+title: "Epi Trends Report"
+subtitle: '`r format(Sys.time(), "%d %B, %Y")`'
+output: 
+  powerpoint_presentation:
+    reference_doc: src/template.pptx
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Load libraries
+library(tidyverse)
+library(patchwork)
+library(scales)
+library(zoo)
+library(lubridate)
+library(gridExtra)
+library(ggrepel)
+library(ggthemes)
+library(cansim)
+library(janitor)
+library(xml2)
+library(rvest)
+library(stringr)
+library(readxl)
+
+# Import data
+source("src/00_get_data.R")
+```
+
+## Summary
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Canada COVID-19 Indicators (Cases and Deaths)
+
+```{r Canada CD, code=c(Sys.setenv(pt="Canada"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## British Columbia COVID-19 Indicators (Cases and Deaths)
+
+```{r British Columbia CD, code=c(Sys.setenv(pt="British Columbia"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Alberta COVID-19 Indicators (Cases and Deaths)
+
+```{r Alberta CD, code=c(Sys.setenv(pt="Alberta"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Saskatchewan COVID-19 Indicators (Cases and Deaths)
+
+```{r Saskatchewan CD, code=c(Sys.setenv(pt="Saskatchewan"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Manitoba COVID-19 Indicators (Cases and Deaths)
+
+```{r Manitoba CD, code=c(Sys.setenv(pt="Manitoba"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Ontario COVID-19 Indicators (Cases and Deaths)
+
+```{r Ontario CD, code=c(Sys.setenv(pt="Ontario"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Quebec COVID-19 Indicators (Cases and Deaths)
+
+```{r Quebec CD, code=c(Sys.setenv(pt="Quebec"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Daily cases by Jurisdiction (7-day moving average)
+
+```{r PT C, code=xfun::read_utf8('src/03_pt_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 patients in hospital daily across Canada 
+
+```{r Can HI, code=c(Sys.setenv(hosp_prname="Canada"), xfun::read_utf8('src/05_hosp_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 patients in hospital daily in selected provinces and territories 
+
+```{r PT HI, code=c(Sys.setenv(hosp_prname="pts"), xfun::read_utf8('src/05_hosp_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 patients in hospital daily in selected provinces and territories 
+
+Indicators derived from the Case Report Forms
+
+## COVID-19 cases by age, Canada
+```{r Canada Age C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 cases by age, select provinces and territories
+```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Daily Cases by Country (7-day moving average, population adjusted)
+
+```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
