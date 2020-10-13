@@ -47,7 +47,8 @@ ab_icu <- ab_all %>%
 # Then import data for rest of provinces from the file that has human scraped data
 # Hospitalization data
 pt_hosp_raw <- read_xlsx("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/Web Scraping/Trend analysis/COVID-19 historical archive_CURRENT.xlsx",
-    sheet = "Hospitalization (current)"
+    sheet = "Hospitalization (current)",
+    range = cell_rows(1:16) # to avoid reading non-sense text underneath the actual data
 )
 
 pt_hosp <- pivot_longer(pt_hosp_raw, !"P/T", names_to = "date", values_to = "hospitalized") %>%
@@ -60,7 +61,8 @@ pt_hosp_filter <- bind_rows(pt_hosp, ab_hosp)
 
 # ICU data
 pt_icu_raw <- read_xlsx("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/Web Scraping/Trend analysis/COVID-19 historical archive_CURRENT.xlsx",
-    sheet = "ICU (current)"
+    sheet = "ICU (current)",
+    range = cell_rows(1:16) # to avoid reading non-sense text underneath the actual data
 )
 
 pt_icu <- pivot_longer(pt_icu_raw, !"P/T", names_to = "date", values_to = "icu") %>%
