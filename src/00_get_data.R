@@ -12,14 +12,14 @@ pt_pop_raw <- get_cansim("17-10-0005-01")
 
 # Get the hospitalization and ICU data =======
 # First scraped data for Alberta
-AB_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
+ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
     html_nodes(xpath = "//*[@id='summary']/div[3]/script/text()") %>%
     html_text()
 
-counts <- AB_severity %>%
+counts <- ab_severity %>%
     str_extract_all("((?:\\d+,)+\\d+)")
 
-date <- AB_severity %>%
+date <- ab_severity %>%
     str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>%
     unlist() %>%
     as.Date() %>%

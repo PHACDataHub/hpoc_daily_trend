@@ -18,3 +18,4 @@ vignettes/*.pdf
 *.knit.md
 *.ppt
 *.pptx
+thumbs.db

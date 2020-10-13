@@ -196,34 +196,3 @@ p1 + p3 + gridExtra::tableGrob(table_filter_case[1:3, c("desc", "value")],
         cols = NULL
     ) +
     plot_layout(widths = c(2, 1, 1), ncol = 3)
-
-################## Ad-hoc requests - comment out ###################
-
-# Charting the plots
-# ggplot(df_filter, aes(x = date, y = numtoday)) +
-#   ggtitle(paste0('Daily COVID-19 cases by date of report, ', jurisdiction)) +
-#   geom_col(aes(fill = "Reported cases"), width = 0.5) +
-#   geom_line(aes(colour = "7 day moving average (7MA)",
-#                 y=rollmean(numtoday, 7, na.pad=TRUE, align = "right")),
-#             size = 2) +
-#   scale_x_date(
-#     NULL,
-#     breaks = scales::breaks_width("3 weeks"),
-#     labels = label_date("%d%b"),
-#     expand = c(0, 0)
-#   ) +
-#   scale_y_continuous(
-#     "Number of cases",
-#     labels = comma,
-#     breaks = seq(0,2500, by = 500),
-#     expand = c(0, 0)
-#   ) +
-#   scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
-#   scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "darkblue")) +
-#   theme(panel.grid.major = element_blank(),
-#         panel.grid.minor = element_blank(),
-#         panel.background = element_blank(),
-#         axis.line = element_line(colour = "black"),
-#         legend.position = "none",
-#         plot.title = element_text(hjust = 0.5),
-#         text = element_text(size=20))
