@@ -25,12 +25,12 @@ date <- ab_severity %>%
     as.Date() %>%
     unique()
 
-hospitalized <- counts[[1]][12] %>%
+hospitalized <- counts[[1]][15] %>% # changed element as that had changed from before
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-icu <- counts[[1]][6] %>%
+icu <- counts[[1]][7] %>% # changed element as that had changed from before
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
