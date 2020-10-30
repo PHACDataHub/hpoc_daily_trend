@@ -1,5 +1,5 @@
 # Defining parameters for this set of slides
-jurisdiction <- Sys.getenv("pt") # if you want to run just this file, do Sys.setenv(pt = "Canada") in the console first to run it for Canada
+jurisdiction <- if (Sys.getenv("pt") == "") "Canada" else Sys.getenv("pt")
 two_weeks_ago <- Sys.Date() - weeks(2)
 
 df_filter <- df %>%
