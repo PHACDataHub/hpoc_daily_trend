@@ -20,7 +20,7 @@ ggplot(pt_hosp_icu_filter %>% filter(), aes(date, cases, colour = type)) +
     facet_wrap(vars(prname), scales = "free_y") +
     scale_x_date(
         NULL,
-        breaks = scales::breaks_width("2 weeks"),
+        #breaks = scales::breaks_width("2 weeks"),
         labels = label_date("%d%b")
     ) +
     scale_y_continuous(
