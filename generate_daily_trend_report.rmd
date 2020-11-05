@@ -24,8 +24,10 @@ library(rvest)
 library(stringr)
 library(readxl)
 library(fs)
+library(reticulate)
 
 # Import data
+source_python("src/00_get_data.py")
 source("src/00_get_data.R")
 ```
 
