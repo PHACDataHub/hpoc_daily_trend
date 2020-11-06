@@ -45,29 +45,18 @@ ab_icu <- ab_all %>%
   select(prname, date, icu)
 
 # Then import data for rest of provinces from the file that has human scraped data
-# Hospitalization data
-# pt_hosp_raw <- read_xlsx("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/Web Scraping/Trend analysis/COVID-19 historical archive_CURRENT.xlsx",
-#     sheet = "Hospitalization (current)",
-#     range = cell_rows(1:16) # to avoid reading non-sense text underneath the actual data
-# )
-
+# Hospitalization data, wrangling the input from the Python script
 pt_hosp <- pivot_longer(pt_hosp_raw, !"P/T", names_to = "date", values_to = "hospitalized") %>%
   mutate(date = as.Date((date))) %>%
-  #mutate(date = as.Date(as.numeric(date), origin = "1899-12-30")) %>%
   rename("prname" = "P/T") %>%
   mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
   filter(prname != "AB")
 
 pt_hosp_filter <- bind_rows(pt_hosp, ab_hosp)
 
-# ICU data
-pt_icu_raw <- read_xlsx("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/Web Scraping/Trend analysis/COVID-19 historical archive_CURRENT.xlsx",
-    sheet = "ICU (current)",
-    range = cell_rows(1:16) # to avoid reading non-sense text underneath the actual data
-)
-
+# ICU data, wrangling the input from the Python script
 pt_icu <- pivot_longer(pt_icu_raw, !"P/T", names_to = "date", values_to = "icu") %>%
-  mutate(date = as.Date(as.numeric(date), origin = "1899-12-30")) %>%
+  mutate(date = as.Date((date))) %>%
   rename("prname" = "P/T") %>%
   mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
   filter(prname != "AB")
@@ -75,7 +64,6 @@ pt_icu <- pivot_longer(pt_icu_raw, !"P/T", names_to = "date", values_to = "icu")
 pt_icu_filter <- bind_rows(pt_icu, ab_icu)
 
 # combine hosp and ICU data
-
 pt_hosp_icu <- pt_hosp_filter %>%
     left_join(pt_icu_filter, by = c("prname", "date")) %>%
     filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC")) %>%
@@ -92,47 +80,48 @@ pt_hosp_icu <- pt_hosp_filter %>%
 
 # Get case level data for age breakdown from the network drive ======
 # Identify the latest file in the target folder that has the word "qry" in it
-qry_folder_raw <- dir_info("//Ncr-a_irbv2s/irbv2/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/SAS_Analysis/Domestic data",
-    recurse = FALSE
-) %>%
-    filter(type == "file") %>%
-    select(path, modification_time)
-
-qry_folder <- qry_folder_raw %>%
-  filter(str_detect(path, "qry")) %>%
-  filter(!str_detect(path, "NEW")) %>%
-  filter(!str_detect(path, "\\$")) %>% # to exclude files that are currently open
-  filter(modification_time == max(modification_time)) %>%
-  select(path) %>%
-  pull()
+# qry_folder_raw <- dir_info("//Ncr-a_irbv2s/irbv2/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/SAS_Analysis/Domestic data",
+#     recurse = FALSE
+# ) %>%
+#     filter(type == "file") %>%
+#     select(path, modification_time)
+# 
+# qry_folder <- qry_folder_raw %>%
+#   filter(str_detect(path, "qry")) %>%
+#   filter(!str_detect(path, "NEW")) %>%
+#   filter(!str_detect(path, "\\$")) %>% # to exclude files that are currently open
+#   filter(modification_time == max(modification_time)) %>%
+#   select(path) %>%
+#   pull()
 
 # Import the latest xlsx file as a dataframe
-qry_cases_raw <- read_xlsx(qry_folder)
+#qry_cases_raw <- read_xlsx(qry_folder)
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
-  select(phacid, pt, onset_date, age, agegroup10, agegroup20) %>%
+  select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
+  mutate(onsetdate = as.Date((onsetdate))) %>%
   filter(!is.na(age)) %>%
-  group_by(onset_date, agegroup20) %>%
+  group_by(onsetdate, agegroup20) %>%
   tally() %>%
   mutate(prname = "Canada") %>%
-  filter(!is.na(onset_date))
+  filter(!is.na(onsetdate))
 
 qry_cases <- qry_cases_raw %>%
     clean_names() %>%
-    select(phacid, pt, onset_date, age, agegroup10, agegroup20) %>%
+    select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
     mutate(prname = pt) %>%
     mutate(prname = recode(prname,
-        "BC" = "British Columbia",
-        "AB" = "Alberta",
-        "SK" = "Saskatchewan",
-        "MB" = "Manitoba",
-        "ON" = "Ontario",
-        "QC" = "Quebec"
+        "bc" = "British Columbia",
+        "ab" = "Alberta",
+        "sk" = "Saskatchewan",
+        "mb" = "Manitoba",
+        "on" = "Ontario",
+        "qc" = "Quebec"
     )) %>%
-    group_by(onset_date, agegroup20, prname) %>%
+    group_by(onsetdate, agegroup20, prname) %>%
     tally() %>%
-    filter(!is.na(onset_date)) %>%
+    filter(!is.na(onsetdate)) %>%
     bind_rows(qry_canada) %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%

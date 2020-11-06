@@ -1,7 +1,23 @@
 # Import the hospitalization data from the scrapped file
 
-import pandas as pd
+import pandas
+import glob
+import os
+import re
 
-pt_hosp_raw = pd.read_excel('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\Web Scraping\Trend analysis\COVID-19 historical archive_CURRENT.xlsx', 
+## Read the hospitalization data
+pt_hosp_raw = pandas.read_excel('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\Web Scraping\Trend analysis\COVID-19 historical archive_CURRENT.xlsx', 
                     sheet_name='Hospitalization (current)',
                     nrows = 15)
+
+## Read the ICU data
+pt_icu_raw = pandas.read_excel('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\Web Scraping\Trend analysis\COVID-19 historical archive_CURRENT.xlsx', 
+                    sheet_name='ICU (current)',
+                    nrows = 15)
+
+# Import the all cases data
+list_of_files = glob.glob('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\SAS_Analysis\Domestic data\*.xlsx')
+files_filter = [file for file in list_of_files if 'NEW' and '$' not in file]
+latest_file = max(files_filter, key=os.path.getmtime)
+
+qry_cases_raw = pandas.read_excel(latest_file)

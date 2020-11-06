@@ -8,6 +8,10 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
+# Import data from network drive using Python
+library(reticulate)
+source_python("src/00_get_data.py")
+
 # Load libraries
 library(tidyverse)
 library(patchwork)
@@ -22,12 +26,8 @@ library(janitor)
 library(xml2)
 library(rvest)
 library(stringr)
-library(readxl)
-library(fs)
-library(reticulate)
 
 # Import data
-source_python("src/00_get_data.py")
 source("src/00_get_data.R")
 ```
 
