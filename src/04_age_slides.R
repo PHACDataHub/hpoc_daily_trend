@@ -12,6 +12,8 @@ qry_cases_filter <- qry_cases %>%
     mutate(agegroup20 = as.character(agegroup20)) %>%
     filter(agegroup20 != "Unknown") %>%
     filter(agegroup20 != "NaN") %>%
+    filter(agegroup20 != "unknown") %>%
+    filter(agegroup20 != "") %>%
     ungroup()
 
 # Plot

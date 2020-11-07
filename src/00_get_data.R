@@ -95,7 +95,7 @@ pt_hosp_icu <- pt_hosp_filter %>%
 #   pull()
 
 # Import the latest xlsx file as a dataframe
-#qry_cases_raw <- read_xlsx(qry_folder)
+qry_cases_raw <- readRDS(latest_file)
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%

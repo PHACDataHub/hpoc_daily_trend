@@ -1,5 +1,4 @@
 # Import the hospitalization data from the scrapped file
-
 import pandas
 import glob
 import os
@@ -16,8 +15,6 @@ pt_icu_raw = pandas.read_excel('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDN
                     nrows = 15)
 
 # Import the all cases data
-list_of_files = glob.glob('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\SAS_Analysis\Domestic data\*.xlsx')
+list_of_files = glob.glob('Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\DATA AND ANALYSIS\SAS_Analysis\Domestic data\*.rds')
 files_filter = [file for file in list_of_files if 'NEW' and '$' not in file]
 latest_file = max(files_filter, key=os.path.getmtime)
-
-qry_cases_raw = pandas.read_excel(latest_file)
