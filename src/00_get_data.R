@@ -79,22 +79,8 @@ pt_hosp_icu <- pt_hosp_filter %>%
     ))
 
 # Get case level data for age breakdown from the network drive ======
-# Identify the latest file in the target folder that has the word "qry" in it
-# qry_folder_raw <- dir_info("//Ncr-a_irbv2s/irbv2/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/DATA AND ANALYSIS/SAS_Analysis/Domestic data",
-#     recurse = FALSE
-# ) %>%
-#     filter(type == "file") %>%
-#     select(path, modification_time)
-# 
-# qry_folder <- qry_folder_raw %>%
-#   filter(str_detect(path, "qry")) %>%
-#   filter(!str_detect(path, "NEW")) %>%
-#   filter(!str_detect(path, "\\$")) %>% # to exclude files that are currently open
-#   filter(modification_time == max(modification_time)) %>%
-#   select(path) %>%
-#   pull()
 
-# Import the latest xlsx file as a dataframe
+# Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
 qry_cases_raw <- readRDS(latest_file)
 
 qry_canada <- qry_cases_raw %>%
@@ -126,3 +112,7 @@ qry_cases <- qry_cases_raw %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
     rename(cases = n)
+
+# Get SALT lab data from the network drive ======
+salt_raw <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
+  
