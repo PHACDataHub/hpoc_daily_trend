@@ -10,7 +10,7 @@ table_filter_case <- data.frame(
     desc = c(paste0("Reported on ", Sys.Date()), "7-day moving average (per day):", "Weekly percent change"),
     value = c(
         df_filter %>% filter(date == max(date)) %>% select(numtoday) %>% pull(),
-        df_filter %>% filter(date >= max(date) - days(7)) %>% summarise(average = mean(numtoday, na.rm = T)) %>% pull(),
+        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numtoday, na.rm = T)) %>% pull(),
         df_filter %>% mutate(sdma = rollmean(numtoday, 7, na.pad = TRUE, align = "right")) %>%
             mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
             filter(date == max(date)) %>%
@@ -23,7 +23,7 @@ table_filter_death <- data.frame(
     desc = c(paste0("Reported on ", Sys.Date()), "7-day moving average (per day):", "Weekly percent change"),
     value = c(
         df_filter %>% filter(date == max(date)) %>% select(numdeathstoday) %>% pull(),
-        df_filter %>% filter(date >= max(date) - days(7)) %>% summarise(average = mean(numdeathstoday, na.rm = T)) %>% pull(),
+        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numdeathstoday, na.rm = T)) %>% pull(),
         df_filter %>% mutate(sdma = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")) %>%
             mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
             filter(date == max(date)) %>%
