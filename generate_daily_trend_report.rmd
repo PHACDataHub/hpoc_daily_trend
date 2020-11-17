@@ -99,6 +99,10 @@ Indicators derived from the Case Report Forms
 ```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
+## Estimate for case detection: Onset to lab collection (days)
+```{r Lab Onset, code=xfun::read_utf8('src/08_lab_onset.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
 ## Daily Cases by Country (7-day moving average, population adjusted)
 
 ```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
