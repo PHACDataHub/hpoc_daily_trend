@@ -5,7 +5,12 @@ output:
   powerpoint_presentation:
     reference_doc: src/template.pptx
 params:
-  date: !r Sys.Date()        
+  date: !r Sys.Date()
+  region:
+    label: "Select which P/Ts to include in report"
+    value: Major provinces
+    input: select
+    choices: [All P/Ts, Major provinces]        
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
@@ -31,6 +36,13 @@ library(stringr)
 
 # Import data
 source("src/00_get_data.R")
+
+list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec") else 
+                                                             c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", 
+                                                     "Newfoundland and Labrador", "Northwest Territories", "Nunavut", "Yukon")
+two_weeks_ago <- params$date - weeks(2)
 ```
 
 ## Summary
@@ -39,39 +51,208 @@ source("src/00_get_data.R")
 - Bullet 2
 - Bullet 3
 
-## Canada COVID-19 Indicators (Cases and Deaths)
+```{r, results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+for (i in list_pt){
+   cat('\n')  
+   cat("##", i, "COVID-19 Indicators (Cases and Deaths)", "\n") 
 
-```{r Canada CD, code=c(Sys.setenv(pt="Canada"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
+df_filter <- df %>%
+    filter(prname == i) %>%
+    filter(date >= "2020-03-08")
 
-## British Columbia COVID-19 Indicators (Cases and Deaths)
+table_filter_case <- data.frame(
+    desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
+    value = c(
+        df_filter %>% filter(date == max(date)) %>% select(numtoday) %>% pull(),
+        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numtoday, na.rm = T)) %>% pull(),
+        df_filter %>% mutate(sdma = rollmean(numtoday, 7, na.pad = TRUE, align = "right")) %>%
+            mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
+            filter(date == max(date)) %>%
+            select(wow) %>%
+            pull()
+    )
+) %>% mutate_if(is.numeric, round, digits = 2)
 
-```{r British Columbia CD, code=c(Sys.setenv(pt="British Columbia"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
+table_filter_death <- data.frame(
+    desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
+    value = c(
+        df_filter %>% filter(date == max(date)) %>% select(numdeathstoday) %>% pull(),
+        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numdeathstoday, na.rm = T)) %>% pull(),
+        df_filter %>% mutate(sdma = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")) %>%
+            mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
+            filter(date == max(date)) %>%
+            select(wow) %>%
+            pull()
+    )
+) %>% mutate_if(is.numeric, round, digits = 2)
 
-## Alberta COVID-19 Indicators (Cases and Deaths)
+# Code for conditional colouring of the text in the code
+cols_case <- matrix("black", nrow(table_filter_case), ncol(table_filter_case))
+cols_case[3, 2] <- if_else(table_filter_case[3, 2] > 0, "red",
+    if_else(table_filter_case[3, 2] < 0, "green", "black")
+)
 
-```{r Alberta CD, code=c(Sys.setenv(pt="Alberta"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
+cols_death <- matrix("black", nrow(table_filter_death), ncol(table_filter_death))
+cols_death[3, 2] <- if_else(table_filter_death[3, 2] > 0, "red",
+    if_else(table_filter_death[3, 2] < 0, "green", "black")
+)
 
-## Saskatchewan COVID-19 Indicators (Cases and Deaths)
+# Charting the plots
+p1 <- ggplot(df_filter, aes(x = date, y = numtoday)) +
+    ggtitle(paste0("Reported COVID19 cases by date, ", i)) +
+    geom_col(aes(fill = "Reported cases"), width = 0.5) +
+    geom_line(aes(
+        colour = "7 day moving average (7MA)",
+        y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
+    )) +
+    scale_x_date(
+        NULL,
+        breaks = scales::breaks_width("3 weeks"),
+        labels = label_date("%d%b"),
+        expand = c(0, 0)
+    ) +
+    scale_y_continuous(
+        "Number of cases",
+        labels = comma,
+        expand = c(0, 0)
+    ) +
+    scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
+    scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "blue")) +
+    theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "bottom",
+        text = element_text(size = 20)
+    )
 
-```{r Saskatchewan CD, code=c(Sys.setenv(pt="Saskatchewan"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
+p2 <- ggplot(df_filter, aes(x = date, y = numdeathstoday)) +
+    ggtitle(paste0("Reported COVID19 deaths by date, ", i)) +
+    geom_col(aes(fill = "Reported deaths"), width = 0.5) +
+    geom_line(aes(
+        colour = "7 day moving average (7MA)",
+        y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
+    )) +
+    scale_x_date(
+        NULL,
+        breaks = scales::breaks_width("3 weeks"),
+        labels = label_date("%d%b"),
+        expand = c(0, 0)
+    ) +
+    scale_y_continuous(
+        "Number of deaths",
+        labels = comma,
+        expand = c(0, 0)
+    ) +
+    scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
+    scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
+    theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "bottom",
+        text = element_text(size = 20)
+    )
 
-## Manitoba COVID-19 Indicators (Cases and Deaths)
+p3 <- ggplot(df_filter, aes(x = date, y = numtoday)) +
+    ggtitle(paste0("Daily cases, past 2 weeks, ", i)) +
+    geom_col(aes(fill = "Reported cases"), width = 0.5) +
+    geom_line(aes(
+        colour = "7 day moving average (7MA)",
+        y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
+    )) +
+    scale_x_date(
+        NULL,
+        breaks = scales::breaks_width("5 days"),
+        labels = label_date("%d%b"),
+        limits = c(
+            df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() - weeks(2),
+            df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() + 1
+        ),
+        expand = c(0, 0)
+    ) +
+    scale_y_continuous(
+        "Number of cases",
+        labels = comma,
+        limits = c(0, df_filter %>%
+            filter(date >= max(date) - weeks(2)) %>%
+            select(numtoday) %>% max()),
+        expand = c(0, 0)
+    ) +
+    scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
+    scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "blue")) +
+    theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "bottom",
+        text = element_text(size = 20)
+    )
 
-```{r Manitoba CD, code=c(Sys.setenv(pt="Manitoba"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
+p4 <- ggplot(df_filter, aes(x = date, y = numdeathstoday)) +
+    ggtitle(paste0("Daily deaths, past 2 weeks, ", i)) +
+    geom_col(aes(fill = "Reported deaths"), width = 0.5) +
+    geom_line(aes(
+        colour = "7 day moving average (7MA)",
+        y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
+    )) +
+    scale_x_date(
+        NULL,
+        breaks = scales::breaks_width("5 days"),
+        labels = label_date("%d%b"),
+        limits = c(
+            df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() - weeks(2),
+            df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() + 1
+        ),
+        expand = c(0, 0)
+    ) +
+    scale_y_continuous(
+        "Number of cases",
+        labels = comma,
+        limits = c(0, df_filter %>%
+            filter(date >= max(date) - weeks(2)) %>%
+            select(numdeathstoday) %>% max()),
+        expand = c(0, 0)
+    ) +
+    scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
+    scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
+    theme(
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(colour = "black"),
+        legend.position = "bottom",
+        text = element_text(size = 20)
+    )
 
-## Ontario COVID-19 Indicators (Cases and Deaths)
-
-```{r Ontario CD, code=c(Sys.setenv(pt="Ontario"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
-
-## Quebec COVID-19 Indicators (Cases and Deaths)
-
-```{r Quebec CD, code=c(Sys.setenv(pt="Quebec"), xfun::read_utf8('src/01_cd_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+# Set the layout of the plots and tables in Patchwork syntax
+output <- p1 + p3 + gridExtra::tableGrob(table_filter_case[1:3, c("desc", "value")],
+    theme = ttheme_minimal(core = list(fg_params = list(
+        col = cols_case,
+        hjust = 0,
+        x = 0.0,
+        fontsize = 18
+    ))),
+    rows = NULL,
+    cols = NULL
+) +
+    p2 + p4 + gridExtra::tableGrob(table_filter_death[1:3, c("desc", "value")],
+        theme = ttheme_minimal(core = list(fg_params = list(
+            col = cols_death,
+            hjust = 0,
+            x = 0.0,
+            fontsize = 18
+        ))),
+        rows = NULL,
+        cols = NULL
+    ) +
+    plot_layout(widths = c(2, 1, 1), ncol = 3)
+   print(output)
+   cat('\n') 
+}
 ```
 
 ## Daily cases by Jurisdiction (7-day moving average)
