@@ -1,9 +1,11 @@
 ---
 title: "Epi Trends Report"
-subtitle: '`r format(Sys.time(), "%d %B, %Y")`'
+subtitle: '`r params$date`'
 output: 
   powerpoint_presentation:
     reference_doc: src/template.pptx
+params:
+  date: !r Sys.Date()        
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)

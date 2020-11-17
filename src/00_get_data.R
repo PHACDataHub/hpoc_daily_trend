@@ -1,11 +1,13 @@
 # For the cases and deaths data; this gets updated around 7:30 PM EST everyday =======
 df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
-  mutate(date = as.Date(date, format = "%d-%m-%Y"))
+  mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
+  filter(date <= params$date)
 
 # For the international comparison data; this gets updated once daily =======
 df_int <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM") %>%
   rename(date = dateRep) %>%
-  mutate(date = as.Date(date, format = "%d/%m/%Y"))
+  mutate(date = as.Date(date, format = "%d/%m/%Y")) %>%
+  filter(date <= params$date)
 
 # Get provincial population data from StatsCan
 pt_pop_raw <- get_cansim("17-10-0005-01")
@@ -76,7 +78,8 @@ pt_hosp_icu <- pt_hosp_filter %>%
         "MB" = "Manitoba",
         "ON" = "Ontario",
         "QC" = "Quebec"
-    ))
+    )) %>%
+  filter(date <= params$date)
 
 # Get case level data for age breakdown from the network drive ======
 

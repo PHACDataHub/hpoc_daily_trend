@@ -1,13 +1,13 @@
 # Defining parameters for this set of slides
 jurisdiction <- if (Sys.getenv("pt") == "") "Canada" else Sys.getenv("pt")
-two_weeks_ago <- Sys.Date() - weeks(2)
+two_weeks_ago <- params$date - weeks(2)
 
 df_filter <- df %>%
     filter(prname == jurisdiction) %>%
     filter(date >= "2020-03-08")
 
 table_filter_case <- data.frame(
-    desc = c(paste0("Reported on ", Sys.Date()), "7-day moving average (per day):", "Weekly percent change"),
+    desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
     value = c(
         df_filter %>% filter(date == max(date)) %>% select(numtoday) %>% pull(),
         df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numtoday, na.rm = T)) %>% pull(),
@@ -20,7 +20,7 @@ table_filter_case <- data.frame(
 ) %>% mutate_if(is.numeric, round, digits = 2)
 
 table_filter_death <- data.frame(
-    desc = c(paste0("Reported on ", Sys.Date()), "7-day moving average (per day):", "Weekly percent change"),
+    desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
     value = c(
         df_filter %>% filter(date == max(date)) %>% select(numdeathstoday) %>% pull(),
         df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numdeathstoday, na.rm = T)) %>% pull(),
