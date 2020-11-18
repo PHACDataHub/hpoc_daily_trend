@@ -2,6 +2,7 @@ qry_lab_onset <- qry_cases_raw %>%
         clean_names() %>%
         filter(pt != "Repatriate") %>%
         filter(onsetdate >= "2020-03-01") %>%
+        filter(onsetdate <= (max(onsetdate - days(15)))) %>%
         select(onsetdate, labspecimencollectiondate1) %>%
         filter(!is.na(onsetdate)) %>%
         mutate(delay = labspecimencollectiondate1 - onsetdate) %>%
