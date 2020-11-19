@@ -13,7 +13,7 @@ library("scales")
 library("sqldf")
 
 #Import lab testing data
-SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
+#SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
 
 #Import old lab testing data; Remove Apr 26-May 2; divide percent column by 100 to get decimals
 #OldLab <- read_excel("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/Lab data pre-SALT/Old_lab_data.xlsx")
@@ -21,6 +21,8 @@ SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPON
 #    filter(Week!="Apr  26-May  2") %>%
 #    mutate(Percent_positive=Percent_positive/100) %>%
 #    mutate(Percent_positive_fr=Percent_positive/100)
+
+SALT <- salt_raw
 
 SALT2 <- SALT %>%
     mutate(Date=as.Date(str_sub(Report.Date,1,10))) %>%
@@ -136,27 +138,3 @@ plot <- ggplot() +
 print(plot)
 }
 
-#Create table for summary Metrics
-
-Metrics1 <- Testing %>%
-    group_by(Jurisdiction) %>%
-    filter(Week_no==max(Week_no)) %>%
-    select(Jurisdiction, Week_patients_tested, Percent_positive) %>%
-    mutate(Week_patients_tested=number(Week_patients_tested,big.mark = ",",accuracy = 1)) %>%
-    mutate(Percent_positive=percent(Percent_positive, accuracy = 0.1)) %>%
-    rename("Patients Tested This Week" = Week_patients_tested, "Percent Positive This Week" = Percent_positive)
-
-Metrics2 <- Testing %>%
-    group_by(Jurisdiction) %>%
-    filter(Week_no==max(Week_no)-1) %>%
-    select(Jurisdiction, Week_patients_tested, Percent_positive) %>%
-    mutate(Week_patients_tested=number(Week_patients_tested,big.mark = ",",accuracy = 1)) %>%
-    mutate(Percent_positive=percent(Percent_positive, accuracy = 0.1)) %>%
-    rename("Patients Tested Last Week" = Week_patients_tested, "Percent Positive Last Week" = Percent_positive)
-
-Metrics <- Metrics1 %>%
-    left_join(Metrics2, by="Jurisdiction")
-
-Metrics <- Metrics[,c(1,2,4,3,5)]
-
-remove(Metrics1,Metrics2)

@@ -36,6 +36,7 @@ library(stringr)
 
 # Import data
 source("src/00_get_data.R")
+source("src/07_lab_metrics.R")
 
 list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
                                                      "Ontario", "Quebec") else 
@@ -79,6 +80,14 @@ Indicators derived from the Case Report Forms
 
 ## COVID-19 cases by age, select provinces and territories
 ```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Lab metrics
+```{r}
+
+ft <- flextable(Metrics)
+ft <- autofit(ft)
+ft
 ```
 
 ## Estimate for case detection: Onset to lab collection (days)
