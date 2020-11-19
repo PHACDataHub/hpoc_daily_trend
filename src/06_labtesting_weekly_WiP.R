@@ -10,6 +10,7 @@ library("zoo")
 library("stringr")
 library("ggplot2")
 library("scales")
+library("sqldf")
 
 #Import lab testing data
 SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
@@ -82,6 +83,7 @@ Testing <- Testing %>%
     group_by(Jurisdiction) %>%
     mutate(Week_no = 1:n()) %>%
     slice(tail(row_number(),12))
+    
 
 Testing <- Testing[,c(8,1,2,3,4,5,6,7)]
 
@@ -96,13 +98,21 @@ PT_List <- unique(Testing$Jurisdiction)
 for(i in seq_along(PT_List))
 {
 plot <- ggplot() +
-    geom_bar(data=subset(Testing2[order(Testing2$Metric,decreasing = T),], Jurisdiction==PT_List[i]), aes(x=reorder(Week, Week_no), y=Value, fill=Metric, group=1), position="stack", stat="identity") +
-    geom_line(data=subset(Testing, Jurisdiction==PT_List[i]), aes(x=reorder(Week, Week_no), y=Percent_positive/coeff, group=1, linetype = "Percent Positive"), stat = "identity", size = 1, colour = "red") +
+    geom_bar(data=subset(Testing2[order(Testing2$Metric,decreasing = T),], Jurisdiction==PT_List[i]), 
+             aes(x=reorder(Week, Week_no), y=Value, fill=Metric, group=1), position="stack", stat="identity") +
+    geom_line(data=subset(Testing, Jurisdiction==PT_List[i]), 
+              aes(x=reorder(Week, Week_no), 
+                  y=Percent_positive/coeff, group=1, linetype = "Percent Positive"), 
+              stat = "identity", size = 1, colour = "red") +
   
   scale_y_continuous(
     # Features of the first axis
     name = "Tests",
     labels = comma_format(accuracy = 1),
+#    limits = c(0, Testing2 %>% filter(Metric=="Week_patients_tested") %>% 
+#                  select(Value) %>%
+#                  max()),
+#    expand = c(0,0),
     
     # Add a second axis and specify its features
     sec.axis = sec_axis(~.*coeff, name="Percent Positivity", labels = scales::percent)
@@ -125,3 +135,28 @@ plot <- ggplot() +
   theme(plot.title = element_text(hjust = 0.5))
 print(plot)
 }
+
+#Create table for summary Metrics
+
+Metrics1 <- Testing %>%
+    group_by(Jurisdiction) %>%
+    filter(Week_no==max(Week_no)) %>%
+    select(Jurisdiction, Week_patients_tested, Percent_positive) %>%
+    mutate(Week_patients_tested=number(Week_patients_tested,big.mark = ",",accuracy = 1)) %>%
+    mutate(Percent_positive=percent(Percent_positive, accuracy = 0.1)) %>%
+    rename("Patients Tested This Week" = Week_patients_tested, "Percent Positive This Week" = Percent_positive)
+
+Metrics2 <- Testing %>%
+    group_by(Jurisdiction) %>%
+    filter(Week_no==max(Week_no)-1) %>%
+    select(Jurisdiction, Week_patients_tested, Percent_positive) %>%
+    mutate(Week_patients_tested=number(Week_patients_tested,big.mark = ",",accuracy = 1)) %>%
+    mutate(Percent_positive=percent(Percent_positive, accuracy = 0.1)) %>%
+    rename("Patients Tested Last Week" = Week_patients_tested, "Percent Positive Last Week" = Percent_positive)
+
+Metrics <- Metrics1 %>%
+    left_join(Metrics2, by="Jurisdiction")
+
+Metrics <- Metrics[,c(1,2,4,3,5)]
+
+remove(Metrics1,Metrics2)
