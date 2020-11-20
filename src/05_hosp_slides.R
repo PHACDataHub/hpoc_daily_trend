@@ -41,3 +41,29 @@ ggplot(pt_hosp_icu_filter %>% filter(), aes(date, cases, colour = type)) +
         legend.title = element_blank(),
         text = element_text(size = 20)
     )
+
+#Create table for hospitalization metrics
+hosp_metrics1 <- pt_hosp_icu_filter %>%
+    filter(type=="hospitalized") %>%
+    group_by(prname) %>%
+    mutate(hosp7ma=round(rollmean(cases, k=7, fill=NA, align="right"))) %>%
+    mutate(delta7=(cases-lag(cases,7))/lag(cases,7)) %>%
+    mutate(delta7=percent(delta7,accuracy = 0.1)) %>%
+    select(prname, date, cases, hosp7ma, delta7) %>%
+    rename("Jurisdiction"=prname, "Date"=date, "Hospitalizations"=cases, 
+           "7 Day MA of Hospitalizations"=hosp7ma, "Weekly Change in Hospitalizations"=delta7)
+
+hosp_metrics2 <- pt_hosp_icu_filter %>%
+    filter(type=="icu") %>%
+    group_by(prname) %>%
+    mutate(icu7ma=round(rollmean(cases, k=7, fill=NA, align="right"))) %>%
+    mutate(delta7=(cases-lag(cases,7))/lag(cases,7)) %>%
+    mutate(delta7=percent(delta7,accuracy=0.1)) %>%
+    select(prname, date, cases, icu7ma, delta7) %>%
+    rename("Jurisdiction"=prname, "Date"=date, "ICU"=cases, "7 Day MA of ICU"=icu7ma,
+           "Weekly Change in ICU"=delta7)
+
+Hosp_Metrics <- hosp_metrics1 %>%
+    left_join(hosp_metrics2, by=c("Jurisdiction","Date"))
+
+remove(hosp_metrics1,hosp_metrics2)
