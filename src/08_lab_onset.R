@@ -3,9 +3,9 @@ qry_lab_onset <- qry_cases_raw %>%
         filter(pt != "Repatriate") %>%
         filter(onsetdate >= "2020-03-01") %>%
         filter(onsetdate <= (max(onsetdate - days(15)))) %>%
-        select(onsetdate, labspecimencollectiondate1) %>%
+        select(onsetdate, earliest_labspecimencollectiondate) %>%
         filter(!is.na(onsetdate)) %>%
-        mutate(delay = labspecimencollectiondate1 - onsetdate) %>%
+        mutate(delay = earliest_labspecimencollectiondate - onsetdate) %>%
         filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
         group_by(onsetdate) %>%
         summarise(mean_delay = mean(delay, na.rm = TRUE),

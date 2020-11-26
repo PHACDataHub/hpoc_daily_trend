@@ -84,7 +84,9 @@ pt_hosp_icu <- pt_hosp_filter %>%
 # Get case level data for age breakdown from the network drive ======
 
 # Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
-qry_cases_raw <- readRDS(latest_file)
+qry_cases_raw <- readRDS(latest_file) %>%
+  mutate(onsetdate = as.Date(onsetdate)) %>% # getting an error with the DISCOVER file without this line
+  mutate(earliest_labspecimencollectiondate = as.Date(earliest_labspecimencollectiondate))
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
