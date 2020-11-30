@@ -86,7 +86,7 @@ pt_hosp_icu <- pt_hosp_filter %>%
 # Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
 qry_cases_raw <- readRDS(latest_file) %>%
   mutate(onsetdate = as.Date(onsetdate)) %>% # getting an error with the DISCOVER file without this line
-  mutate(earliest_labspecimencollectiondate = as.Date(earliest_labspecimencollectiondate))
+  mutate(earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
