@@ -1,0 +1,209 @@
+---
+title: "Epi Trends Report"
+subtitle: '`r params$date`'
+output: 
+  powerpoint_presentation:
+    reference_doc: src/template.pptx
+params:
+  date: !r Sys.Date()
+  region:
+    label: "Select which P/Ts to include in report"
+    value: Major provinces
+    input: select
+    choices: [All P/Ts, Major provinces]        
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Import data from network drive using Python
+library(reticulate)
+source_python("src/00_get_data.py")
+
+# Load libraries
+library(tidyverse)
+library(patchwork)
+library(scales)
+library(zoo)
+library(lubridate)
+library(gridExtra)
+library(ggrepel)
+library(ggthemes)
+library(cansim)
+library(janitor)
+library(xml2)
+library(rvest)
+library(stringr)
+library(officer)
+
+# Import data
+source("src/00_get_data.R")
+source("src/07_lab_metrics.R")
+
+list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec") else 
+                                                             c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", 
+                                                     "Newfoundland and Labrador", "Northwest Territories", "Nunavut", "Yukon")
+two_weeks_ago <- params$date - weeks(2)
+```
+
+## Summary
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## COVID-19 Cases and Deaths Summary Statistics
+
+```{r Cases and Death Table Part 1, code=xfun::read_utf8('src/Cases Death Table.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+```{r Cases and Death Table Part 2}
+ft <- flextable(Case_Death_Stats)
+ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color="red")
+ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
+ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Cases > 0, color="red")
+ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Cases < 0, color="dark green")
+ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Weekly_Change_Cases="Weekly Change in Cases",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Weekly_Change_Deaths="Weekly Change in Deaths",National_Death_Proportion="National Proportion of Deaths")
+ft <- width(ft, width=1.2)
+ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft
+```
+
+## COVID-19 Cases per 100,000
+
+```{r use_condaenv}
+use_condaenv("r-reticulate")
+```
+
+
+```{python import_os_tarfile_urllib_packages}
+import os
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
+```
+
+```{r case_per_100k}
+source_python("src/case_per_100k.py")
+```
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('C:\\Users\\FISLAM\\Canada_case_per_100k.jpg')
+```
+
+```{r CD, code=xfun::read_utf8('src/01_cd_slides.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Daily cases by Jurisdiction (7-day moving average)
+
+```{r PT C, code=xfun::read_utf8('src/03_pt_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 Hospitalizations and ICU Statistics
+
+```{r Hospitalization ICU Metrics Table}
+
+source("src/05a_hosp_table.R")
+
+ft <- flextable(Hosp_Metrics)
+ft <- color(ft, j = "delta7h", i = ~ delta7h > 0, color="red")
+ft <- color(ft, j = "delta7h", i = ~ delta7h < 0, color="dark green")
+ft <- color(ft, j = "delta7i", i = ~ delta7i > 0, color="red")
+ft <- color(ft, j = "delta7i", i = ~ delta7i < 0, color="dark green")
+ft <- set_header_labels(ft, hosp7ma="Hospitalizations, 7 Day MA", delta7h="Weekly Change in Hospitalizations",icu7ma="ICU, 7 Day MA",delta7i="Weekly Change in ICU")
+#ft <- width(ft, width=1.2)
+#ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft <- autofit(ft)
+ft
+```
+
+## COVID-19 patients in hospital daily across Canada 
+
+```{r Can HI, code=c(Sys.setenv(hosp_prname="Canada"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 patients in hospital daily in selected provinces and territories 
+
+```{r PT HI, code=c(Sys.setenv(hosp_prname="pts"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 patients in hospital daily per 100,000 population 
+
+```{r, code=xfun::read_utf8('src/05c_hosp_per.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## COVID-19 cases by age, Canada
+#```{r Canada Age C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04_age_slides.R')), results #= "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+#```
+
+## COVID-19 cases by age, select provinces and territories
+#```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = #"hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+#```
+
+## Estimate for case detection: Onset to lab collection (days)
+```{r Lab Onset, code=xfun::read_utf8('src/08_lab_onset.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+## Laboratory Indicators
+
+```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+```{r Lab Testing Table}
+ft <- flextable(Testing_Metrics)
+ft <- width(ft, width=1.2)
+ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft
+```
+
+```{r Lab Testing Graphs}
+
+source_python("src/labtesting.py")
+
+```
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('C:\\Users\\FISLAM\\British Columbia.jpg')
+knitr::include_graphics('C:\\Users\\FISLAM\\Alberta.jpg')
+knitr::include_graphics('C:\\Users\\FISLAM\\Saskatchewan.jpg')
+knitr::include_graphics('C:\\Users\\FISLAM\\Manitoba.jpg')
+knitr::include_graphics('C:\\Users\\FISLAM\\Ontario.jpg')
+knitr::include_graphics('C:\\Users\\FISLAM\\Quebec.jpg')
+```
+
+## Daily Cases by Country (7-day moving average, population adjusted)
+
+```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
