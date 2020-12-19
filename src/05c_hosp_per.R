@@ -17,13 +17,13 @@ hosp_per <- hosp_per %>%
 hosp_per <- hosp_per  %>%
   mutate(hosp_per=(cases/population)*100000) %>%
   filter(date>"2020-03-31") %>%
-  filter(prname!="Canada")
+  filter(prname%in%c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec"))
 
 ggplot(data=hosp_per, aes(x=date, y=hosp_per, group=prname, colour=prname)) +
   geom_line(size = 1.5) +
   scale_y_continuous("Daily hospitalizations per 100,000 population", expand = c(0, 0), limits = c(0, NA)) +
   scale_x_date("",date_breaks = ("1 months"),labels = date_format("%b-%d"),expand = c(0,0)) +
-  scale_colour_tableau(palette = "Tableau 10", name = "Jurisdiction") +
+  scale_colour_manual(values = c("red","blue","purple","light blue","#FFB300","#4CAF50")) +
   labs(prname='Jurisdiction') +
   theme(
     panel.grid.major = element_blank(),
@@ -31,5 +31,7 @@ ggplot(data=hosp_per, aes(x=date, y=hosp_per, group=prname, colour=prname)) +
     panel.background = element_blank(),
     axis.line = element_line(colour = "black"),
     legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.key=element_blank(),
     text = element_text(size = 20)
-  )
+  ) + guides(col = guide_legend(nrow = 1))

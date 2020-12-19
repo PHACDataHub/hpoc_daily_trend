@@ -12,6 +12,9 @@ df_int <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
 # Get provincial population data from StatsCan
 pt_pop_raw <- get_cansim("17-10-0005-01")
 
+# Extract population data by age group 20
+pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\_Source Data\\Population data\\FPT_AgePop20.xlsx")
+
 # Get the hospitalization and ICU data =======
 # First scraped data for Alberta
 ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
@@ -68,8 +71,8 @@ pt_icu_filter <- bind_rows(pt_icu, ab_icu)
 # combine hosp and ICU data
 pt_hosp_icu <- pt_hosp_filter %>%
     left_join(pt_icu_filter, by = c("prname", "date")) %>%
-    filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC")) %>%
-    mutate(prname = factor(prname, c("Canada", "BC", "AB", "SK", "MB", "ON", "QC"))) %>%
+    filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU")) %>%
+    mutate(prname = factor(prname, c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU"))) %>%
     pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
     mutate(prname = recode(prname,
         "BC" = "British Columbia",
@@ -77,7 +80,14 @@ pt_hosp_icu <- pt_hosp_filter %>%
         "SK" = "Saskatchewan",
         "MB" = "Manitoba",
         "ON" = "Ontario",
-        "QC" = "Quebec"
+        "QC" = "Quebec",
+        "NL" = "Newfoundland and Labrador",
+        "NB" = "New Brunswick",
+        "NS" = "Nova Scotia",
+        "PE" = "Prince Edward Island",
+        "YK" = "Yukon",
+        "NT" = "Northwest Territories",
+        "NU" = "Nunavut"
     )) %>%
   filter(date <= params$date)
 

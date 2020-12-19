@@ -13,7 +13,7 @@ library("scales")
 library("sqldf")
 
 #Import lab testing data
-#SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
+SALT <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
 
 #Import old lab testing data; Remove Apr 26-May 2; divide percent column by 100 to get decimals
 #OldLab <- read_excel("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/Lab data pre-SALT/Old_lab_data.xlsx")
@@ -22,7 +22,7 @@ library("sqldf")
 #    mutate(Percent_positive=Percent_positive/100) %>%
 #    mutate(Percent_positive_fr=Percent_positive/100)
 
-SALT <- salt_raw
+#SALT <- salt_raw
 
 SALT2 <- SALT %>%
     mutate(Date=as.Date(str_sub(Report.Date,1,10))) %>%
@@ -89,52 +89,4 @@ Testing <- Testing %>%
 
 Testing <- Testing[,c(8,1,2,3,4,5,6,7)]
 
-Testing2 <- Testing %>% select(Week_no, Week, Jurisdiction, Week_patients_tested, Week_confirmed_positive)
-
-Testing2 <- gather(Testing2, Metric, Value, Week_patients_tested:Week_confirmed_positive, factor_key=TRUE)
-
-coeff <-0.0000001
-
-PT_List <- unique(Testing$Jurisdiction)
-
-for(i in seq_along(PT_List))
-{
-plot <- ggplot() +
-    geom_bar(data=subset(Testing2[order(Testing2$Metric,decreasing = T),], Jurisdiction==PT_List[i]), 
-             aes(x=reorder(Week, Week_no), y=Value, fill=Metric, group=1), position="stack", stat="identity") +
-    geom_line(data=subset(Testing, Jurisdiction==PT_List[i]), 
-              aes(x=reorder(Week, Week_no), 
-                  y=Percent_positive/coeff, group=1, linetype = "Percent Positive"), 
-              stat = "identity", size = 1, colour = "red") +
-  
-  scale_y_continuous(
-    # Features of the first axis
-    name = "Tests",
-    labels = comma_format(accuracy = 1),
-#    limits = c(0, Testing2 %>% filter(Metric=="Week_patients_tested") %>% 
-#                  select(Value) %>%
-#                  max()),
-#    expand = c(0,0),
-    
-    # Add a second axis and specify its features
-    sec.axis = sec_axis(~.*coeff, name="Percent Positivity", labels = scales::percent)
-    
-  ) + 
-  scale_x_discrete("Week") +
-  
-  scale_fill_discrete(name="", labels=c("Patients Tested", "Confirmed Positive")) +
-  
-  theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    panel.background = element_blank(),
-    axis.line = element_line(colour = "black"),
-    legend.title = element_blank(),
-    legend.position = "bottom",
-    text = element_text(size = 20)
-  ) +
-  ggtitle(paste(PT_List[i])) +
-  theme(plot.title = element_text(hjust = 0.5))
-print(plot)
-}
-
+write.csv(Testing, 'C:\\Users\\FISLAM\\Documents\\testing.csv')

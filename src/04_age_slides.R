@@ -8,7 +8,6 @@ qry_cases_filter <- qry_cases %>%
     arrange(prname, agegroup20, onsetdate) %>%
     group_by(prname, agegroup20) %>%
     mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
-    filter(onsetdate >= "2020-06-01") %>%
     mutate(agegroup20 = as.character(agegroup20)) %>%
     filter(agegroup20 != "Unknown") %>%
     filter(agegroup20 != "NaN") %>%
@@ -16,14 +15,22 @@ qry_cases_filter <- qry_cases %>%
     filter(agegroup20 != "") %>%
     ungroup()
 
+# Compute cases per 100K
+
+qry_cases_per <- qry_cases_filter %>%
+  left_join(pt_pop20, by=c("prname"="Jurisdiction", "agegroup20"="AgeGroup20")) %>%
+  mutate(cases_per = (cases/Population20)*100000) %>%
+  mutate(sdma_per = rollmean(cases_per, 7, na.pad = TRUE, align = "right")) %>%
+  filter(onsetdate >= "2020-06-01")
+
 # Plot
-ggplot(qry_cases_filter, aes(x = onsetdate, y = sdma, colour = agegroup20)) +
+ggplot(qry_cases_per, aes(x = onsetdate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
     facet_wrap(vars(prname), scales = "free_y") +
     scale_y_continuous("Number of reported cases, 7 Day moving average", labels = comma_format(accuracy = 1)) +
     scale_x_date(
         "Date of illness onset",
-        breaks = scales::breaks_width("3 weeks"),
+        breaks = scales::breaks_width("6 weeks"),
         labels = label_date("%d%b")
     ) +
     geom_rect(aes(
@@ -34,8 +41,8 @@ ggplot(qry_cases_filter, aes(x = onsetdate, y = sdma, colour = agegroup20)) +
     ),
     alpha = 0.01, fill = "grey", inherit.aes = FALSE
     ) +
-    # scale_color_brewer(type = "qual", palette = 1) +
-    scale_colour_wsj() +
+    scale_color_manual(values=c("#3498DB","#E74C3C","#27AE60","#A04000","#9B59B6")) +
+    #scale_colour_wsj() +
     labs(caption = paste0(
         "Refreshed on: ",
         qry_cases_filter %>% filter(onsetdate == max(onsetdate)) %>% select(onsetdate) %>% distinct() %>% pull() %>% as.Date(),
@@ -48,6 +55,7 @@ ggplot(qry_cases_filter, aes(x = onsetdate, y = sdma, colour = agegroup20)) +
         axis.line = element_line(colour = "black"),
         legend.position = "bottom",
         legend.title = element_blank(),
+        legend.key=element_blank(),
         legend.text = element_text(size = 26),
         text = element_text(size = 20)
     )

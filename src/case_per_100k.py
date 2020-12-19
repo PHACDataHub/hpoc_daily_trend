@@ -19,10 +19,8 @@ case_per_100k['Date'] = pd.to_datetime(case_per_100k['Date'])
 # create figure and axis objects with subplots()
 fig,ax = plt.subplots()
 
-# give plot a title
-plt.title("Daily COVID-19 Cases by Date of Report, Canada", fontsize=36)
 # make a plot
-ax.bar(case_per_100k.Date, case_per_100k.Cases_Daily, align='center', color="lightblue", alpha=1.0)
+ax.bar(case_per_100k.Date, case_per_100k.Cases_Daily, align='center', color="lightblue", alpha=1.0, label="Number of daily cases")
 # set x-axis label
 ax.set_xlabel("Date",fontsize=36)
 # set format of x-axis ticks
@@ -31,6 +29,8 @@ ax.xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter(("%Y-%m")))
 ax.tick_params(axis='x',labelsize=24)
 # determine frequency of ticks
 ax.xaxis.set_major_locator(mdates.MonthLocator())
+# remove whitespace from plot
+ax.margins(x=0)
 # set y-axis label
 ax.set_ylabel("Number of Cases",color="black",fontsize=28)
 # format y axis ticks
@@ -41,7 +41,7 @@ ax.yaxis.set_major_formatter(mpl.ticker.StrMethodFormatter('{x:,.0f}'))
 # twin object for two different y-axis on the sample plot
 ax2=ax.twinx()
 # make a plot with different y-axis using second axis object
-ax2.plot(case_per_100k.Date, case_per_100k["Case_per_100K_7MA"],color="blue",marker="")
+ax2.plot(case_per_100k.Date, case_per_100k["Case_per_100K_7MA"],color="blue",marker="",label="Daily cases per 100,000, 7 day moving average")
 ax2.set_ylabel("Cases per 100,000 Population\n7 Day Moving Average",color="black",fontsize=28)
 # align secondary y-axis with primary y-axis
 align.yaxes(ax, 0, ax2, 0)
@@ -50,6 +50,11 @@ ax2.tick_params(axis='y',labelsize=24)
 
 # remove top line
 ax.spines['top'].set_visible(False)
+
+# add legend
+lines, labels = ax.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18))
     
     # add data labels
 #    for x,y in zip(SALT_PT.Week,SALT_PT.Percent_positive):

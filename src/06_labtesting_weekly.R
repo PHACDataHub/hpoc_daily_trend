@@ -83,3 +83,43 @@ Testing_Metrics <- Testing_Metrics %>%
   spread(new.col,value)
 
 Testing_Metrics <- Testing_Metrics[,c(1,5,4,3,2)]
+
+juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
+
+Testing_Metrics <-Testing_Metrics %>%
+  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
+  arrange(Jurisdiction) 
+
+# Create dataset for daily testing
+
+SALT3a <- SALT2 %>%
+  group_by(Jurisdiction,Date) %>%
+  filter(datetime==max(datetime)) 
+
+SALT4a <- SALT3a %>%
+  group_by(Jurisdiction) %>%
+  mutate(Daily_patients_tested = Patients.Tested-lag(Patients.Tested)) %>%
+  mutate(Daily_confirmed_positive = Confirmed.Positive-lag(Confirmed.Positive)) %>%
+  mutate(Daily_confirmed_negative = Confirmed.Negative-lag(Confirmed.Negative)) %>%
+  mutate(Percent_positive = Daily_confirmed_positive/Daily_patients_tested)
+
+#Correct for issue in QC data (temporary fix - investigate further)
+library(data.table)
+setDT(SALT4a)[Jurisdiction=="Quebec" & Date=="2020-07-23", Daily_patients_tested := Daily_patients_tested+41533]
+detach("package:data.table", unload=TRUE)
+
+National_Daily_a <- SALT4a %>%
+  select(Date, Daily_patients_tested, Daily_confirmed_positive, Daily_confirmed_negative) %>%
+  group_by(Date) %>%
+  summarise(across(where(is.numeric),sum)) %>%
+  mutate(Jurisdiction="Canada") %>%
+  mutate(Percent_positive = Daily_confirmed_positive/Daily_patients_tested) %>%
+  arrange(Date)
+
+National_Daily <- National_Daily_a %>%
+  mutate(Patients_Tested=rollmean(Daily_patients_tested,k=7,fill=NA,align=c("right"))) %>%
+  mutate(Percent_Positive=rollmean(Percent_positive,k=7,fill=NA,align=c("right"))) %>%
+  select(Date,Jurisdiction,Patients_Tested,Percent_Positive)  %>%
+  filter(Date>"2020-03-31")
+
+write.csv(National_Daily, 'C:\\Users\\FISLAM\\Documents\\testing_daily.csv')

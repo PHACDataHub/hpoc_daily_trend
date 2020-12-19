@@ -2,9 +2,9 @@
 df_int_1 <- df_int %>%
         arrange(countryterritoryCode, date) %>% # had to arrange it like this to get cumsum and rollmean to work properly. Needs to be cumsum by time
         group_by(countryterritoryCode) %>%
-        mutate(first_100 = if_else(cumsum(cases) >= 100, "True", "False")) %>%
+        mutate(first_100 = if_else(cumsum(cases_weekly) >= 100, "True", "False")) %>%
         mutate(case_100 = if_else(first_100 == "True", cumsum(first_100 == "True"), false = NA_integer_)) %>%
-        mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
+        mutate(sdma = rollmean(cases_weekly, 7, na.pad = TRUE, align = "right")) %>%
         mutate(sdma_pop_thousand = sdma / popData2019 * 100000) %>%
         filter(sdma > 0) %>%
         mutate(countriesAndTerritories = str_replace_all(countriesAndTerritories, "_", " ")) %>%

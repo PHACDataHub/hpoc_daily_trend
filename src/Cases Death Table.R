@@ -42,10 +42,18 @@ Case_Death_Stats <- PT7 %>%
   mutate(Weekly_Change_Deaths=percent(Weekly_Change_Deaths,accuracy=0.1)) %>%
   mutate(National_Death_Proportion=percent(National_Death_Proportion,accuracy=0.1)) %>%
   mutate(Cases_Daily_7MA=round(Cases_Daily_7MA)) %>%
-  mutate(Deaths_Daily_7MA=round(Deaths_Daily_7MA)) 
+  mutate(Deaths_Daily_7MA=round(Deaths_Daily_7MA,1)) 
+
+juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
+
+Case_Death_Stats <- Case_Death_Stats %>%
+  filter(Jurisdiction!="Repatriated travellers") %>%
+  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
+  arrange(Jurisdiction) 
 
 Canada_pop <- pt_pop_raw %>%
-  filter(`Age group`=="All ages",GEO=="Canada",REF_DATE=="2020",Sex=="Both sexes") %>%
+  mutate(REF_DATE=as.numeric(REF_DATE)) %>%
+  filter(`Age group`=="All ages",GEO=="Canada",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
   select(GEO,VALUE) %>%
   rename(Population=VALUE)
 

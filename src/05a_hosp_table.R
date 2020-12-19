@@ -1,4 +1,9 @@
-jurisdiction <- if (Sys.getenv("hosp_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
+jurisdiction <- if (Sys.getenv("hosp_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", 
+                                                                           "Saskatchewan", "Manitoba", "Ontario", 
+                                                                           "Quebec", "Newfoundland and Labrador", 
+                                                                           "New Brunswick", "Nova Scotia", 
+                                                                           "Prince Edward Island", "Yukon", 
+                                                                           "Northwest Territories")
 
 #Create table for hospitalization metrics
 pt_hosp_icu_filter2 <- pt_hosp_icu %>%
@@ -35,8 +40,13 @@ Hosp_Metrics <- hosp_metrics1 %>%
   left_join(hosp_metrics2, by=c("Jurisdiction","Date")) %>%
   filter(Date==max(Date))
 
-metricorder <- c("Canada","British Columbia","Alberta","Ontario","Quebec","Manitoba","Saskatchewan")
+prorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec",
+             "Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon",
+             "Northwest Territories")
 
-Hosp_Metrics <- Hosp_Metrics %>% slice(match(metricorder,Jurisdiction))
+Hosp_Metrics <- Hosp_Metrics %>%
+#  filter(Jurisdiction!="Repatriated travellers") %>%
+  mutate(Jurisdiction =  factor(Jurisdiction, levels = prorder)) %>%
+  arrange(Jurisdiction) 
 
 remove(hosp_metrics1,hosp_metrics2)
