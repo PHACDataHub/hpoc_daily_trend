@@ -1,6 +1,6 @@
 for (i in list_pt){
         cat('\n')  
-        cat("##", i, "COVID-19 Indicators (Cases and Deaths)", "\n") 
+        cat("#", i, "COVID-19 Indicators (Cases and Deaths)", "\n") 
         
         df_filter <- df %>%
                 filter(prname == i) %>%

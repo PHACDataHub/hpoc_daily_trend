@@ -18,29 +18,32 @@ pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS
 # Get the hospitalization and ICU data =======
 # First scraped data for Alberta
 ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
-    html_nodes(xpath = "//*[@id='summary']/div[3]/script/text()") %>%
+    html_nodes(xpath = "//*[@id='summary']/div/script/text()") %>%
+    .[1] %>%
     html_text()
 
+#extracts dates
+dates <- ab_severity %>% 
+  str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>% 
+  unlist() %>% 
+  as.Date() %>% 
+  unique()
+
 counts <- ab_severity %>%
-    str_extract_all("((?:\\d+,)+\\d+)")
+    str_extract_all("((?:\\d+,)+\\d+)") %>%
+    unlist()
 
-date <- ab_severity %>%
-    str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>%
-    unlist() %>%
-    as.Date() %>%
-    unique()
-
-hospitalized <- counts[[1]][15] %>% # changed element as that had changed from before
+non_icu <- counts[15] %>% # changed element as that had changed from before
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-icu <- counts[[1]][7] %>% # changed element as that had changed from before
+icu <- counts[7] %>% # changed element as that had changed from before
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-ab_all <- tibble(date, hospitalized, icu) %>%
+ab_all <- tibble(date = dates, hospitalized = non_icu + icu, icu) %>%
   mutate(prname = "AB")
 
 ab_hosp <- ab_all %>%
@@ -127,6 +130,28 @@ qry_cases <- qry_cases_raw %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
     rename(cases = n)
+
+#generate onset lab collection dataframes
+
+qry_lab_onset <- qry_cases_raw %>%
+  clean_names() %>%
+  filter(pt != "Repatriate") %>%
+  filter(onsetdate >= "2020-03-01") %>%
+  filter(onsetdate <= (max(onsetdate - days(15)))) %>%
+  select(onsetdate, earliestlabcollectiondate) %>%
+  filter(!is.na(onsetdate)) %>%
+  mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+  filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
+  group_by(onsetdate) %>%
+  summarise(mean_delay = mean(delay, na.rm = TRUE),
+            daily_case = n())
+
+lab_onset_metrics <- qry_lab_onset %>%
+  mutate(Date = format(as.Date(onsetdate), "%b %Y")) %>%
+  group_by(Date) %>%
+  mutate(Avg_Onset = round(mean(mean_delay),digits = 2)) %>%
+  distinct(Date, Avg_Onset, .keep_all = TRUE) %>%
+  select(Date, Avg_Onset)
 
 # Get SALT lab data from the network drive ======
 salt_raw <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
