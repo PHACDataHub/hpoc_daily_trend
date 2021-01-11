@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import matplotlib.dates as mdates
 
-National_Daily = pd.read_csv(r'C:/Users/FISLAM/Documents/testing_daily.csv', index_col=0)
+National_Daily = pd.read_csv(r'Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/testing_daily.csv', index_col=0)
 National_Daily['Date'] = pd.to_datetime(National_Daily['Date'])
 
 # create figure and axis objects with subplots()
@@ -66,7 +66,7 @@ plt.show()
 fig.set_size_inches(20, 8, forward=True)
 
 # save the plot as a file
-fig.savefig('C:/Users/FISLAM/National_Testing.jpg',
+fig.savefig('Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/National_Testing.jpg',
    format='jpeg',
 dpi=100,
 bbox_inches='tight')

@@ -1,4 +1,6 @@
-SALT <- salt_raw
+SALT <- salt_raw %>%
+  filter(Jurisdiction!="Alberta")
+
 
 SALT2 <- SALT %>%
     mutate(Date=as.Date(str_sub(Report.Date,1,10))) %>%
@@ -65,7 +67,7 @@ Testing <- Testing %>%
 
 Testing <- Testing[,c(8,1,2,3,4,5,6,7)]
 
-write.csv(Testing, 'C:\\Users\\FISLAM\\Documents\\testing.csv')
+write.csv(Testing, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing.csv')
 
 Testing_Metrics <- Testing %>%
   group_by(Jurisdiction) %>%
@@ -122,4 +124,4 @@ National_Daily <- National_Daily_a %>%
   select(Date,Jurisdiction,Patients_Tested,Percent_Positive)  %>%
   filter(Date>"2020-03-31")
 
-write.csv(National_Daily, 'C:\\Users\\FISLAM\\Documents\\testing_daily.csv')
+write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')

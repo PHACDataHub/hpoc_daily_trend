@@ -13,7 +13,7 @@ import matplotlib.dates as mdates
 import mpl_axes_aligner
 from mpl_axes_aligner import align
 
-case_per_100k = pd.read_csv(r'C:/Users/FISLAM/Documents/case_per_100k.csv', index_col=0)
+case_per_100k = pd.read_csv(r'Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/case_per_100k.csv', index_col=0)
 case_per_100k['Date'] = pd.to_datetime(case_per_100k['Date'])
 
 # create figure and axis objects with subplots()
@@ -75,7 +75,7 @@ ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18
 fig.set_size_inches(24, 10.5, forward=True)
 
 # save the plot as a file
-fig.savefig('C:/Users/FISLAM/Canada_case_per_100k.jpg',
+fig.savefig('Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/Canada_case_per_100k.jpg',
    format='jpeg',
 dpi=100,
 bbox_inches='tight')
