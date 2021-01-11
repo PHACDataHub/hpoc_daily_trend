@@ -1,0 +1,614 @@
+---
+title: "Epi Trends Report"
+subtitle: '`r params$date`'
+output: 
+  powerpoint_presentation:
+    reference_doc: src/template.pptx
+params:
+  date: !r Sys.Date()
+  region:
+    label: "Select which P/Ts to include in report"
+    value: Major provinces
+    input: select
+    choices: [All P/Ts, Major provinces]        
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+# Import data from network drive using Python
+library(reticulate)
+source_python("src/00_get_data.py")
+
+# Load libraries
+library(tidyverse)
+library(patchwork)
+library(scales)
+library(zoo)
+library(lubridate)
+library(readxl)
+library(gridExtra)
+library(ggrepel)
+library(ggthemes)
+library(cansim)
+library(janitor)
+library(xml2)
+library(rvest)
+library(stringr)
+library(flextable)
+library(officer)
+library(hms)
+
+# Import data
+source("src/00_get_data.R")
+
+list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec") else 
+                                                             c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
+                                                     "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", 
+                                                     "Newfoundland and Labrador", "Northwest Territories", "Nunavut", "Yukon")
+two_weeks_ago <- params$date - weeks(2)
+```
+
+# Summary
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+# COVID-19 Cases and Deaths Summary Statistics
+
+```{r Cases and Death Table Part 1, code=xfun::read_utf8('src/Cases Death Table.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+```{r Cases and Death Table Part 2, ft.top}
+ft <- flextable(Case_Death_Stats)
+ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color="red")
+ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
+ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths > 0, color="red")
+ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths < 0, color="dark green")
+ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Weekly_Change_Cases="Weekly Change in Cases",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Weekly_Change_Deaths="Weekly Change in Deaths",National_Death_Proportion="National Proportion of Deaths")
+ft <- width(ft, width=1.2)
+ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft
+```
+
+# Daily COVID-19 Cases by Date of Report, Canada
+
+```{r use_condaenv}
+use_condaenv("r-reticulate")
+```
+
+
+```{python import_os_tarfile_urllib_packages}
+import os
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
+```
+
+```{r Python Codes for Graphics}
+source_python("src/labtesting.py")
+source_python("src/case_per_100k.py")
+```
+
+```{r Insert Canada case per 100K, echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Canada_case_per_100k.jpg')
+```
+
+```{r CD, code=xfun::read_utf8('src/01_cd_slides.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# Daily cases by Jurisdiction (7-day moving average)
+
+```{r PT C, code=xfun::read_utf8('src/03_pt_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 Hospitalizations and ICU Statistics
+
+```{r Hospitalization ICU Metrics Table, ft.left}
+
+source("src/05a_hosp_table.R")
+
+ft <- flextable(Hosp_Metrics)
+ft <- color(ft, j = "delta7h", i = ~ delta7h > 0, color="red")
+ft <- color(ft, j = "delta7h", i = ~ delta7h < 0, color="dark green")
+ft <- color(ft, j = "delta7i", i = ~ delta7i > 0, color="red")
+ft <- color(ft, j = "delta7i", i = ~ delta7i < 0, color="dark green")
+ft <- set_header_labels(ft, hosp7ma="Hospitalizations, 7 Day MA", delta7h="Weekly Change in Hospitalizations",icu7ma="ICU, 7 Day MA",delta7i="Weekly Change in ICU")
+#ft <- width(ft, width=1.2)
+#ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft <- autofit(ft)
+ft
+```
+
+# COVID-19 patients in hospital daily across Canada 
+
+```{r Can HI, code=c(Sys.setenv(hosp_prname="Canada"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 patients in hospital daily in selected provinces and territories 
+
+```{r PT HI, code=c(Sys.setenv(hosp_prname="pts"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 patients in hospital daily per 100,000 population 
+
+```{r, code=xfun::read_utf8('src/05c_hosp_per.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 cases by age (crude), Canada
+```{r Canada Crude C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04a_crude_can_age.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 cases by age, Canada
+```{r Canada Age C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# COVID-19 cases by age, select provinces and territories
+```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+# Estimate for case detection: Onset to lab collection (days)
+::: columns
+:::: column
+```{r Avg Onset Monthly}
+
+ft <- flextable(lab_onset_metrics)
+ft <- set_header_labels(ft, Date="Date", Avg_Onset="Mean Time for Onset to Lab Collection")
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft <- autofit(ft)
+ft
+```
+
+::::
+:::: column
+```{r Lab Onset, code=xfun::read_utf8('src/08_lab_onset.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+::::
+:::
+
+# Laboratory Indicators
+
+```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+```{r Lab Testing Table, ft.top}
+ft <- flextable(Testing_Metrics)
+ft <- width(ft, width=1.2)
+ft <- height_all(ft, height=.26)
+ft <- fontsize(ft, size = 14, part="header")
+ft <- fontsize(ft, size = 12, part="body")
+ft <- align(ft, align = "center", part="all")
+
+big_border = fp_border(color="black", width=2)
+border_v = fp_border(color="black")
+border_h = fp_border(color="black")
+
+ft <- border_outer(ft, part = "all", border = big_border)
+ft <- border_inner_v(ft, part = "all", border = border_v)
+ft <- border_inner_h(ft, part = "all", border = border_h)
+ft
+```
+
+# Lab Testing Weekly - Canada
+
+::: columns
+:::: column
+```{r Can Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Canada")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Canada") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Canada.jpg')
+```
+::::
+:::
+
+
+# Lab Testing Weekly - British Columbia
+
+::: columns
+
+:::: column
+
+```{r BC Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="British Columbia")
+Testing_PT <- Testing_PT[,2]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+# ft
+# ```
+#
+# ```{r fig.align="bottom", echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+#
+# source("src/06_labtesting_weekly.R")
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="British Columbia") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1)) #%>%
+  #rename("Change from week before:" = Change)
+Change_PT <- Change_PT[,9]
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+#ft2
+
+ft
+ft2
+
+```
+
+::::
+
+:::: column
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\British Columbia.jpg')
+```
+
+::::
+
+:::
+
+# Lab Testing Weekly - Alberta
+
+::: columns
+:::: column
+```{r AB Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Alberta")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Alberta") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Alberta.jpg')
+```
+::::
+:::
+
+
+# Lab Testing Weekly - Saskatchewan
+
+::: columns
+:::: column
+```{r SK Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Saskatchewan")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Saskatchewan") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Saskatchewan.jpg')
+```
+::::
+:::
+
+# Lab Testing Weekly - Manitoba
+
+::: columns
+:::: column
+```{r MB Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Manitoba")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Manitoba") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Manitoba.jpg')
+```
+::::
+:::
+
+# Lab Testing Weekly - Ontario
+
+::: columns
+:::: column
+```{r ON Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Ontario")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Ontario") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Ontario.jpg')
+```
+::::
+:::
+
+# Lab Testing Weekly - Quebec
+
+::: columns
+:::: column
+```{r QC Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+
+source("src/06_labtesting_weekly.R")
+
+Testing_PT <- Testing_Metrics %>% filter(Jurisdiction=="Quebec")
+Testing_PT <- Testing_PT[,2]
+
+Change_PT <- Testing %>%
+  filter(Jurisdiction=="Quebec") %>%
+  mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>%
+  mutate(Change = percent(Change,accuracy=0.1)) %>%
+  slice(tail(row_number(),1))
+Change_PT <- Change_PT[,9]
+
+ft<-flextable(Testing_PT)
+ft <- fontsize(ft, size = 18, part="all")
+ft <- align(ft, align = "center", part="all")
+ft<-autofit(ft)
+ft<-add_footer_lines(ft,values="")
+
+ft2<-flextable(Change_PT)
+ft2 <- fontsize(ft2, size = 18, part="all")
+ft2 <- align(ft2, align = "center", part="all")
+ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green")
+ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red")
+ft2 <- set_header_labels(ft2, Change="Change from week before:")
+ft2<-autofit(ft2)
+ft2<-add_footer_lines(ft2,values="")
+
+ft
+ft2
+
+```
+::::
+:::: column
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Quebec.jpg')
+```
+::::
+:::
+
+<!-- for (i in c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec")) { -->
+
+<!-- ## Lab Testing Weekly - [i] -->
+
+<!-- ::: columns -->
+<!-- :::: column -->
+<!-- ```{r i Lab Testing, echo=FALSE, message=FALSE, warning=FALSE, results='asis'} -->
+
+<!-- source("src/06_labtesting_weekly.R") -->
+
+<!-- Testing_PT <- Testing_Metrics %>% filter(Jurisdiction==i) -->
+<!-- Testing_PT <- Testing_PT[,2] -->
+
+<!-- Change_PT <- Testing %>%  -->
+<!--   filter(Jurisdiction==i) %>% -->
+<!--   mutate(Change = (Week_patients_tested-lag(Week_patients_tested))/lag(Week_patients_tested)) %>% -->
+<!--   mutate(Change = percent(Change,accuracy=0.1)) %>% -->
+<!--   slice(tail(row_number(),1)) -->
+<!-- Change_PT <- Change_PT[,9] -->
+
+<!-- ft<-flextable(Testing_PT) -->
+<!-- ft <- fontsize(ft, size = 18, part="all") -->
+<!-- ft <- align(ft, align = "center", part="all") -->
+<!-- ft<-autofit(ft) -->
+<!-- ft<-add_footer_lines(ft,values="") -->
+
+<!-- ft2<-flextable(Change_PT) -->
+<!-- ft2 <- fontsize(ft2, size = 18, part="all") -->
+<!-- ft2 <- align(ft2, align = "center", part="all") -->
+<!-- ft2 <- color(ft2, j = "Change", i = ~ Change > 0, color="dark green") -->
+<!-- ft2 <- color(ft2, j = "Change", i = ~ Change < 0, color="red") -->
+<!-- ft2 <- set_header_labels(ft2, Change="Change from week before:") -->
+<!-- ft2<-autofit(ft2) -->
+<!-- ft2<-add_footer_lines(ft2,values="") -->
+
+<!-- ft -->
+<!-- ft2 -->
+
+<!-- ``` -->
+<!-- :::: -->
+<!-- :::: column -->
+<!-- ```{r echo=FALSE, out.width='100%'} -->
+<!-- knitr::include_graphics('C:\\Users\\FISLAM\\i.jpg') -->
+<!-- ``` -->
+<!-- :::: -->
+<!-- ::: -->
+<!-- } -->
+
+<!-- # ```{r National Testing Python code} -->
+<!-- # source_python("src/National_Testing.py") -->
+<!-- # ``` -->
+
+<!-- # ```{r National Testing Graphic, echo=FALSE, out.width='100%'} -->
+<!-- # knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\National_Testing.jpg') -->
+<!-- # ``` -->
+
+# Daily Cases by Country (7-day moving average, population adjusted)
+
+```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
