@@ -96,12 +96,13 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-min
 ```
 
 ```{r Python Codes for Graphics}
+source("src/06_labtesting_weekly.R")
 source_python("src/labtesting.py")
 source_python("src/case_per_100k.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Canada_case_per_100k.jpg')
+knitr::include_graphics('C:\\rmd\\Canada_case_per_100k.jpg')
 ```
 
 ```{r CD, code=xfun::read_utf8('src/01_cd_slides.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
@@ -260,7 +261,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Canada.jpg')
+knitr::include_graphics('C:\\rmd\\Canada.jpg')
 ```
 ::::
 :::
@@ -319,7 +320,7 @@ ft2
 :::: column
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\British Columbia.jpg')
+knitr::include_graphics('C:\\rmd\\British Columbia.jpg')
 ```
 
 ::::
@@ -366,7 +367,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Alberta.jpg')
+knitr::include_graphics('C:\\rmd\\Alberta.jpg')
 ```
 ::::
 :::
@@ -412,7 +413,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Saskatchewan.jpg')
+knitr::include_graphics('C:\\rmd\\Saskatchewan.jpg')
 ```
 ::::
 :::
@@ -457,7 +458,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Manitoba.jpg')
+knitr::include_graphics('C:\\rmd\\Manitoba.jpg')
 ```
 ::::
 :::
@@ -502,7 +503,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Ontario.jpg')
+knitr::include_graphics('C:\\rmd\\Ontario.jpg')
 ```
 ::::
 :::
@@ -547,7 +548,7 @@ ft2
 ::::
 :::: column
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\Quebec.jpg')
+knitr::include_graphics('C:\\rmd\\Quebec.jpg')
 ```
 ::::
 :::
@@ -605,7 +606,7 @@ knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNES
 <!-- # ``` -->
 
 <!-- # ```{r National Testing Graphic, echo=FALSE, out.width='100%'} -->
-<!-- # knitr::include_graphics('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\National_Testing.jpg') -->
+<!-- # knitr::include_graphics('C:\\rmd\\National_Testing.jpg') -->
 <!-- # ``` -->
 
 # Daily Cases by Country (7-day moving average, population adjusted)

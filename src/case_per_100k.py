@@ -75,7 +75,7 @@ ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18
 fig.set_size_inches(24, 10.5, forward=True)
 
 # save the plot as a file
-fig.savefig('Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/Canada_case_per_100k.jpg',
+fig.savefig('C:/rmd/Canada_case_per_100k.jpg',
    format='jpeg',
 dpi=100,
 bbox_inches='tight')

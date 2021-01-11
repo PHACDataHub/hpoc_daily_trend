@@ -72,13 +72,13 @@ for i in ["Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontar
    
 
     
-    plt.show()
+    #plt.show()
     
     #set dimensions of plot
     fig.set_size_inches(20, 8, forward=True)
     
     # save the plot as a file
-    fig.savefig('Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/'+i+'.jpg',
+    fig.savefig('C:/rmd/'+i+'.jpg',
        format='jpeg',
     dpi=100,
     bbox_inches='tight')
