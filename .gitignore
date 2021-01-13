@@ -1,6 +1,7 @@
 /vault
 *.Rproj
 *.pdf
+*.jpg
 .Rhistory
 .Rapp.history
 .RData
