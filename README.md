@@ -1,6 +1,6 @@
 # HPOC Daily Epi Trend Report
 
-This a tool that leverages R Markdown to automate HPOC's Daily Epi Trend Report. 
+This a tool that leverages R Markdown to automate HPOC's Daily Epi Trend Report 
 
 ## Instructions
 1. Please clone/download and subsequently extract this repository onto your machine.
