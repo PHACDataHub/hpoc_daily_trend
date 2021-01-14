@@ -85,23 +85,23 @@ ft
 
 # Daily COVID-19 Cases by Date of Report, Canada
 
-```{r use_condaenv}
+```{r use_condaenv, results='asis', message=FALSE, warning=FALSE}
 use_condaenv("r-reticulate")
 ```
 
 
-```{python import_os_tarfile_urllib_packages}
+```{python import_os_tarfile_urllib_packages, results='asis', message=FALSE, warning=FALSE}
 import os
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
 ```
 
-```{r Python Codes for Graphics}
+```{r Python Codes for Graphics, results='asis', message=FALSE, warning=FALSE}
 source("src/06_labtesting_weekly.R")
 source_python("src/labtesting.py")
 source_python("src/case_per_100k.py")
 ```
 
-```{r Insert Canada case per 100K, echo=FALSE, out.width='100%'}
+```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
 knitr::include_graphics('C:\\rmd\\Canada_case_per_100k.jpg')
 ```
 
