@@ -50,10 +50,10 @@ for (i in list_pt){
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
                         y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
-                )) +
+                ),size=1.5) +
                 scale_x_date(
                         NULL,
-                        breaks = scales::breaks_width("3 weeks"),
+                        breaks = scales::breaks_width("6 weeks"),
                         labels = label_date("%d%b"),
                         expand = c(0, 0)
                 ) +
@@ -79,10 +79,10 @@ for (i in list_pt){
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
                         y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
-                )) +
+                ),size=1.5) +
                 scale_x_date(
                         NULL,
-                        breaks = scales::breaks_width("3 weeks"),
+                        breaks = scales::breaks_width("6 weeks"),
                         labels = label_date("%d%b"),
                         expand = c(0, 0)
                 ) +
@@ -108,7 +108,7 @@ for (i in list_pt){
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
                         y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
-                )) +
+                ),size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("5 days"),
@@ -144,7 +144,7 @@ for (i in list_pt){
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
                         y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
-                )) +
+                ),size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("5 days"),
