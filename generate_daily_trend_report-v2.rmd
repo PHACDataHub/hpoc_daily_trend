@@ -99,6 +99,7 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-min
 source("src/06_labtesting_weekly.R")
 source_python("src/labtesting.py")
 source_python("src/case_per_100k.py")
+source_python("src/National_Testing.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
@@ -605,9 +606,9 @@ knitr::include_graphics('C:\\rmd\\Quebec.jpg')
 <!-- # source_python("src/National_Testing.py") -->
 <!-- # ``` -->
 
-<!-- # ```{r National Testing Graphic, echo=FALSE, out.width='100%'} -->
-<!-- # knitr::include_graphics('C:\\rmd\\National_Testing.jpg') -->
-<!-- # ``` -->
+```{r National Testing Graphic, echo=FALSE, out.width='100%'}
+knitr::include_graphics('C:\\rmd\\National_Testing.jpg')
+```
 
 # Daily Cases by Country (7-day moving average, population adjusted)
 

@@ -30,9 +30,7 @@ ax.xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1))
 # remove whitespace from graph
 ax.margins(x=0)
 # increase padding between tick marks and x axis
-for tick in ax.get_xaxis().get_major_ticks():
-    tick.set_pad(10.)
-    tick.label1 = tick._get_text1()
+ax.tick_params(axis='x', which='major', pad=10)
 # format y axis ticks
 ax.tick_params(axis='y',labelsize=28)
 # set y-axis label
