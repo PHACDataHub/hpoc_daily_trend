@@ -78,7 +78,7 @@ for i in ["Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontar
     fig.set_size_inches(20, 8, forward=True)
     
     # save the plot as a file
-    fig.savefig('C:/rmd/'+i+'.jpg',
+    fig.savefig(i+'.jpg',
        format='jpeg',
     dpi=100,
     bbox_inches='tight')

@@ -64,7 +64,7 @@ ax.spines['top'].set_visible(False)
 fig.set_size_inches(20, 8, forward=True)
 
 # save the plot as a file
-fig.savefig('C:/rmd/National_Testing.jpg',
+fig.savefig('National_Testing.jpg',
    format='jpeg',
 dpi=100,
 bbox_inches='tight')
