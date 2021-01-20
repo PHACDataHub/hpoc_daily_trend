@@ -9,28 +9,28 @@ for (i in list_pt){
         table_filter_case <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(
-                        df_filter %>% filter(date == max(date)) %>% select(numtoday) %>% pull(),
-                        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numtoday, na.rm = T)) %>% pull(),
-                        df_filter %>% mutate(sdma = rollmean(numtoday, 7, na.pad = TRUE, align = "right")) %>%
-                                mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
-                                filter(date == max(date)) %>%
-                                select(wow) %>%
-                                pull()
+                  df_filter %>% filter(date == max(date)) %>% mutate(numtoday=format(as.numeric(numtoday),big.mark=",")) %>% select(numtoday) %>% pull(),
+                  df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = round(mean(numtoday, na.rm = T))) %>% mutate(average=format(as.numeric(average),big.mark=",")) %>% pull(),
+                  df_filter %>% mutate(sdma = rollmean(numtoday, 7, na.pad = TRUE, align = "right")) %>%
+                    mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>% mutate(wow=percent(wow,0.1)) %>%
+                    filter(date == max(date)) %>%
+                    select(wow) %>% 
+                    pull()
                 )
-        ) %>% mutate_if(is.numeric, round, digits = 2)
+        )
         
         table_filter_death <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(
-                        df_filter %>% filter(date == max(date)) %>% select(numdeathstoday) %>% pull(),
-                        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = mean(numdeathstoday, na.rm = T)) %>% pull(),
+                        df_filter %>% filter(date == max(date)) %>% mutate(numdeathstoday=format(as.numeric(numdeathstoday),big.mark=",")) %>% select(numdeathstoday) %>% pull(),
+                        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = round(mean(numdeathstoday, na.rm = T),digits=1)) %>% mutate(average=format(as.numeric(average),big.mark=",")) %>% pull(),
                         df_filter %>% mutate(sdma = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")) %>%
-                                mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>%
+                                mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>% mutate(wow=percent(wow,0.1)) %>%
                                 filter(date == max(date)) %>%
                                 select(wow) %>%
                                 pull()
                 )
-        ) %>% mutate_if(is.numeric, round, digits = 2)
+        )
         
         # Code for conditional colouring of the text in the code
         cols_case <- matrix("black", nrow(table_filter_case), ncol(table_filter_case))
