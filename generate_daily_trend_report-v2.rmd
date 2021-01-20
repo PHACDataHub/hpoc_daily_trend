@@ -66,7 +66,7 @@ ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color=
 ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
 ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths > 0, color="red")
 ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths < 0, color="dark green")
-ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Weekly_Change_Cases="Weekly Change in Cases",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Weekly_Change_Deaths="Weekly Change in Deaths",National_Death_Proportion="National Proportion of Deaths")
+ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Weekly_Change_Cases="Weekly Change in Cases*",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Weekly_Change_Deaths="Weekly Change in Deaths*",National_Death_Proportion="National Proportion of Deaths")
 ft <- width(ft, width=1.2)
 ft <- height_all(ft, height=.26)
 ft <- fontsize(ft, size = 14, part="header")
@@ -82,6 +82,12 @@ ft <- border_inner_v(ft, part = "all", border = border_v)
 ft <- border_inner_h(ft, part = "all", border = border_h)
 ft
 ```
+
+::: notes
+*Weekly change is how the current week (days 1 to 7 days ago) compares against the previous week (8 to 14 days ago).  e.g. previous week = 75 total cases; current week = 50 total cases; weekly percent change from previous week to current week = 33.3% decrease (-33.3%).
+Source: Provincial and territorial website data
+:::
+
 
 # Daily COVID-19 Cases by Date of Report, Canada
 
@@ -105,6 +111,10 @@ source_python("src/National_Testing.py")
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
 knitr::include_graphics('src/Canada_case_per_100k.jpg')
 ```
+
+::: notes
+Source: Provincial and territorial website data
+:::
 
 ```{r CD, code=xfun::read_utf8('src/01_cd_slides.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
@@ -143,20 +153,37 @@ ft <- autofit(ft)
 ft
 ```
 
+::: notes
+Source: Provincial and territorial website data. 
+:::
+
 # COVID-19 patients in hospital daily across Canada 
 
 ```{r Can HI, code=c(Sys.setenv(hosp_prname="Canada"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
+
+::: notes
+Source: Provincial and territorial website data. 
+Note: Hospitalization values from AB are not included for January 19 as AB does not report same-day hospitalizations
+:::
 
 # COVID-19 patients in hospital daily in selected provinces and territories 
 
 ```{r PT HI, code=c(Sys.setenv(hosp_prname="pts"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
+::: notes
+Source: Provincial and territorial website data
+:::
+
 # COVID-19 patients in hospital daily per 100,000 population 
 
 ```{r, code=xfun::read_utf8('src/05c_hosp_per.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
+
+# Epi Indicators
+
+Indicators derived from the Case Report Forms
 
 # COVID-19 cases by age (crude), Canada
 ```{r Canada Crude C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04a_crude_can_age.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
@@ -221,6 +248,12 @@ ft <- border_inner_v(ft, part = "all", border = border_v)
 ft <- border_inner_h(ft, part = "all", border = border_h)
 ft
 ```
+Highlights:
+Over the past week, a daily average of 77,858 people have been tested for COVID-19 across Canada* with a total of 545,003 tested in the recent week. The weekly percent positivity is 8.1%.
+
+::: notes
+* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided
+:::
 
 # Lab Testing Weekly - Canada
 
@@ -609,6 +642,14 @@ knitr::include_graphics('src/Quebec.jpg')
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
 knitr::include_graphics('src/National_Testing.jpg')
 ```
+
+::: notes
+* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided
+:::
+
+# International Indicators
+
+Indicators derived from International Sources
 
 # Daily Cases by Country (7-day moving average, population adjusted)
 
