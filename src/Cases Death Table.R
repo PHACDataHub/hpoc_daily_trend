@@ -46,16 +46,24 @@ Case_Death_Stats <- PT7 %>%
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
-Case_Death_Stats <- Case_Death_Stats %>%
-  filter(Jurisdiction!="Repatriated travellers") %>%
-  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
-  arrange(Jurisdiction) 
 
 Canada_pop <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
-  filter(`Age group`=="All ages",GEO=="Canada",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
+  filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
   select(GEO,VALUE) %>%
-  rename(Population=VALUE)
+  dplyr::rename(Population=VALUE)
+
+Case_Death_Stats <- Case_Death_Stats %>%
+  filter(Jurisdiction!="Repatriated travellers") %>%
+  left_join(Canada_pop, by=c("Jurisdiction"="GEO")) %>%
+  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
+         Date = format(Date, "%B %d"),
+         Cases_7MA_per100k = round((Cases_Daily_7MA / Population)*100000,digits = 1),
+         Deaths_7MA_per100k=round((Deaths_Daily_7MA / Population)*100000,digits = 2)) %>%
+  arrange(Jurisdiction)%>%
+  select(Jurisdiction,Date,
+         Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
+         Deaths_Daily,Deaths_Daily_7MA, Deaths_7MA_per100k, Weekly_Change_Deaths, National_Death_Proportion)
 
 Case_per_100K <- PT7 %>%
   filter(Jurisdiction=="Canada") %>%
