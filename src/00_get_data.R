@@ -5,7 +5,7 @@ df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv
 
 # For the international comparison data; this gets updated once daily =======
 df_int <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM") %>%
-  rename(date = dateRep) %>%
+  dplyr::rename(date = dateRep) %>%
   mutate(date = as.Date(date, format = "%d/%m/%Y")) %>%
   filter(date <= params$date)
 
@@ -56,7 +56,7 @@ ab_icu <- ab_all %>%
 # Hospitalization data, wrangling the input from the Python script
 pt_hosp <- pivot_longer(pt_hosp_raw, !"P/T", names_to = "date", values_to = "hospitalized") %>%
   mutate(date = as.Date((date))) %>%
-  rename("prname" = "P/T") %>%
+  dplyr::rename("prname" = "P/T") %>%
   mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
   filter(prname != "AB")
 
@@ -65,7 +65,7 @@ pt_hosp_filter <- bind_rows(pt_hosp, ab_hosp)
 # ICU data, wrangling the input from the Python script
 pt_icu <- pivot_longer(pt_icu_raw, !"P/T", names_to = "date", values_to = "icu") %>%
   mutate(date = as.Date((date))) %>%
-  rename("prname" = "P/T") %>%
+  dplyr::rename("prname" = "P/T") %>%
   mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
   filter(prname != "AB")
 
@@ -129,7 +129,7 @@ qry_cases <- qry_cases_raw %>%
     bind_rows(qry_canada) %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
-    rename(cases = n)
+    dplyr::rename(cases = n)
 
 #generate onset lab collection dataframes
 
@@ -143,7 +143,7 @@ qry_lab_onset <- qry_cases_raw %>%
   mutate(delay = earliestlabcollectiondate - onsetdate) %>%
   filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
   group_by(onsetdate) %>%
-  summarise(mean_delay = mean(delay, na.rm = TRUE),
+  dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
             daily_case = n())
 
 lab_onset_metrics <- qry_lab_onset %>%

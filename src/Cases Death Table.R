@@ -2,10 +2,10 @@ df_filter <- df %>%
   filter(date >= "2020-03-08")
 
 table_nat_stat <- df_filter %>%
-  rename(Jurisdiction = prname) %>%
-  rename(Cases_Cumulative = numtotal) %>%
-  rename(Deaths_Cumulative = numdeaths) %>%
-  rename(Date = date) %>%
+  dplyr::rename(Jurisdiction = prname,
+                Cases_Cumulative = numtotal,
+                Deaths_Cumulative = numdeaths,
+                Date = date) %>%
   group_by(Jurisdiction) %>%
   filter(Jurisdiction!="Repatriated Travellers") %>%
   mutate(Cases_Daily = Cases_Cumulative-lag(Cases_Cumulative)) %>%
@@ -32,7 +32,7 @@ left_join(Canada7,by="Date",keep=FALSE) %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
   select(Jurisdiction.x,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
-  rename(Jurisdiction=Jurisdiction.x)
+  dplyr::rename(Jurisdiction=Jurisdiction.x)
 
 Case_Death_Stats <- PT7 %>% 
   group_by(Jurisdiction) %>% 
