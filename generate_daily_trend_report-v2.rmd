@@ -66,17 +66,29 @@ ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color=
 ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
 ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths > 0, color="red")
 ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths < 0, color="dark green")
-ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Weekly_Change_Cases="Weekly Change in Cases*",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Weekly_Change_Deaths="Weekly Change in Deaths*",National_Death_Proportion="National Proportion of Deaths")
+ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Cases_7MA_per100k="7 Day cases MA per 100,000",Weekly_Change_Cases="Weekly Change in Cases*",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Deaths_7MA_per100k="7 Day deaths MA per 100,000",Weekly_Change_Deaths="Weekly Change in Deaths*",National_Death_Proportion="National Proportion of Deaths")
 ft <- width(ft, width=1.2)
 ft <- height_all(ft, height=.26)
 ft <- fontsize(ft, size = 14, part="header")
 ft <- fontsize(ft, size = 12, part="body")
 ft <- align(ft, align = "center", part="all")
-
-big_border = fp_border(color="black", width=2)
-border_v = fp_border(color="black")
-border_h = fp_border(color="black")
-
+#Fill colours - first two columns in green
+ft<-bg(ft,j=1:2, bg="#9bbb59", part="header")
+ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=1:2, bg="#d7e4bd")
+ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=1:2, bg="#ebf1de")
+#columns 3-7 in blue
+ft<-bg(ft,j=3:7, bg="#17375e", part="header")
+ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=3:7, bg="#b9cde5")
+ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=3:7, bg="#dce6f2")
+#columns 8-12 in grey
+ft<-bg(ft,j=8:12, bg="#7f7f7f", part="header")
+ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=8:12, bg="#d9d9d9")
+ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=8:12, bg="#f2f2f2")
+#Header colour to white
+ft<-color(ft,color="white",part="header")
+big_border = fp_border(color="white", width=2)
+border_v = fp_border(color="white")
+border_h = fp_border(color="white")
 ft <- border_outer(ft, part = "all", border = big_border)
 ft <- border_inner_v(ft, part = "all", border = border_v)
 ft <- border_inner_h(ft, part = "all", border = border_h)
@@ -98,7 +110,9 @@ use_condaenv("r-reticulate")
 
 ```{python import_os_tarfile_urllib_packages, results='asis', message=FALSE, warning=FALSE}
 import os
-os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/FISLAM/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
+import getpass
+user=getpass.getuser()
+os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
 ```
 
 ```{r Python Codes for Graphics, results='asis', message=FALSE, warning=FALSE}
@@ -106,6 +120,7 @@ source("src/06_labtesting_weekly.R")
 source_python("src/labtesting.py")
 source_python("src/case_per_100k.py")
 source_python("src/National_Testing.py")
+source_python("src/onset.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
@@ -221,7 +236,8 @@ ft
 
 ::::
 :::: column
-```{r Lab Onset, code=xfun::read_utf8('src/08_lab_onset.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('src/Onset.jpg')
 ```
 ::::
 :::

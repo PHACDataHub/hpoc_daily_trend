@@ -2,10 +2,10 @@ df_filter <- df %>%
   filter(date >= "2020-03-08")
 
 table_nat_stat <- df_filter %>%
-  rename(Jurisdiction = prname) %>%
-  rename(Cases_Cumulative = numtotal) %>%
-  rename(Deaths_Cumulative = numdeaths) %>%
-  rename(Date = date) %>%
+  dplyr::rename(Jurisdiction = prname,
+                Cases_Cumulative = numtotal,
+                Deaths_Cumulative = numdeaths,
+                Date = date) %>%
   group_by(Jurisdiction) %>%
   filter(Jurisdiction!="Repatriated Travellers") %>%
   mutate(Cases_Daily = Cases_Cumulative-lag(Cases_Cumulative)) %>%
@@ -32,7 +32,7 @@ left_join(Canada7,by="Date",keep=FALSE) %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
   select(Jurisdiction.x,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
-  rename(Jurisdiction=Jurisdiction.x)
+  dplyr::rename(Jurisdiction=Jurisdiction.x)
 
 Case_Death_Stats <- PT7 %>% 
   group_by(Jurisdiction) %>% 
@@ -46,16 +46,23 @@ Case_Death_Stats <- PT7 %>%
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
-Case_Death_Stats <- Case_Death_Stats %>%
-  filter(Jurisdiction!="Repatriated travellers") %>%
-  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
-  arrange(Jurisdiction) 
-
 Canada_pop <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
   filter(`Age group`=="All ages",GEO=="Canada",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
   select(GEO,VALUE) %>%
-  rename(Population=VALUE)
+  dplyr::rename(Population=VALUE)
+
+Case_Death_Stats <- Case_Death_Stats %>%
+  filter(Jurisdiction!="Repatriated travellers") %>%
+  left_join(Canada_pop, by=c("Jurisdiction"="GEO")) %>%
+  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
+         Date = format(Date, "%B %d"),
+         Cases_7MA_per100k = round((Cases_Daily_7MA / Population)*100000,digits = 1),
+         Deaths_7MA_per100k=round((Deaths_Daily_7MA / Population)*100000,digits = 2)) %>%
+  arrange(Jurisdiction)%>%
+  select(Jurisdiction,Date,
+         Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
+         Deaths_Daily,Deaths_Daily_7MA, Deaths_7MA_per100k, Weekly_Change_Deaths, National_Death_Proportion)
 
 Case_per_100K <- PT7 %>%
   filter(Jurisdiction=="Canada") %>%
