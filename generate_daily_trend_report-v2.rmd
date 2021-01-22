@@ -84,7 +84,7 @@ ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=3:7, bg="#dce6f2")
 ft<-bg(ft,j=8:12, bg="#7f7f7f", part="header")
 ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=8:12, bg="#d9d9d9")
 ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=8:12, bg="#f2f2f2")
-#Header colour to white
+#Header text colour to white
 ft<-color(ft,color="white",part="header")
 
 big_border = fp_border(color="white", width=2)
