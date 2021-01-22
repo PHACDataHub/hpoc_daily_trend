@@ -16,7 +16,7 @@ qry_crude_filter <- qry_cases %>%
   ungroup()
 
 # Plot Crude Cases (Canada)
-ggplot(qry_canada %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate, y = n, colour = agegroup20)) +
+ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate, y = sdma, colour = agegroup20)) +
   geom_line(size = 1.5) +
   facet_wrap(vars(prname), scales = "free_y") +
   scale_y_continuous("Number of reported cases, 7 Day moving average", labels = comma_format(accuracy = 1)) +
