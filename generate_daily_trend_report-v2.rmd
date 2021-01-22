@@ -141,7 +141,7 @@ Source: Provincial and territorial website data
 
 # COVID-19 Hospitalizations and ICU Statistics
 
-```{r Hospitalization ICU Metrics Table, ft.left}
+```{r Hospitalization ICU Metrics Table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
 source("src/05a_hosp_table.R")
 
