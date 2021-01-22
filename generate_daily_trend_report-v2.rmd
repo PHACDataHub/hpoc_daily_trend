@@ -15,9 +15,10 @@ params:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
+
 # Import data from network drive using Python
 library(reticulate)
-source_python("src/00_get_data.py")
+source_python("./src/00_get_data.py")
 
 # Load libraries
 library(tidyverse)
@@ -39,13 +40,15 @@ library(officer)
 library(hms)
 
 # Import data
-source("src/00_get_data.R")
+source("./src/00_get_data.R")
 
-list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
-                                                     "Ontario", "Quebec") else 
-                                                             c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
-                                                     "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", 
-                                                     "Newfoundland and Labrador", "Northwest Territories", "Nunavut", "Yukon")
+list_pt <- if (params$region == "Major provinces") {
+  c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba","Ontario", "Quebec")
+  } else {
+  c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba","Ontario", "Quebec",
+    "New Brunswick", "Prince Edward Island", "Nova Scotia", "Newfoundland and Labrador", 
+    "Northwest Territories", "Nunavut", "Yukon")
+}
 two_weeks_ago <- params$date - weeks(2)
 ```
 
@@ -84,7 +87,7 @@ ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=3:7, bg="#dce6f2")
 ft<-bg(ft,j=8:12, bg="#7f7f7f", part="header")
 ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=8:12, bg="#d9d9d9")
 ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=8:12, bg="#f2f2f2")
-#Header text colour to white
+
 ft<-color(ft,color="white",part="header")
 
 big_border = fp_border(color="white", width=2)
@@ -110,7 +113,6 @@ import os
 import getpass
 
 user=getpass.getuser()
-
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
 ```
 
@@ -118,7 +120,6 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-m
 source("src/06_labtesting_weekly.R")
 source_python("src/labtesting.py")
 source_python("src/case_per_100k.py")
-source_python("src/National_Testing.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
@@ -621,12 +622,12 @@ knitr::include_graphics('C:\\rmd\\Quebec.jpg')
 <!-- ::: -->
 <!-- } -->
 
-<!-- # ```{r National Testing Python code} -->
-<!-- # source_python("src/National_Testing.py") -->
-<!-- # ``` -->
+ ```{r National Testing Python code}
+  source_python("src/National_Testing.py")
+ ```
 
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
-knitr::include_graphics('C:\\rmd\\National_Testing.jpg')
+  knitr::include_graphics('C:\\rmd\\National_Testing.jpg')
 ```
 
 # Daily Cases by Country (7-day moving average, population adjusted)

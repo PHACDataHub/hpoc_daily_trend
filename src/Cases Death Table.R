@@ -47,6 +47,7 @@ Case_Death_Stats <- PT7 %>%
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
 
+
 Canada_pop <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
   filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
