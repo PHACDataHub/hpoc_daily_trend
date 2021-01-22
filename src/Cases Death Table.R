@@ -17,7 +17,7 @@ table_nat_stat <- df_filter %>%
   select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,Deaths_Daily,Deaths_Daily_7MA,
          Weekly_Change_Deaths) %>%
   arrange(Jurisdiction,Date)
-  
+
 Canada7 <- table_nat_stat %>%
   filter(Jurisdiction=="Canada") %>%
   mutate(CanadaCase7 = rollsum(Cases_Daily,k=7,fill=NA,align=c("right"))) %>%
@@ -28,7 +28,7 @@ PT7 <- table_nat_stat %>%
   group_by(Jurisdiction) %>%
   mutate(PTCase7 = rollsum(Cases_Daily,k=7,fill=NA,align=c("right"))) %>%
   mutate(PTDeath7 = rollsum(Deaths_Daily,k=7,fill=NA,align=c("right"))) %>%
-left_join(Canada7,by="Date",keep=FALSE) %>%
+  left_join(Canada7,by="Date",keep=FALSE) %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
   select(Jurisdiction.x,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
@@ -46,9 +46,11 @@ Case_Death_Stats <- PT7 %>%
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
+
+
 Canada_pop <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
-  filter(`Age group`=="All ages",GEO=="Canada",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
+  filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
   select(GEO,VALUE) %>%
   dplyr::rename(Population=VALUE)
 
