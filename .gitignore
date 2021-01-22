@@ -2,6 +2,7 @@
 *.Rproj
 *.pdf
 *.jpg
+*.png
 .Rhistory
 .Rapp.history
 .RData
