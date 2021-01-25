@@ -20,6 +20,7 @@ library(reticulate)
 source_python("src/00_get_data.py")
 
 # Load libraries
+library(readr)
 library(tidyverse)
 library(patchwork)
 library(scales)
@@ -278,7 +279,5 @@ knitr::include_graphics('National_Testing.jpg')
 
 Indicators derived from International Sources
 
-# Daily Cases by Country (7-day moving average, population adjusted)
-
-```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```

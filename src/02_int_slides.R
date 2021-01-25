@@ -13,6 +13,8 @@ int_deaths <- df_int %>%
   filter(new_deaths_smoothed_per_million != is.na(new_deaths_smoothed_per_million)) %>%
   mutate(label = if_else(date == max(date), as.character(location), NA_character_))
 
+cat('\n')  
+cat("# Daily Cases by Country (7-day moving average, population adjusted)", "\n") 
 
 # Plot cases
 ggplot(int_cases, aes(date, new_cases_smoothed_per_million, group = location, colour = location)) +
@@ -38,6 +40,11 @@ ggplot(int_cases, aes(date, new_cases_smoothed_per_million, group = location, co
                 text = element_text(size = 20)
         )
 
+cat('\n') 
+
+cat('\n')  
+cat("# Daily Deaths by Country (7-day moving average, population adjusted)", "\n") 
+
 #Plot deaths
 ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, colour = location)) +
   geom_line(size = 2) +
@@ -61,3 +68,5 @@ ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, 
     legend.position = "bottom",
     text = element_text(size = 20)
   )
+
+cat('\n') 
