@@ -139,7 +139,7 @@ source_python("src/National_Testing.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
-knitr::include_graphics('src/Canada_case_per_100k.jpg')
+knitr::include_graphics('Canada_case_per_100k.jpg')
 ```
 
 ::: notes
@@ -171,6 +171,11 @@ ft <- height(ft, height=.39, part="header")
 ft <- height(ft, height=.26, part="body")
 ft <- fontsize(ft, size = 12, part="all")
 ft <- align(ft, align = "center", part="all")
+
+#shading headers, and alternating rows.
+ft<-bg(ft, bg="#4f81bd", part="header")
+ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
+ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
 
 big_border = fp_border(color="black", width=2)
 border_v = fp_border(color="black")
@@ -262,7 +267,7 @@ Highlights:
 Over the past week, a daily average of 77,858 people have been tested for COVID-19 across Canada* with a total of 545,003 tested in the recent week. The weekly percent positivity is 8.1%.
 
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
-knitr::include_graphics('src/National_Testing.jpg')
+knitr::include_graphics('National_Testing.jpg')
 ```
 
 ::: notes

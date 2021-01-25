@@ -20,9 +20,9 @@ SALT3 <- SALT2 %>%
 
 SALT4 <- SALT3 %>%
     group_by(Jurisdiction) %>%
-    mutate(Week_patients_tested = Patients.Tested-lag(Patients.Tested)) %>%
-    mutate(Week_confirmed_positive = Confirmed.Positive-lag(Confirmed.Positive)) %>%
-    mutate(Week_confirmed_negative = Confirmed.Negative-lag(Confirmed.Negative)) %>%
+    mutate(Week_patients_tested = Unique.Persons.Tested-lag(Unique.Persons.Tested)) %>%
+    mutate(Week_confirmed_positive = Confirmed.Positive.Persons-lag(Confirmed.Positive.Persons)) %>%
+    mutate(Week_confirmed_negative = Confirmed.Negative.Persons-lag(Confirmed.Negative.Persons)) %>%
     mutate(Avg_tests_per_day = Week_patients_tested/7) %>%
     mutate(Percent_positive = Week_confirmed_positive/Week_patients_tested)
 
@@ -100,9 +100,9 @@ SALT3a <- SALT2 %>%
 
 SALT4a <- SALT3a %>%
   group_by(Jurisdiction) %>%
-  mutate(Daily_patients_tested = Patients.Tested-lag(Patients.Tested)) %>%
-  mutate(Daily_confirmed_positive = Confirmed.Positive-lag(Confirmed.Positive)) %>%
-  mutate(Daily_confirmed_negative = Confirmed.Negative-lag(Confirmed.Negative)) %>%
+  mutate(Daily_patients_tested = Unique.Persons.Tested-lag(Unique.Persons.Tested)) %>%
+  mutate(Daily_confirmed_positive = Confirmed.Positive.Persons-lag(Confirmed.Positive.Persons)) %>%
+  mutate(Daily_confirmed_negative = Confirmed.Negative.Persons-lag(Confirmed.Negative.Persons)) %>%
   mutate(Percent_positive = Daily_confirmed_positive/Daily_patients_tested)
 
 #Correct for issue in QC data (temporary fix - investigate further)
@@ -119,8 +119,8 @@ National_Daily_a <- SALT4a %>%
   arrange(Date)
 
 National_Daily <- National_Daily_a %>%
-  mutate(Patients_Tested=rollmean(Daily_patients_tested,k=7,fill=NA,align=c("right"))) %>%
-  mutate(Percent_Positive=rollmean(Percent_positive,k=7,fill=NA,align=c("right"))) %>%
+  mutate(Patients_Tested=rollmean(Daily_patients_tested,k=7,fill=NA,align="right")) %>%
+  mutate(Percent_Positive=rollmean(Percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,Patients_Tested,Percent_Positive)  %>%
   filter(Date>"2020-03-31")
 

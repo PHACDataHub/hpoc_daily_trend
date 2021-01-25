@@ -3,6 +3,63 @@ df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv
   mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
   filter(date <= params$date)
 
+#hard-coded manual corrections
+
+# cases over Xmas 2020
+df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
+df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
+df[df$prname=="Manitoba"&df$date=="2020-12-25","numtoday"]<-173.66
+df[df$prname=="Manitoba"&df$date=="2020-12-26","numtoday"]<-173.66
+df[df$prname=="Manitoba"&df$date=="2020-12-27","numtoday"]<-173.66
+
+df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]+2246+173.66 #4092+2246+173.66 = 6511.66
+df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]-2246+173.66 #8129-2246+173.66 = 6056.66 
+df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]-(173.66*2)  #5903-173.66-173.66 = 5555.66 
+
+# cases over NY 2020
+df[df$prname=="Manitoba"&df$date=="2021-01-01","numtoday"]<-163
+df[df$prname=="Manitoba"&df$date=="2020-01-02","numtoday"]<-163
+
+df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]+163
+df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]-163
+
+#deaths over Xmas 2020
+df[df$prname=="Nova Scotia"&df$date=="2020-12-25","numdeathstoday"]<-3.25
+df[df$prname=="Nova Scotia"&df$date=="2020-12-26","numdeathstoday"]<-3.25
+df[df$prname=="Nova Scotia"&df$date=="2020-12-27","numdeathstoday"]<-3.25
+df[df$prname=="Nova Scotia"&df$date=="2020-12-28","numdeathstoday"]<-3.25
+df[df$prname=="Ontario"&df$date=="2020-12-25","numdeathstoday"]<-40.5
+df[df$prname=="Ontario"&df$date=="2020-12-26","numdeathstoday"]<-40.5
+df[df$prname=="Manitoba"&df$date=="2020-12-25","numdeathstoday"]<-9.33
+df[df$prname=="Manitoba"&df$date=="2020-12-26","numdeathstoday"]<-9.33
+df[df$prname=="Manitoba"&df$date=="2020-12-27","numdeathstoday"]<-9.33
+
+df[df$prname=="Canada"&df$date=="2020-12-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numdeathstoday"]+3.25 +40.5 + 9.33
+df[df$prname=="Canada"&df$date=="2020-12-26","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numdeathstoday"]+3.25 -40.5 + 9.33
+df[df$prname=="Canada"&df$date=="2020-12-27","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numdeathstoday"]+3.25 - (9.33*2)
+df[df$prname=="Canada"&df$date=="2020-12-28","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-28","numdeathstoday"]-(3.25*3)
+
+#deaths over NY 2020
+df[df$prname=="British Columbia"&df$date=="2021-01-01","numdeathstoday"]<-11.25
+df[df$prname=="British Columbia"&df$date=="2021-01-02","numdeathstoday"]<-11.25
+df[df$prname=="British Columbia"&df$date=="2021-01-03","numdeathstoday"]<-11.25
+df[df$prname=="British Columbia"&df$date=="2021-01-04","numdeathstoday"]<-11.25
+df[df$prname=="Alberta"&df$date=="2020-12-31","numdeathstoday"]<-19.2
+df[df$prname=="Alberta"&df$date=="2021-01-01","numdeathstoday"]<-19.2
+df[df$prname=="Alberta"&df$date=="2021-01-02","numdeathstoday"]<-19.2
+df[df$prname=="Alberta"&df$date=="2021-01-03","numdeathstoday"]<-19.2
+df[df$prname=="Alberta"&df$date=="2021-01-04","numdeathstoday"]<-19.2
+df[df$prname=="Manitoba"&df$date=="2021-01-01","numdeathstoday"]<-5.5
+df[df$prname=="Manitoba"&df$date=="2021-01-02","numdeathstoday"]<-5.5
+
+df[df$prname=="Canada"&df$date=="2021-12-31","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-31","numdeathstoday"]+19.2
+df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]+11.25+19.2 +5.5
+df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]+11.25+19.2 -5.5
+df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]+11.25+19.2
+df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]-(11.25*3)-(19.2*4)
+
+
+
 # For the international comparison data; this gets updated once daily =======
 df_int <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM") %>%
   dplyr::rename(date = dateRep) %>%
