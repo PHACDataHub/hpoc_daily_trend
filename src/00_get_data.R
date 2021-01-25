@@ -5,6 +5,23 @@ df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv
 
 #hard-coded manual corrections
 
+#hard-coding of a long-standing error (line 56 in 01a.SAS; first time COVID19 df is created in program)
+df$numtotal[df$prname=="Saskatchewan" & df$date=="2020-05-20"] = 620
+#data dump of deaths in Ontario on October 2-4
+df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02"]-74
+df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03"]-111
+df[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04"]-114
+#Thanksgiving long weekend 202 reporting
+df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-10"] = 10355
+df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-11"] = 10514
+df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-12"] = 10633
+df$numtotal[df$prname=="Alberta" & df$date=="2020-10-10"] = 20231
+df$numtotal[df$prname=="Alberta" & df$date=="2020-10-11"] = 20490
+df$numtotal[df$prname=="Alberta" & df$date=="2020-10-12"] = 20736
+df$numtotal[df$prname=="Ontario" & df$date=="2020-10-12"] = 59946
+df$numtotal[df$prname=="Canada" & df$date=="2020-10-10"] = 180585
+df$numtotal[df$prname=="Canada" & df$date=="2020-10-11"] = 182688
+df$numtotal[df$prname=="Canada" & df$date=="2020-10-12"] = 184835
 # cases over Xmas 2020
 df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
 df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
