@@ -61,9 +61,8 @@ df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="C
 
 
 # For the international comparison data; this gets updated once daily =======
-df_int <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv", na.strings = "", fileEncoding = "UTF-8-BOM") %>%
-  dplyr::rename(date = dateRep) %>%
-  mutate(date = as.Date(date, format = "%d/%m/%Y")) %>%
+df_int <- read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') %>%
+  mutate(date = as.Date(date, format = "%Y-%m-%d")) %>%
   filter(date <= params$date)
 
 # Get provincial population data from StatsCan
