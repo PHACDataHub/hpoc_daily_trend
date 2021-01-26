@@ -33,5 +33,6 @@ ggplot(data=hosp_per, aes(x=date, y=hosp_per, group=prname, colour=prname)) +
     legend.position = "bottom",
     legend.title = element_blank(),
     legend.key=element_blank(),
+    legend.key.size = unit(3,"line"),
     text = element_text(size = 20)
   ) + guides(col = guide_legend(nrow = 1))

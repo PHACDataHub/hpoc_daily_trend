@@ -74,17 +74,19 @@ Testing_Metrics <- Testing %>%
   slice(tail(row_number(),2)) %>%
   select(Jurisdiction,Week,Avg_tests_per_day,Percent_positive) %>%
   mutate(Avg_tests_per_day = round(Avg_tests_per_day)) %>%
+  mutate(Change=(Avg_tests_per_day-lag(Avg_tests_per_day))/lag(Avg_tests_per_day)) %>%
   mutate(Avg_tests_per_day = number(Avg_tests_per_day,big.mark=",")) %>%
   mutate(Percent_positive = percent(Percent_positive,accuracy = 0.1)) %>%
-  rename("Average # of people tested daily" = Avg_tests_per_day) %>%
-  rename("% positive" = Percent_positive)
+  mutate(Change = percent(Change,accuracy = 0.1)) %>%
+  rename("Average # of people tested daily" = Avg_tests_per_day, "% positive" = Percent_positive)
   
 Testing_Metrics <- Testing_Metrics %>%
   gather(key,value,-Jurisdiction,-Week) %>%
   unite(new.col, c(key,Week), sep=" ") %>%
-  spread(new.col,value)
+  spread(new.col,value) 
 
-Testing_Metrics <- Testing_Metrics[,c(1,5,4,3,2)]
+Testing_Metrics <- Testing_Metrics[,c(1,5,4,7,3,2)] %>%
+  rename("Change from week before" = 4)
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 

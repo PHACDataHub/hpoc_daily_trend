@@ -23,6 +23,8 @@ qry_cases_per <- qry_cases_filter %>%
   mutate(sdma_per = rollmean(cases_per, 7, na.pad = TRUE, align = "right")) %>%
   filter(onsetdate >= "2020-06-01")
 
+qry_cases_per$prname <- recode(qry_cases_per$prname, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
+
 # Plot
 ggplot(qry_cases_per, aes(x = onsetdate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
@@ -53,9 +55,12 @@ ggplot(qry_cases_per, aes(x = onsetdate, y = sdma_per, colour = agegroup20)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0, size = 26, face = "bold"),
         legend.position = "bottom",
         legend.title = element_blank(),
         legend.key=element_blank(),
         legend.text = element_text(size = 26),
+        legend.key.size = unit(3,"line"),
         text = element_text(size = 20)
     )

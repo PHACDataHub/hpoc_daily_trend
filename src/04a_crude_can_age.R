@@ -15,6 +15,8 @@ qry_crude_filter <- qry_cases %>%
   filter(agegroup20 != "") %>%
   ungroup()
 
+qry_crude_filter$prname <- recode(qry_crude_filter$prname, "Canada"="")
+
 # Plot Crude Cases (Canada)
 ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate, y = sdma, colour = agegroup20)) +
   geom_line(size = 1.5) +
@@ -45,10 +47,13 @@ ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate
     panel.grid.minor = element_blank(),
     panel.background = element_blank(),
     axis.line = element_line(colour = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(hjust = 0, size = 26, face = "bold"),
     legend.position = "bottom",
     legend.title = element_blank(),
     legend.key=element_blank(),
     legend.text = element_text(size = 26),
+    legend.key.size = unit(3,"line"),
     text = element_text(size = 20)
   )
 

@@ -199,24 +199,9 @@ ft_1
 ```
 
 
-# COVID-19 patients in hospital daily across Canada 
-
-```{r Can HI, code=c(Sys.setenv(hosp_prname="Canada"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```{r HospICU, code=xfun::read_utf8('src/05b_hosp_graphs.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-::: notes
-Source: Provincial and territorial website data. 
-Note: Hospitalization values from AB are not included for January 19 as AB does not report same-day hospitalizations
-:::
-
-# COVID-19 patients in hospital daily in selected provinces and territories 
-
-```{r PT HI, code=c(Sys.setenv(hosp_prname="pts"), xfun::read_utf8('src/05b_hosp_graphs.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
-```
-
-::: notes
-Source: Provincial and territorial website data
-:::
 
 # COVID-19 patients in hospital daily per 100,000 population 
 
@@ -265,6 +250,10 @@ ft<-bg(ft, bg="#4f81bd", part="header")
 ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
 ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
 ft<-color(ft,color="white",part="header")
+
+#add conditional colour to change in testing variable
+ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
+ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
 
 ft_1 <- footnote(ft, value = as_paragraph(c("* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided")),
                 ref_symbols = c(""))

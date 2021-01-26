@@ -20,17 +20,11 @@ df_pt_incidence_filter <- df %>%
     mutate(prname = factor(prname, c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
     mutate(label = if_else(date == max(date), as.character(round(case_pop_thousand_sdma, digits = 1)), NA_character_))
 
+df_pt_incidence_filter$prname <- recode(df_pt_incidence_filter$prname, "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
+
 # Plot
 ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
     geom_line(colour = "blue", size = 2) +
-    geom_text_repel(aes(label = label),
-        colour = "black",
-        segment.color = "white",
-        size = 6,
-        nudge_y = 1,
-        nudge_x = 1,
-        na.rm = TRUE
-    ) +
     facet_wrap(vars(prname), scales = "fixed") +
     scale_y_continuous(
         "Number of cases per 100,000 population",
@@ -46,5 +40,7 @@ ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
         panel.grid.minor = element_blank(),
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
+        strip.background = element_blank(),
+        strip.text = element_text(hjust = 0, size = 26, face = "bold"),
         text = element_text(size = 20)
     )
