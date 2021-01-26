@@ -57,7 +57,7 @@ cat("# COVID-19 patients in hospital daily in selected provinces and territories
 # Plot by PT
 ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON")), aes(date, cases, colour = type)) +
   geom_line(size = 2) +
-  facet_wrap(vars(prname), scales = "free_y") +
+  facet_wrap(vars(prname), scales = "free") +
   scale_x_date(
     NULL,
     breaks = scales::breaks_width("3 months"),

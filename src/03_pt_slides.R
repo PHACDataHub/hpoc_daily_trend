@@ -25,7 +25,7 @@ df_pt_incidence_filter$prname <- recode(df_pt_incidence_filter$prname, "British 
 # Plot
 ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
     geom_line(colour = "blue", size = 2) +
-    facet_wrap(vars(prname), scales = "fixed") +
+    facet_wrap(vars(prname), scales = "free_x") +
     scale_y_continuous(
         "Number of cases per 100,000 population",
         labels = comma_format(accuracy = 1)
@@ -42,5 +42,8 @@ ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
         axis.line = element_line(colour = "black"),
         strip.background = element_blank(),
         strip.text = element_text(hjust = 0, size = 26, face = "bold"),
-        text = element_text(size = 20)
-    )
+        text = element_text(size = 20),
+        plot.caption = element_text(hjust = 0)
+    ) +
+  
+    labs(caption = "Source: Provincial and territorial website data")

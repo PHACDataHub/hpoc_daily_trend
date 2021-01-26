@@ -41,8 +41,10 @@ ggplot(int_cases, aes(date, new_cases_smoothed_per_million, group = location, co
                 legend.key=element_blank(),
                 legend.text = element_text(size = 26),
                 legend.key.size = unit(3,"line"),
-                text = element_text(size = 20)
-        )
+                text = element_text(size = 20),
+                plot.caption = element_text(hjust = 0)
+        ) +
+        labs(caption = "Source: Our World in Data, https://ourworldindata.org/coronavirus" )
 
 cat('\n') 
 
@@ -74,7 +76,9 @@ ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, 
     legend.key=element_blank(),
     legend.text = element_text(size = 26),
     legend.key.size = unit(3,"line"),
-    text = element_text(size = 20)
-  )
+    text = element_text(size = 20),
+    plot.caption = element_text(hjust = 0)
+  ) +
+  labs(caption = "Source: Our World in Data, https://ourworldindata.org/coronavirus")
 
 cat('\n') 
