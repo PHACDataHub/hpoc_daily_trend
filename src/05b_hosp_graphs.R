@@ -3,7 +3,7 @@ jurisdiction <- if (Sys.getenv("hosp_prname") == "Canada") "Canada" else c("Brit
 # Filter province
 pt_hosp_icu_filter <- pt_hosp_icu %>%
     filter(prname %in% jurisdiction) %>%
-    filter(date >= "2020-07-01") %>%
+    filter(date >= "2020-04-01") %>%
     # filter(date != Sys.Date()-1) %>%
     group_by(prname) %>%
     mutate(label = if_else(date == max(date), as.character(round(cases, digits = 1)), NA_character_))

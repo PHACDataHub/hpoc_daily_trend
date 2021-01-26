@@ -177,6 +177,7 @@ ft <- align(ft, align = "center", part="all")
 ft<-bg(ft, bg="#4f81bd", part="header")
 ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
 ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
+ft<-color(ft,color="white",part="header")
 
 big_border = fp_border(color="black", width=2)
 border_v = fp_border(color="black")
@@ -258,6 +259,12 @@ border_h = fp_border(color="black")
 ft <- border_outer(ft, part = "all", border = big_border)
 ft <- border_inner_v(ft, part = "all", border = border_v)
 ft <- border_inner_h(ft, part = "all", border = border_h)
+
+#shading headers, and alternating rows.
+ft<-bg(ft, bg="#4f81bd", part="header")
+ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
+ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
+ft<-color(ft,color="white",part="header")
 
 ft_1 <- footnote(ft, value = as_paragraph(c("* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided")),
                 ref_symbols = c(""))

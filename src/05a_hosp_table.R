@@ -68,8 +68,14 @@ prorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","On
 Hosp_Metrics <- Hosp_Metrics %>%
   #  filter(Jurisdiction!="Repatriated travellers") %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = prorder),
+         # delta7h=case_when(delta7h>0 ~ paste0("+",delta7h),
+         #                   TRUE ~ as.character(delta7h)),
+         # delta7i=case_when(delta7i>0 ~ paste0("+",delta7i),
+         #                   TRUE ~ as.character(delta7i))
          hosp7ma=round(hosp7ma),
-         icu7ma=round(icu7ma)) %>%
+                  icu7ma=round(icu7ma)) %>%
   arrange(Jurisdiction) 
+
+
 
 remove(hosp_metrics1,hosp_metrics2)
