@@ -44,15 +44,9 @@ Case_Death_Stats_1 <- PT7 %>%
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
-Canada_pop <- pt_pop_raw %>%
-  mutate(REF_DATE=as.numeric(REF_DATE)) %>%
-  filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
-  select(GEO,VALUE) %>%
-  dplyr::rename(Population=VALUE)
-
 Case_Death_Stats <- Case_Death_Stats_1 %>%
   filter(Jurisdiction!="Repatriated travellers") %>%
-  left_join(Canada_pop, by=c("Jurisdiction"="GEO")) %>%
+  left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
          Date = format(Date, "%B %d"),
          # Weekly_Change_Cases=case_when(Weekly_Change_Cases>0 ~ paste0("+",Weekly_Change_Cases),
@@ -69,7 +63,7 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
 Case_per_100K <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
   filter(Jurisdiction=="Canada") %>%
-  left_join(Canada_pop,by=c("Jurisdiction"="GEO"),keep=FALSE) %>%
+  left_join(latest_can_pop,by=c("Jurisdiction"="GEO"),keep=FALSE) %>%
   mutate(Case_per_100K = (Cases_Daily/Population)*100000) %>%
   mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)

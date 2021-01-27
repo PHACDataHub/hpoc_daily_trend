@@ -3,6 +3,25 @@ df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv
   mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
   filter(date <= params$date)
 
+df_corrected<-df
+
+# correct_df() is a function to be able to more elegantly make corrections to the data.
+# data= ""            - dataset you wish to correct. df_corrected data set as default (probably should be forced choice)
+# metric= ""          - choice between updating "cases" or "deaths" = other text inputs will be ignored
+# Jurisdiction=""     - region that is being corrected. Currently takes only one input by design
+# correction_date=""  - date that you want to make correction for
+# corrected_value=""  - new input value that you want to make
+
+correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date="",corrected_value=""){
+correction_date=as.Date(correction_date)
+if (metric=="cases"){
+  data[data$prname==Jurisdiction & data$date==correction_date, "numtoday"]<-corrected_value
+  }else if (metric=="deaths"){
+  data[data$prname==Jurisdiction & data$date==correction_date, "numdeathstoday"]<-corrected_value
+  }
+return(data)
+}
+
 #hard-coded manual corrections
 
 #hard-coding of a long-standing error (line 56 in 01a.SAS; first time COVID19 df is created in program)
@@ -22,16 +41,32 @@ df$numtotal[df$prname=="Ontario" & df$date=="2020-10-12"] = 59946
 df$numtotal[df$prname=="Canada" & df$date=="2020-10-10"] = 180585
 df$numtotal[df$prname=="Canada" & df$date=="2020-10-11"] = 182688
 df$numtotal[df$prname=="Canada" & df$date=="2020-10-12"] = 184835
+
+
 # cases over Xmas 2020
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-26",corrected_value = 2246)
+
 df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
 df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
-df[df$prname=="Manitoba"&df$date=="2020-12-25","numtoday"]<-173.66
-df[df$prname=="Manitoba"&df$date=="2020-12-26","numtoday"]<-173.66
-df[df$prname=="Manitoba"&df$date=="2020-12-27","numtoday"]<-173.66
 
-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]+2246+173.66 #4092+2246+173.66 = 6511.66
-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]-2246+173.66 #8129-2246+173.66 = 6056.66 
-df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]-(173.66*2)  #5903-173.66-173.66 = 5555.66 
+
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-25",corrected_value = 173.66)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-26",corrected_value = 173.67)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-27",corrected_value = 173.67)
+
+df[df$prname=="Manitoba"&df$date=="2020-12-25","numtoday"]<-173.66
+df[df$prname=="Manitoba"&df$date=="2020-12-26","numtoday"]<-173.67
+df[df$prname=="Manitoba"&df$date=="2020-12-27","numtoday"]<-173.67
+
+
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-25",corrected_value = 6511.66) #4092+2246+173.66 = 6511.66
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-26",corrected_value = 6056.67) #8129-2246+173.66 = 6056.66 
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-27",corrected_value = 5555.66)#5903-173.66-173.66 = 5555.66 
+
+df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]+2246+173.66
+df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]-2246+173.66
+df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]-(173.66*2)
 
 # cases over NY 2020
 df[df$prname=="Manitoba"&df$date=="2021-01-01","numtoday"]<-163
@@ -76,6 +111,10 @@ df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]<-df[df$prname=="C
 df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]-(11.25*3)-(19.2*4)
 
 
+#For now, we can just take our corrections forward, but may want to differentiate between raw data and corrected data at a later point
+# df<-df_corrected
+
+
 
 # For the international comparison data; this gets updated once daily =======
 df_int <- read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') %>%
@@ -84,6 +123,13 @@ df_int <- read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') 
 
 # Get provincial population data from StatsCan
 pt_pop_raw <- get_cansim("17-10-0005-01")
+
+#Filter to latest year of data
+latest_can_pop <- pt_pop_raw %>%
+  mutate(REF_DATE=as.numeric(REF_DATE)) %>%
+  filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
+  select(GEO,VALUE) %>%
+  dplyr::rename(Population=VALUE)
 
 # Extract population data by age group 20
 pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\_Source Data\\Population data\\FPT_AgePop20.xlsx")

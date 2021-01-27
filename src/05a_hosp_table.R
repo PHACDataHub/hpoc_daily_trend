@@ -3,12 +3,12 @@ jurisdiction <- if (Sys.getenv("hosp_prname") == "Canada") "Canada" else c("Brit
                                                                            "Quebec", "Newfoundland and Labrador", 
                                                                            "New Brunswick", "Nova Scotia", 
                                                                            "Prince Edward Island", "Yukon", 
-                                                                           "Northwest Territories")
+                                                                           "Northwest Territories","Nunavut")
 
 #Create table for hospitalization metrics
 pt_hosp_icu_filter2 <- pt_hosp_icu %>%
   filter(prname %in% c(jurisdiction,"Canada")) %>%
-  filter(date >= "2020-07-01") %>%
+  filter(date >= "2020-04-01") %>%
   group_by(prname) %>%
   mutate(label = if_else(date == max(date), as.character(round(cases, digits = 1)), NA_character_))
 
@@ -57,15 +57,20 @@ hosp_metrics2<-hosp_metrics2%>%
          #"Weekly Change in ICU"=delta7)
          "delta7i"=delta7)
 
+
 Hosp_Metrics <- hosp_metrics1 %>%
   left_join(hosp_metrics2, by=c("Jurisdiction","Date")) %>%
-  filter(Date==max(Date))
+  left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
+  mutate(Hosp_popadj=(Hospitalizations / Population)*100000,
+         ICU_popadj=(ICU / Population) *100000)
 
 prorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec",
              "Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon",
              "Northwest Territories")
 
-Hosp_Metrics <- Hosp_Metrics %>%
+Hosp_Metrics_Table <- Hosp_Metrics %>%
+  select(-Hosp_popadj, -ICU_popadj, -Population) %>%
+  filter(Date==max(Date))%>%
   #  filter(Jurisdiction!="Repatriated travellers") %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = prorder),
          # delta7h=case_when(delta7h>0 ~ paste0("+",delta7h),
@@ -77,5 +82,30 @@ Hosp_Metrics <- Hosp_Metrics %>%
   arrange(Jurisdiction) 
 
 
+#Export hospitalization data
+#only dif is we don't include repatriated travelers here, while they were included in the other export.
+Hosp_Export<-Hosp_Metrics %>%
+  mutate(prov=case_when(Jurisdiction=="Alberta" ~ "AB",
+                        Jurisdiction=="British Columbia" ~ "BC",
+                        Jurisdiction=="Manitoba" ~ "MB",
+                        Jurisdiction=="New Brunswick" ~ "NB",
+                        Jurisdiction=="Newfoundland and Labrador" ~ "NL",
+                        Jurisdiction=="Northwest Territories" ~ "NT",
+                        Jurisdiction=="Nova Scotia" ~ "NS",
+                        Jurisdiction=="Nunavut" ~ "NU",
+                        Jurisdiction=="Ontario"~"ON",
+                        Jurisdiction=="Prince Edward Island" ~ "PE",
+                        Jurisdiction=="Quebec"~"QC",
+                        Jurisdiction=="Saskatchewan"~"SK",
+                        Jurisdiction=="Yukon"~"YK",
+                        TRUE ~ "")) %>%
+  rename(Hosp=Hospitalizations,
+         Hosp7MA=hosp7ma,
+         hospweekchange=delta7h,
+         ICU7MA=icu7ma,
+         ICUweekchange=delta7i) %>%
+  select(Jurisdiction,prov,Population,Date,Hosp,Hosp7MA,hospweekchange,Hosp_popadj,ICU,ICU7MA,ICUweekchange,ICU_popadj)
 
-remove(hosp_metrics1,hosp_metrics2)
+# write_csv(Hosp_Export,"Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\EPI SUMMARY\Trend analysis\Case count data\Hosp_icu_historical_data.csv")
+
+remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, Hosp_Export)

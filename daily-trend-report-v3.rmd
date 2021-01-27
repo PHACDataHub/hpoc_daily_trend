@@ -161,7 +161,7 @@ Source: Provincial and territorial website data
 
 source("src/05a_hosp_table.R")
 
-ft <- flextable(Hosp_Metrics)
+ft <- flextable(Hosp_Metrics_Table)
 ft <- color(ft, j = "delta7h", i = ~ delta7h > 0, color="red")
 ft <- color(ft, j = "delta7h", i = ~ delta7h < 0, color="dark green")
 ft <- color(ft, j = "delta7i", i = ~ delta7i > 0, color="red")
@@ -216,7 +216,7 @@ Indicators derived from the Case Report Forms
 ```{r Canada Crude C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04a_crude_can_age.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-# COVID-19 cases by age, Canada
+# COVID-19 cases by age (population-adjusted), Canada
 ```{r Canada Age C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
