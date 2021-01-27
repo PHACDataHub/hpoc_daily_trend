@@ -71,7 +71,7 @@ ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA
 #ft <- width(ft, width=1.2)
 ft <- height(ft, height=.52, part = "header")
 ft <- height(ft, height=.26, part = "body")
-ft <- fontsize(ft, size = 12, part="all")
+ft <- fontsize(ft, size = 11, part="all")
 #ft <- fontsize(ft, size = 12, part="body")
 ft <- align(ft, align = "center", part="all")
 #Fill colours - first two columns in green

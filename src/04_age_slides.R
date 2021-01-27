@@ -28,7 +28,7 @@ qry_cases_per$prname <- recode(qry_cases_per$prname, "Canada"="", "British Colum
 # Plot
 ggplot(qry_cases_per, aes(x = onsetdate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
-    facet_wrap(vars(prname), scales = "free_y") +
+    facet_wrap(vars(prname), scales = "free") +
     scale_y_continuous("Number of reported cases per 100,000\n(7 Day moving average)", labels = comma_format(accuracy = 1)) +
     scale_x_date(
         "Date of illness onset",
