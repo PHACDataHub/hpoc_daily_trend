@@ -50,7 +50,6 @@ df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date 
 df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
 df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
 
-
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-25",corrected_value = 173.66)
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-26",corrected_value = 173.67)
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-27",corrected_value = 173.67)

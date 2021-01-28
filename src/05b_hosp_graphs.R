@@ -25,7 +25,7 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         "Number of cases",
         labels = comma_format(accuracy = 1)
     ) +
-    scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("blue", "red")) +
+    scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("darkblue", "red")) +
     labs(caption = paste0(
         "Refreshed on: ",
         pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull() %>% as.Date()
@@ -67,7 +67,7 @@ ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON"
     "Number of cases",
     labels = comma_format(accuracy = 1)
   ) +
-  scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("blue", "red")) +
+  scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("darkblue", "red")) +
   labs(caption = paste0(
     "Refreshed on: ",
     pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull() %>% as.Date()

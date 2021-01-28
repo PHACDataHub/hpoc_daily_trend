@@ -63,7 +63,7 @@ for (i in list_pt){
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
-                scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "blue")) +
+                scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "darkblue")) +
                 theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
@@ -128,7 +128,7 @@ for (i in list_pt){
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
-                scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "blue")) +
+                scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "darkblue")) +
                 theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),

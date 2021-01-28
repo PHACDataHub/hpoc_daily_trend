@@ -24,7 +24,7 @@ df_pt_incidence_filter$prname <- recode(df_pt_incidence_filter$prname, "British 
 
 # Plot
 ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
-    geom_line(colour = "blue", size = 2) +
+    geom_line(colour = "darkblue", size = 2) +
     facet_wrap(vars(prname), scales = "free") +
     scale_y_continuous(
         "Number of cases per 100,000 population",
