@@ -131,6 +131,13 @@ ft_1 <- ft %>% footnote(., i=1, j=6, value = as_paragraph(
               c("Source: Provincial and territorial website data. ")
             ),
             ref_symbols = c(""),
+            part = "header") %>%
+  
+        footnote(., value = as_paragraph(
+              paste0("Updated daily (Sun-Thurs). Last updated: ", 
+                Case_Death_Stats %>% filter(Date==max(Date), Jurisdiction=="Canada") %>% select(Date) %>% unique() %>% pull()
+        )),
+            ref_symbols = c(""),
             part = "header")
 
 #ft_1 <- autofit(ft_1)
@@ -210,7 +217,13 @@ ft <- autofit(ft)
 ft_1 <- footnote( ft, value = as_paragraph(
               c("Source: Provincial and territorial website data. ")
             ),
-            ref_symbols = c(""))
+            ref_symbols = c("")) %>%
+        footnote(., value = as_paragraph(
+                    paste0("Updated every Sun/Tues/Thurs. Last updated: ", 
+                      Hosp_Metrics_Table %>% filter(Date==max(Date), Jurisdiction=="Canada") %>% select(Date) %>% unique() %>% pull()
+              )),
+                  ref_symbols = c(""),
+                  part = "header")
             
 #ft_1 <- autofit(ft_1)
 
@@ -275,8 +288,14 @@ ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` <
 ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
 
 ft_1 <- footnote(ft, value = as_paragraph(c("* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided")),
-                ref_symbols = c(""))
-                
+                ref_symbols = c("")) %>%
+  
+        footnote(., value = as_paragraph(
+                    paste0("Updated every Sun/Tues/Thurs. Last updated: ", 
+                    SALT4 %>% filter(Date==max(Date)) %>% select(Date) %>% unique() %>% pull() %>% max()
+              )),
+                  ref_symbols = c(""),
+                  part = "header")      
 ft_1
 ```
 Highlights:
