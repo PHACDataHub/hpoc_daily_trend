@@ -42,6 +42,13 @@ df$numtotal[df$prname=="Canada" & df$date=="2020-10-10"] = 180585
 df$numtotal[df$prname=="Canada" & df$date=="2020-10-11"] = 182688
 df$numtotal[df$prname=="Canada" & df$date=="2020-10-12"] = 184835
 
+#deaths over oct2-3 long weekend
+df[df$prname=="Ontario"&df$date=="2020-10-02","numdeathstoday"]<-2
+df[df$prname=="Ontario"&df$date=="2020-10-03","numdeathstoday"]<-4
+df[df$prname=="Ontario"&df$date=="2020-10-04","numdeathstoday"]<-4
+df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-74
+df[df$prname=="Canada"&df$date=="2020-10-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-37
+df[df$prname=="Canada"&df$date=="2020-10-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-3
 
 # cases over Xmas 2020
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
@@ -109,6 +116,23 @@ df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]<-df[df$prname=="C
 df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]+11.25+19.2
 df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]-(11.25*3)-(19.2*4)
 
+#Weekend Jan23-24 stuff
+df[df$prname=="British Columbia"&df$date=="2021-01-23","numdeathstoday"]<-8.66
+df[df$prname=="British Columbia"&df$date=="2021-01-24","numdeathstoday"]<-8.67
+df[df$prname=="British Columbia"&df$date=="2021-01-25","numdeathstoday"]<-8.67
+df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]+ 8.66
+df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]+ 8.67
+df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]- 8.66 - 8.67
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
+
+#NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
+df[df$prname=="Alberta"&df$date=="2021-01-25","numtoday"]<-362
+df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"] - 380
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
+
+
 
 #For now, we can just take our corrections forward, but may want to differentiate between raw data and corrected data at a later point
 # df<-df_corrected
@@ -130,8 +154,40 @@ latest_can_pop <- pt_pop_raw %>%
   select(GEO,VALUE) %>%
   dplyr::rename(Population=VALUE)
 
+#Deriving population 20 year age groups instead of importing excel file with this data pre-calculated
+pt_pop20 <- pt_pop_raw %>%
+  mutate(REF_DATE=as.numeric(REF_DATE)) %>%
+  filter(str_detect(`Age group`, "to|90 years and over"),REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
+  mutate(age_group_20=case_when(`Age group`=="0 to 4 years" ~ "0 to 19",
+                                `Age group`=="5 to 9 years" ~ "0 to 19",
+                                `Age group`=="10 to 14 years" ~ "0 to 19",
+                                `Age group`=="15 to 19 years" ~ "0 to 19",
+                                `Age group`=="20 to 24 years" ~ "20 to 39",
+                                `Age group`=="25 to 29 years" ~ "20 to 39",
+                                `Age group`=="30 to 34 years" ~ "20 to 39",
+                                `Age group`=="35 to 39 years" ~ "20 to 39",
+                                `Age group`=="40 to 44 years" ~ "40 to 59",
+                                `Age group`=="45 to 49 years" ~ "40 to 59",
+                                `Age group`=="50 to 54 years" ~ "40 to 59",
+                                `Age group`=="55 to 59 years" ~ "40 to 59",
+                                `Age group`=="60 to 64 years" ~ "60 to 79",
+                                `Age group`=="65 to 69 years" ~ "60 to 79",
+                                `Age group`=="70 to 74 years" ~ "60 to 79",
+                                `Age group`=="75 to 79 years" ~ "60 to 79",
+                                `Age group`=="80 to 84 years" ~ "80 or plus",
+                                `Age group`=="85 to 89 years" ~ "80 or plus",
+                                `Age group`=="90 years and over" ~ "80 or plus",
+                                TRUE ~ "remove")) %>%
+  filter(!age_group_20=="remove") %>%
+  select(GEO,VALUE, age_group_20) %>%
+  group_by(GEO, age_group_20) %>%
+  summarise(Population=sum(VALUE)) %>%
+  rename(Jurisdiction=GEO,
+         AgeGroup20=age_group_20,
+         Population20=Population)
+
 # Extract population data by age group 20
-pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\_Source Data\\Population data\\FPT_AgePop20.xlsx")
+# pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\_Source Data\\Population data\\FPT_AgePop20.xlsx")
 
 # Get the hospitalization and ICU data =======
 # First scraped data for Alberta
@@ -215,23 +271,26 @@ pt_hosp_icu <- pt_hosp_filter %>%
 # Get case level data for age breakdown from the network drive ======
 
 # Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
-qry_cases_raw <- readRDS(latest_file) %>%
-  mutate(onsetdate = as.Date(onsetdate)) %>% # getting an error with the DISCOVER file without this line
-  mutate(earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
+
+
+qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
+  mutate(onsetdate = as.Date(onsetdate),
+         episodedate=as.Date(episodedate),
+         earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
+
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
-  select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
-  mutate(onsetdate = as.Date((onsetdate))) %>%
+  select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
   filter(!is.na(age)) %>%
-  group_by(onsetdate, agegroup20) %>%
+  group_by(episodedate, agegroup20) %>%
   tally() %>%
   mutate(prname = "Canada") %>%
-  filter(!is.na(onsetdate))
+  filter(!is.na(episodedate))
 
 qry_cases <- qry_cases_raw %>%
     clean_names() %>%
-    select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
+    select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
     mutate(prname = pt) %>%
     mutate(prname = recode(prname,
         "bc" = "British Columbia",
@@ -241,9 +300,9 @@ qry_cases <- qry_cases_raw %>%
         "on" = "Ontario",
         "qc" = "Quebec"
     )) %>%
-    group_by(onsetdate, agegroup20, prname) %>%
+    group_by(episodedate, agegroup20, prname) %>%
     tally() %>%
-    filter(!is.na(onsetdate)) %>%
+    filter(!is.na(episodedate)) %>%
     bind_rows(qry_canada) %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%

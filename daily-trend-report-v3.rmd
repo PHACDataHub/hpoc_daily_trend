@@ -42,11 +42,30 @@ library(hms)
 # Import data
 source("src/00_get_data.R")
 
-list_pt <- if (params$region == "Major provinces") c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
-                                                     "Ontario", "Quebec") else 
-                                                             c("Canada", "British Columbia","Alberta", "Saskatchewan", "Manitoba",
-                                                     "Ontario", "Quebec", "New Brunswick", "Prince Edward Island", "Nova Scotia", 
-                                                     "Newfoundland and Labrador", "Northwest Territories", "Nunavut", "Yukon")
+list_pt <-  if (params$region == "Major provinces") {
+  c("Canada",
+    "British Columbia",
+    "Alberta",
+    "Saskatchewan",
+    "Manitoba",
+    "Ontario",
+    "Quebec")
+} else {
+  c("Canada",
+    "British Columbia",
+    "Alberta",
+    "Saskatchewan",
+    "Manitoba",
+    "Ontario",
+    "Quebec",
+    "New Brunswick",
+    "Prince Edward Island",
+    "Nova Scotia",
+    "Newfoundland and Labrador",
+    "Northwest Territories",
+    "Nunavut",
+    "Yukon")
+}
 two_weeks_ago <- params$date - weeks(2)
 ```
 

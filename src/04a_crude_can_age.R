@@ -3,9 +3,9 @@ jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("Briti
 # Filter province
 qry_crude_filter <- qry_cases %>%
   filter(prname %in% jurisdiction) %>%
-  mutate(onsetdate = as.Date(onsetdate)) %>%
-  filter(!is.na(onsetdate)) %>%
-  arrange(prname, agegroup20, onsetdate) %>%
+  mutate(episodedate = as.Date(episodedate)) %>%
+  filter(!is.na(episodedate)) %>%
+  arrange(prname, agegroup20, episodedate) %>%
   group_by(prname, agegroup20) %>%
   mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
   mutate(agegroup20 = as.character(agegroup20)) %>%
@@ -18,7 +18,7 @@ qry_crude_filter <- qry_cases %>%
 qry_crude_filter$prname <- recode(qry_crude_filter$prname, "Canada"="")
 
 # Plot Crude Cases (Canada)
-ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate, y = sdma, colour = agegroup20)) +
+ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episodedate, y = sdma, colour = agegroup20)) +
   geom_line(size = 1.5) +
   facet_wrap(vars(prname), scales = "free_y") +
   scale_y_continuous("Number of reported cases, 7 Day moving average", labels = comma_format(accuracy = 1)) +
@@ -28,8 +28,8 @@ ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate
     labels = label_date("%d%b")
   ) +
   geom_rect(aes(
-    xmin = qry_crude_filter %>% filter(onsetdate == max(onsetdate) - days(14)) %>% select(onsetdate) %>% distinct() %>% pull() %>% as.Date(),
-    xmax = qry_crude_filter %>% filter(onsetdate == max(onsetdate)) %>% select(onsetdate) %>% distinct() %>% pull() %>% as.Date(),
+    xmin = qry_crude_filter %>% filter(episodedate == max(episodedate) - days(14)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
+    xmax = qry_crude_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
     ymin = -Inf,
     ymax = Inf
   ),
@@ -39,7 +39,7 @@ ggplot(qry_crude_filter %>% filter(onsetdate >= "2020-06-01"), aes(x = onsetdate
   #scale_colour_wsj() +
   labs(caption = paste0(
     "Refreshed on: ",
-    qry_crude_filter %>% filter(onsetdate == max(onsetdate)) %>% select(onsetdate) %>% distinct() %>% pull() %>% as.Date(),
+    qry_crude_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
     "\n* Shaded area represents approximate lag in reporting"
   )) +
   theme(

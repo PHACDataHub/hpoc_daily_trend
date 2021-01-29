@@ -44,6 +44,15 @@ return(data)
 # df$numtotal[df$prname=="Canada" & df$date=="2020-10-11"] = 182688
 # df$numtotal[df$prname=="Canada" & df$date=="2020-10-12"] = 184835
 
+# #data dump of deaths in Ontario on October 2-4
+# df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02"]-74
+# df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03"]-111
+# df[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04"]-114
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Ontario",correction_date = "2020-10-02",corrected_value = 2)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Ontario",correction_date = "2020-10-03",corrected_value = 4)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Ontario",correction_date = "2020-10-04",corrected_value = 4)
+
+
 
 # cases over Xmas 2020
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
@@ -81,6 +90,16 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "Alberta",correction_dat
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "Alberta",correction_date = "2021-01-04",corrected_value = 19.2)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "Manitoba",correction_date = "2021-01-01",corrected_value = 5.5)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "Manitoba",correction_date = "2021-01-02",corrected_value = 5.5)
+
+#Weekend Jan23-24 stuff
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
+#NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
+
+
+
 
 #getting corrected values for the national number now
 can_corrected_case_death<-df_corrected %>%
@@ -206,22 +225,22 @@ pt_hosp_icu <- pt_hosp_filter %>%
 
 # Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
 qry_cases_raw <- readRDS(latest_file) %>%
-  mutate(onsetdate = as.Date(onsetdate)) %>% # getting an error with the DISCOVER file without this line
+  mutate(episodedate = as.Date(episodedate)) %>% # getting an error with the DISCOVER file without this line
   mutate(earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
-  select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
-  mutate(onsetdate = as.Date((onsetdate))) %>%
+  select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
+  mutate(episodedate = as.Date((episodedate))) %>%
   filter(!is.na(age)) %>%
-  group_by(onsetdate, agegroup20) %>%
+  group_by(episodedate, agegroup20) %>%
   tally() %>%
   mutate(prname = "Canada") %>%
-  filter(!is.na(onsetdate))
+  filter(!is.na(episodedate))
 
 qry_cases <- qry_cases_raw %>%
     clean_names() %>%
-    select(phacid, pt, onsetdate, age, agegroup10, agegroup20) %>%
+    select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
     mutate(prname = pt) %>%
     mutate(prname = recode(prname,
         "bc" = "British Columbia",
@@ -231,9 +250,9 @@ qry_cases <- qry_cases_raw %>%
         "on" = "Ontario",
         "qc" = "Quebec"
     )) %>%
-    group_by(onsetdate, agegroup20, prname) %>%
+    group_by(episodedate, agegroup20, prname) %>%
     tally() %>%
-    filter(!is.na(onsetdate)) %>%
+    filter(!is.na(episodedate)) %>%
     bind_rows(qry_canada) %>%
     filter(prname %in% c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")) %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
@@ -244,13 +263,13 @@ qry_cases <- qry_cases_raw %>%
 qry_lab_onset <- qry_cases_raw %>%
   clean_names() %>%
   filter(pt != "Repatriate") %>%
-  filter(onsetdate >= "2020-03-01") %>%
-  filter(onsetdate <= (max(onsetdate - days(15)))) %>%
-  select(onsetdate, earliestlabcollectiondate) %>%
-  filter(!is.na(onsetdate)) %>%
-  mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+  filter(episodedate >= "2020-03-01") %>%
+  filter(episodedate <= (max(episodedate - days(15)))) %>%
+  select(episodedate, earliestlabcollectiondate) %>%
+  filter(!is.na(episodedate)) %>%
+  mutate(delay = earliestlabcollectiondate - episodedate) %>%
   filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
-  group_by(onsetdate) %>%
+  group_by(episodedate) %>%
   dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
             daily_case = n())
 
@@ -261,7 +280,7 @@ write.csv(qry_lab_onset, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNE
 #create dataframe for onset metrics
 
 lab_onset_metrics <- qry_lab_onset %>%
-  mutate(Date = format(as.Date(onsetdate), "%b %Y")) %>%
+  mutate(Date = format(as.Date(episodedate), "%b %Y")) %>%
   group_by(Date) %>%
   mutate(Avg_Onset = round(mean(mean_delay),digits = 2)) %>%
   distinct(Date, Avg_Onset, .keep_all = TRUE) %>%
