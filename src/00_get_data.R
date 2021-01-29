@@ -51,24 +51,24 @@ df[df$prname=="Canada"&df$date=="2020-10-03","numdeathstoday"]<-df[df$prname=="C
 df[df$prname=="Canada"&df$date=="2020-10-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-3
 
 # cases over Xmas 2020
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-26",corrected_value = 2246)
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-26",corrected_value = 2246)
 
 df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
 df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
 
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-25",corrected_value = 173.66)
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-26",corrected_value = 173.67)
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-27",corrected_value = 173.67)
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-25",corrected_value = 173.66)
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-26",corrected_value = 173.67)
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-27",corrected_value = 173.67)
 
 df[df$prname=="Manitoba"&df$date=="2020-12-25","numtoday"]<-173.66
 df[df$prname=="Manitoba"&df$date=="2020-12-26","numtoday"]<-173.67
 df[df$prname=="Manitoba"&df$date=="2020-12-27","numtoday"]<-173.67
 
 
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-25",corrected_value = 6511.66) #4092+2246+173.66 = 6511.66
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-26",corrected_value = 6056.67) #8129-2246+173.66 = 6056.66 
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-27",corrected_value = 5555.66)#5903-173.66-173.66 = 5555.66 
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-25",corrected_value = 6511.66) #4092+2246+173.66 = 6511.66
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-26",corrected_value = 6056.67) #8129-2246+173.66 = 6056.66 
+# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-27",corrected_value = 5555.66)#5903-173.66-173.66 = 5555.66 
 
 df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]+2246+173.66
 df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]-2246+173.66
@@ -120,12 +120,12 @@ df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="C
 df[df$prname=="British Columbia"&df$date=="2021-01-23","numdeathstoday"]<-8.66
 df[df$prname=="British Columbia"&df$date=="2021-01-24","numdeathstoday"]<-8.67
 df[df$prname=="British Columbia"&df$date=="2021-01-25","numdeathstoday"]<-8.67
-df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]+ 8.66
-df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]+ 8.67
-df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]- 8.66 - 8.67
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
+df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]+ 8.66
+df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]+ 8.67
+df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]- 8.66 - 8.67
+# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
+# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
+# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
 
 #NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
 df[df$prname=="Alberta"&df$date=="2021-01-25","numtoday"]<-362
