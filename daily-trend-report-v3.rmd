@@ -80,7 +80,7 @@ two_weeks_ago <- params$date - weeks(2)
 ```{r Cases and Death Table Part 1, code=xfun::read_utf8('src/Cases Death Table.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-```{r Cases and Death Table Part 2, ft.top}
+```{r Cases and Death Table Part 2, message=FALSE, warning=FALSE}
 ft <- flextable(Case_Death_Stats)
 ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color="red")
 ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
@@ -261,7 +261,7 @@ Indicators derived from the Case Report Forms
 ```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-```{r Lab Testing Table, ft.top}
+```{r Lab Testing Table, message=FALSE, warning=FALSE}
 ft <- flextable(Testing_Metrics)
 ft <- width(ft, width=1.2)
 ft <- height_all(ft, height=.26)

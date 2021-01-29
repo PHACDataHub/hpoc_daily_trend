@@ -93,13 +93,16 @@ for (i in list_pt){
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
                 scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
+                labs(caption = paste0("Updated daily (Sun-Thurs). Last updated: ",
+                                df_filter %>% filter(date==max(date)) %>% select(date) %>% distinct %>% pull())) +
                 theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
                         panel.background = element_blank(),
                         axis.line = element_line(colour = "black"),
                         legend.position = "bottom",
-                        text = element_text(size = 20)
+                        text = element_text(size = 20),
+                        plot.caption = element_text(hjust = 0)
                 )
         
         p3 <- ggplot(df_filter, aes(x = date, y = numtoday)) +

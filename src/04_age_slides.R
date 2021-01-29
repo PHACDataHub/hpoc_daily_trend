@@ -46,9 +46,10 @@ ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
     scale_color_manual(values=c("#3498DB","#E74C3C","#27AE60","#A04000","#9B59B6")) +
     #scale_colour_wsj() +
     labs(caption = paste0(
-        "Refreshed on: ",
-        qry_cases_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
-        "\n* Shaded area represents approximate lag in reporting"
+        "* Shaded area represents approximate lag in reporting
+        \nUpdated every Monday. Last updated: ",
+        qry_cases_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date()
+        
     )) +
     theme(
         panel.grid.major = element_blank(),
@@ -62,5 +63,6 @@ ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
         legend.key=element_blank(),
         legend.text = element_text(size = 26),
         legend.key.size = unit(3,"line"),
-        text = element_text(size = 20)
+        text = element_text(size = 20),
+        plot.caption = element_text(hjust = 0)
     )

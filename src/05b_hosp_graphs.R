@@ -26,10 +26,6 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         labels = comma_format(accuracy = 1)
     ) +
     scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("darkblue", "red")) +
-    labs(caption = paste0(
-        "Refreshed on: ",
-        pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull() %>% as.Date()
-    )) +
     theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -44,9 +40,9 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         legend.key.size = unit(3,"line"),
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)) +
-    labs(caption = 
-"Source: Provincial and territorial website data.
-Note: Hospitalization values from AB are not included for January 19 as AB does not report same-day hospitalizations.")
+    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values from AB are not included for January 19 as AB does not report same-day hospitalizations.
+                          \nUpdated every Sun/Tues/Thurs. Last updated: ",
+                          pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull()))
 
 cat('\n') 
 
@@ -68,10 +64,6 @@ ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON"
     labels = comma_format(accuracy = 1)
   ) +
   scale_color_manual(labels = c("Total hospitalizations", "Total ICU"), values = c("darkblue", "red")) +
-  labs(caption = paste0(
-    "Refreshed on: ",
-    pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull() %>% as.Date()
-  )) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
@@ -87,6 +79,8 @@ ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON"
     text = element_text(size = 20),
     plot.caption = element_text(hjust = 0)
   ) +
-  labs(caption = "Source: Provincial and territorial website data.")
+  labs(caption = paste0("Source: Provincial and territorial website data. 
+                        \nUpdated every Sun/Tues/Thurs. Last updated: ",
+                        pt_hosp_icu_filter %>% filter(date==max(date)) %>% select(date) %>% distinct() %>% pull))
 
 cat('\n') 
