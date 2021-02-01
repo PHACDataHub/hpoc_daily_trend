@@ -111,7 +111,7 @@ Hosp_Metrics_Table <- Hosp_Metrics %>%
 
 #Export hospitalization data
 #only dif is we don't include repatriated travelers here, while they were included in the other export.
-Hosp_Export<-Hosp_Metrics %>%
+export_hosp<-Hosp_Metrics %>%
   mutate(prov=case_when(Jurisdiction=="Alberta" ~ "AB",
                         Jurisdiction=="British Columbia" ~ "BC",
                         Jurisdiction=="Manitoba" ~ "MB",
@@ -133,6 +133,13 @@ Hosp_Export<-Hosp_Metrics %>%
          ICUweekchange=delta7i) %>%
   select(Jurisdiction,prov,Population,Date,Hosp,Hosp7MA,hospweekchange,Hosp_popadj,ICU,ICU7MA,ICUweekchange,ICU_popadj)
 
-# write_csv(Hosp_Export,"Y:\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\EPI SUMMARY\Trend analysis\Case count data\Hosp_icu_historical_data.csv")
+write_csv(export_hosp,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\Hosp_icu_historical_data.csv")
+
+export_trend_hosp<-export_hosp %>%
+  filter(Date>=max(Date)-14)
+
+#this will help when manual corrections need to be made!
+write_csv(export_trend_hosp, "hosp_15days.csv")
+
 
 remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, Hosp_Export)

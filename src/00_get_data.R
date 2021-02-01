@@ -22,25 +22,14 @@ if (metric=="cases"){
 return(data)
 }
 
-#hard-coded manual corrections
+# #hard-coded manual corrections
 
-#hard-coding of a long-standing error (line 56 in 01a.SAS; first time COVID19 df is created in program)
-df$numtotal[df$prname=="Saskatchewan" & df$date=="2020-05-20"] = 620
-#data dump of deaths in Ontario on October 2-4
-df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-02"]-74
-df[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date=="2020-10-03"]-111
-df[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04","numdeaths"]=df$numdeaths[df$prname %in% c("Canada","Ontario") & df$date>="2020-10-04"]-114
-#Thanksgiving long weekend 202 reporting
-df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-10"] = 10355
-df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-11"] = 10514
-df$numtotal[df$prname=="British Columbia" & df$date=="2020-10-12"] = 10633
-df$numtotal[df$prname=="Alberta" & df$date=="2020-10-10"] = 20231
-df$numtotal[df$prname=="Alberta" & df$date=="2020-10-11"] = 20490
-df$numtotal[df$prname=="Alberta" & df$date=="2020-10-12"] = 20736
-df$numtotal[df$prname=="Ontario" & df$date=="2020-10-12"] = 59946
-df$numtotal[df$prname=="Canada" & df$date=="2020-10-10"] = 180585
-df$numtotal[df$prname=="Canada" & df$date=="2020-10-11"] = 182688
-df$numtotal[df$prname=="Canada" & df$date=="2020-10-12"] = 184835
+
+# #Thanksgiving long weekend 202 reporting
+
+
+# df$numtotal[df$prname=="Ontario" & df$date=="2020-10-12"] = 59946
+
 
 #deaths over oct2-3 long weekend
 df[df$prname=="Ontario"&df$date=="2020-10-02","numdeathstoday"]<-2
@@ -49,6 +38,26 @@ df[df$prname=="Ontario"&df$date=="2020-10-04","numdeathstoday"]<-4
 df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-74
 df[df$prname=="Canada"&df$date=="2020-10-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-37
 df[df$prname=="Canada"&df$date=="2020-10-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-3
+
+#Oct10-12 weekend
+df[df$prname=="British Columbia"&df$date=="2020-10-10","numtoday"]<-170 #0 -> 170, +170
+df[df$prname=="British Columbia"&df$date=="2020-10-11","numtoday"]<-159 #0 -> 159, +159
+df[df$prname=="British Columbia"&df$date=="2020-10-12","numtoday"]<-119 #0 -> 119, +119 
+df[df$prname=="British Columbia"&df$date=="2020-10-13","numtoday"]<-101 #549 -> 101, -448
+
+df[df$prname=="Alberta"&df$date=="2020-10-10","numtoday"]<-236 #0 -> 236, +236
+df[df$prname=="Alberta"&df$date=="2020-10-11","numtoday"]<-260 # 0-> 260, +260
+df[df$prname=="Alberta"&df$date=="2020-10-12","numtoday"]<-246 # 0-> 246, +246
+df[df$prname=="Alberta"&df$date=="2020-10-13","numtoday"]<-220 # 961 -> 220, -741
+
+df[df$prname=="Ontario"&df$date=="2020-10-12","numtoday"]<-807 # 0-> 807, +807
+df[df$prname=="Ontario"&df$date=="2020-10-13","numtoday"]<-746 # 1553 -> 746, -746
+
+df[df$prname=="Canada"&df$date=="2020-10-10","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-10","numtoday"] +170+236
+df[df$prname=="Canada"&df$date=="2020-10-11","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-11","numtoday"] +159+260 
+df[df$prname=="Canada"&df$date=="2020-10-12","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-12","numtoday"] + 119+246+807
+df[df$prname=="Canada"&df$date=="2020-10-13","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-13","numtoday"] - 448-741-746
+
 
 # cases over Xmas 2020
 # df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
@@ -272,7 +281,7 @@ pt_hosp_icu <- pt_hosp_filter %>%
 
 # Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
 
-
+#note - we make a call to this dataset in 04.R, and 04a.R codes, in case this is set to be deleted
 qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
   mutate(onsetdate = as.Date(onsetdate),
          episodedate=as.Date(episodedate),

@@ -45,8 +45,7 @@ ggplot(int_cases, aes(date, new_cases_smoothed_per_million, group = location, co
                 plot.caption = element_text(hjust = 0)
         ) +
         labs(caption = paste0("Source: Our World in Data, https://ourworldindata.org/coronavirus
-                        \nUpdated every Thursday. Last updated: ",
-             int_cases %>% filter(date==max(date)) %>% select(date) %>% distinct() %>% pull()))
+                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_cases$date), "%B %d")))
 
 
 cat('\n') 
@@ -83,7 +82,6 @@ ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, 
     plot.caption = element_text(hjust = 0)
   ) +
   labs(caption = paste0("Source: Our World in Data, https://ourworldindata.org/coronavirus
-                        \nUpdated every Thursday. Last updated: ",
-                        int_deaths %>% filter(date==max(date)) %>% select(date) %>% distinct() %>% pull()))
+                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_deaths$date), "%B %d")))
 
 cat('\n') 

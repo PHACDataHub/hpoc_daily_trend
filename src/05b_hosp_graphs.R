@@ -2,7 +2,7 @@
 pt_hosp_icu_filter <- pt_hosp_icu %>%
 #    filter(prname %in% jurisdiction) %>%
     filter(date >= "2020-04-01") %>%
-    # filter(date != Sys.Date()-1) %>%
+    filter(date != max(date)) %>% # to prevent dip from AB
     group_by(prname) %>%
     mutate(label = if_else(date == max(date), as.character(round(cases, digits = 1)), NA_character_))
     
@@ -40,9 +40,8 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         legend.key.size = unit(3,"line"),
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)) +
-    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values from AB are not included for January 19 as AB does not report same-day hospitalizations.
-                          \nUpdated every Sun/Tues/Thurs. Last updated: ",
-                          pt_hosp_icu_filter %>% filter(date == max(date)) %>% select(date) %>% distinct() %>% pull()))
+    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max(pt_hosp_icu_filter$date), "%B %d")," as AB does not report same-day hospitalizations.",
+                          "\nUpdated daily (Sun-Thurs). Last updated: ",format(max(pt_hosp_icu_filter$date)+1, "%B %d")))
 
 cat('\n') 
 
@@ -80,7 +79,6 @@ ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON"
     plot.caption = element_text(hjust = 0)
   ) +
   labs(caption = paste0("Source: Provincial and territorial website data. 
-                        \nUpdated every Sun/Tues/Thurs. Last updated: ",
-                        pt_hosp_icu_filter %>% filter(date==max(date)) %>% select(date) %>% distinct() %>% pull))
+                        \nUpdated Daily (Sun-Thurs). Last updated: ",format(max(pt_hosp_icu_filter$date)+1, "%B %d")))
 
 cat('\n') 

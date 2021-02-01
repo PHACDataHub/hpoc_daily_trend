@@ -46,5 +46,4 @@ ggplot(df_pt_incidence_filter, aes(date, case_pop_thousand_sdma)) +
         plot.caption = element_text(hjust = 0)
     ) +
   
-    labs(caption = paste0("Source: Provincial and territorial website data \nUpdated daily (Sun-Thurs). Last updated: ",
-    df_pt_incidence_filter %>% filter(date==max(date)) %>% select(date) %>% pull() %>% max()))
+    labs(caption = paste0("Source: Provincial and territorial website data \nUpdated Daily (Sun-Thurs). Last updated: ",format(max(df_pt_incidence_filter$date),"%B %d")))

@@ -39,10 +39,7 @@ ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episode
   #scale_colour_wsj() +
   labs(caption = paste0(
     "* Shaded area represents approximate lag in reporting
-    \nUpdated every Monday. Last updated: ",
-    qry_crude_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date()
-    
-  )) +
+    \nUpdated Daily (Sun-Thurs). Data as of: ", format(max(qry_cases_raw$phacreporteddate),"%B %d"))) +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),

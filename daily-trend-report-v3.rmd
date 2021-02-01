@@ -291,9 +291,7 @@ ft_1 <- footnote(ft, value = as_paragraph(c("* On January 15, 2021, Alberta prov
                 ref_symbols = c("")) %>%
   
         footnote(., value = as_paragraph(
-                    paste0("Updated every Sun/Tues/Thurs. Last updated: ", 
-                    SALT4 %>% filter(Date==max(Date)) %>% select(Date) %>% unique() %>% pull() %>% max()
-              )),
+                    paste0("Updated Mondays. Last updated: ", format(max(SALT4$Date)+2, "%B %d"))),
                   ref_symbols = c(""),
                   part = "header")      
 ft_1

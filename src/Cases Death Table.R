@@ -72,7 +72,7 @@ write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNES
 
 # creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
 # Still some vars missing: Recovered_Cumulative, Recovered_Daily, Recovered_Daily_7MA, Tested_Cumulative, Tested_Daily, Tested_Daily_7MA, National_cases_currentweek, National_deaths_currentweek
-Dashboard_export<-PT7 %>%
+export_case_death<-PT7 %>%
   rename(Cases_WeeklyPercentChange=Weekly_Change_Cases,
          Deaths_WeeklyPercentChange=Weekly_Change_Deaths,
          Cases_National_Proportion=National_Case_Proportion,
@@ -91,7 +91,14 @@ Dashboard_export<-PT7 %>%
          Cases_National_Proportion=label_percent(accuracy = 0.01)(round(Cases_National_Proportion,3)),
          Deaths_National_Proportion=label_percent(accuracy = 0.01)(round(Deaths_National_Proportion,3))) %>%
   ungroup() %>%
-  select(Jurisdiction, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
+  select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
          Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
 
-# write_csv(Dashboard_export, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
+write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
+
+
+export_trend_cd<-export_case_death %>%
+  filter(Date>=max(Date)-14)
+
+#this will help when manual corrections need to be made!
+write_csv(export_trend_cd, "cases_deaths_15days.csv")
