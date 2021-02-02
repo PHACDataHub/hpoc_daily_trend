@@ -20,7 +20,7 @@ fig,ax = plt.subplots()
 # give plot a title
 plt.title("Number of People Tested and Percent Positivity Across Canada\n7 Day Moving Average", fontsize=36)
 # make a plot
-ax.bar(National_Daily.Date, National_Daily.Patients_Tested, align='center', alpha=0.5, label="Number of Tests")
+ax.bar(National_Daily.Date, National_Daily.tests_performed, align='center', alpha=0.5, label="Number of Tests")
 # set x-axis label
 ax.set_xlabel("Date",fontsize=36)
 # set format of x-axis ticks
@@ -41,7 +41,7 @@ ax.yaxis.set_major_formatter(mpl.ticker.StrMethodFormatter('{x:,.0f}'))
 # twin object for two different y-axis on the sample plot
 ax2=ax.twinx()
 # make a plot with different y-axis using second axis object
-ax2.plot(National_Daily.Date, National_Daily["Percent_Positive"],color="red",marker="",markersize=12,label="Percent Positive")
+ax2.plot(National_Daily.Date, National_Daily["percent_positive"],color="red",marker="",markersize=12,label="Percent Positive")
 ax2.set_ylabel("Percent Positive",color="black",fontsize=36)
 ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1,decimals=0))
 ax2.tick_params(axis='y',labelsize=28)

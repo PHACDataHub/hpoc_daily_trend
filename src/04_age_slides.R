@@ -1,5 +1,5 @@
 jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
-
+juriorder2<-c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec")
 # Filter province
 qry_cases_filter <- qry_cases %>%
     filter(prname %in% jurisdiction) %>%
@@ -13,7 +13,7 @@ qry_cases_filter <- qry_cases %>%
     filter(agegroup20 != "NaN") %>%
     filter(agegroup20 != "unknown") %>%
     filter(agegroup20 != "") %>%
-    ungroup()
+    ungroup() 
 
 # Compute cases per 100K
 
@@ -21,14 +21,15 @@ qry_cases_per <- qry_cases_filter %>%
   left_join(pt_pop20, by=c("prname"="Jurisdiction", "agegroup20"="AgeGroup20")) %>%
   mutate(cases_per = (cases/Population20)*100000) %>%
   mutate(sdma_per = rollmean(cases_per, 7, na.pad = TRUE, align = "right")) %>%
-  filter(episodedate >= "2020-06-01")
+  filter(episodedate >= "2020-06-01") %>%
+  mutate(prname=factor(prname, levels=juriorder2))
 
 qry_cases_per$prname <- recode(qry_cases_per$prname, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
 
 # Plot
 ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
-    facet_wrap(vars(prname), scales = "free") +
+    facet_wrap(~prname, scales = "free") +
     scale_y_continuous("Number of reported cases per 100,000\n(7 Day moving average)", labels = comma_format(accuracy = 1)) +
     scale_x_date(
         "Date of illness onset",
@@ -47,7 +48,7 @@ ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
     #scale_colour_wsj() +
     labs(caption = paste0(
         "* Shaded area represents approximate lag in reporting
-        \nUpdated Daily (Sun-Thurs). Last updated: ",format(max(qry_cases_raw$phacreporteddate),"%B %d"))) +
+        \nUpdated Daily (Sun-Thurs). Data as of: ",format(as.Date(max(qry_cases_raw$phacreporteddate, na.rm=TRUE)),"%B %d"))) +
     theme(
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),

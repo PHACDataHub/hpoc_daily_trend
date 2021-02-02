@@ -64,8 +64,7 @@ df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_dat
 # cases over NY 2020
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2021-01-01",corrected_value = 163)
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2021-01-02",corrected_value = 163)
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2021-01-01",corrected_value = 7675) #7512 +163
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2021-01-02",corrected_value = 7274) #7437 -163
+
 
 #deaths over Xmas 2020
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "Nova Scotia",correction_date = "2020-12-25",corrected_value = 3.25)
@@ -98,6 +97,16 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",corre
 #NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
 
+#Weekend Jan30-31stuff
+
+df_corrected<-correct_df(metric="cases",Jurisdiction = "British Columbia",correction_date = "2021-01-30",corrected_value = 7)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 7)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "British Columbia",correction_date = "2021-02-01",corrected_value = 7)
+
+#NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
+df[df$prname=="Alberta"&df$date=="2021-01-25","numtoday"]<-362
+df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"] - 380
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
 
 
 

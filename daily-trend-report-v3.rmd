@@ -134,9 +134,7 @@ ft_1 <- ft %>% footnote(., i=1, j=6, value = as_paragraph(
             part = "header") %>%
   
         footnote(., value = as_paragraph(
-              paste0("Updated daily (Sun-Thurs). Last updated: ", 
-                Case_Death_Stats %>% filter(Date==max(Date), Jurisdiction=="Canada") %>% select(Date) %>% unique() %>% pull()
-        )),
+              paste0("Updated daily (Sun-Thurs). Data as of: ",max(Case_Death_Stats$Date))),
             ref_symbols = c(""),
             part = "header")
 
@@ -215,13 +213,10 @@ ft <- border_inner_h(ft, part = "all", border = border_h)
 ft <- autofit(ft)
 
 ft_1 <- footnote( ft, value = as_paragraph(
-              c("Source: Provincial and territorial website data. ")
-            ),
+              c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers,                  the previous day's values are carried over.")),
             ref_symbols = c("")) %>%
         footnote(., value = as_paragraph(
-                    paste0("Updated every Sun/Tues/Thurs. Last updated: ", 
-                      Hosp_Metrics_Table %>% filter(Date==max(Date), Jurisdiction=="Canada") %>% select(Date) %>% unique() %>% pull()
-              )),
+                    paste0("Updated Daily (Sun-Thurs). Data as of: ",format(max(Hosp_Metrics_Table$Date),"%B %d"))),
                   ref_symbols = c(""),
                   part = "header")
             
@@ -283,21 +278,22 @@ ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
 ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
 ft<-color(ft,color="white",part="header")
 
-#add conditional colour to change in testing variable
-ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
-ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
+#commented out the below for this week as causing program to crash due to non-existent columns
+#add conditional colour to change in testing variable 
+# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
+# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
 
-ft_1 <- footnote(ft, value = as_paragraph(c("* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided")),
+ft_1 <- footnote(ft, value = as_paragraph(c("As of February 1st, test-based rather than person-based laboratory testing metrics are reported in this Figure/Table (see details in last slide).")),
                 ref_symbols = c("")) %>%
   
         footnote(., value = as_paragraph(
-                    paste0("Updated Mondays. Last updated: ", format(max(SALT4$Date)+2, "%B %d"))),
+                    paste0("Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
                   ref_symbols = c(""),
                   part = "header")      
 ft_1
 ```
 Highlights:
-Over the past week, a daily average of 77,858 people have been tested for COVID-19 across Canada* with a total of 545,003 tested in the recent week. The weekly percent positivity is 8.1%.
+Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` people have been tested for COVID-19 across Canada with a total of `r scales::comma(key_Can_weekly_tests)` tested in the recent week. The weekly percent positivity is `r key_Can_weekly_perc_positive`
 
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
 knitr::include_graphics('National_Testing.jpg')

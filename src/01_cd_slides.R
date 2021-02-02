@@ -93,7 +93,7 @@ for (i in list_pt){
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
                 scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
-                labs(caption = paste0("Updated daily (Sun-Thurs). Last updated: ",format(max(df_filter$date),"%B %d"))) +
+                labs(caption = paste0("Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$date),"%B %d"))) +
                 theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),

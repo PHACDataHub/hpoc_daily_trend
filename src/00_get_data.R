@@ -1,36 +1,20 @@
-# For the cases and deaths data; this gets updated around 7:30 PM EST everyday =======
+
+
+
+####################################################################################### #
+######## PT cases and deaths data; this gets updated around 7:30 PM EST everyday ########
+####################################################################################### #
+
 df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
   mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
   filter(date <= params$date)
 
-df_corrected<-df
-
-# correct_df() is a function to be able to more elegantly make corrections to the data.
-# data= ""            - dataset you wish to correct. df_corrected data set as default (probably should be forced choice)
-# metric= ""          - choice between updating "cases" or "deaths" = other text inputs will be ignored
-# Jurisdiction=""     - region that is being corrected. Currently takes only one input by design
-# correction_date=""  - date that you want to make correction for
-# corrected_value=""  - new input value that you want to make
-
-correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date="",corrected_value=""){
-correction_date=as.Date(correction_date)
-if (metric=="cases"){
-  data[data$prname==Jurisdiction & data$date==correction_date, "numtoday"]<-corrected_value
-  }else if (metric=="deaths"){
-  data[data$prname==Jurisdiction & data$date==correction_date, "numdeathstoday"]<-corrected_value
-  }
-return(data)
-}
-
-# #hard-coded manual corrections
+df <- read_csv("covid19.csv") %>%
+  mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
+  filter(date <= params$date)
 
 
-# #Thanksgiving long weekend 202 reporting
-
-
-# df$numtotal[df$prname=="Ontario" & df$date=="2020-10-12"] = 59946
-
-
+####  hard-coded manual corrections
 #deaths over oct2-3 long weekend
 df[df$prname=="Ontario"&df$date=="2020-10-02","numdeathstoday"]<-2
 df[df$prname=="Ontario"&df$date=="2020-10-03","numdeathstoday"]<-4
@@ -38,59 +22,35 @@ df[df$prname=="Ontario"&df$date=="2020-10-04","numdeathstoday"]<-4
 df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-74
 df[df$prname=="Canada"&df$date=="2020-10-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-37
 df[df$prname=="Canada"&df$date=="2020-10-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-10-02","numdeathstoday"]-3
-
 #Oct10-12 weekend
 df[df$prname=="British Columbia"&df$date=="2020-10-10","numtoday"]<-170 #0 -> 170, +170
 df[df$prname=="British Columbia"&df$date=="2020-10-11","numtoday"]<-159 #0 -> 159, +159
 df[df$prname=="British Columbia"&df$date=="2020-10-12","numtoday"]<-119 #0 -> 119, +119 
 df[df$prname=="British Columbia"&df$date=="2020-10-13","numtoday"]<-101 #549 -> 101, -448
-
 df[df$prname=="Alberta"&df$date=="2020-10-10","numtoday"]<-236 #0 -> 236, +236
 df[df$prname=="Alberta"&df$date=="2020-10-11","numtoday"]<-260 # 0-> 260, +260
 df[df$prname=="Alberta"&df$date=="2020-10-12","numtoday"]<-246 # 0-> 246, +246
 df[df$prname=="Alberta"&df$date=="2020-10-13","numtoday"]<-220 # 961 -> 220, -741
-
 df[df$prname=="Ontario"&df$date=="2020-10-12","numtoday"]<-807 # 0-> 807, +807
 df[df$prname=="Ontario"&df$date=="2020-10-13","numtoday"]<-746 # 1553 -> 746, -746
-
 df[df$prname=="Canada"&df$date=="2020-10-10","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-10","numtoday"] +170+236
 df[df$prname=="Canada"&df$date=="2020-10-11","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-11","numtoday"] +159+260 
 df[df$prname=="Canada"&df$date=="2020-10-12","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-12","numtoday"] + 119+246+807
 df[df$prname=="Canada"&df$date=="2020-10-13","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-10-13","numtoday"] - 448-741-746
-
-
-# cases over Xmas 2020
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-25",corrected_value = 2246)
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-12-26",corrected_value = 2246)
-
+# cases over Xmas and NY 2020
 df[df$prname=="Quebec"&df$date=="2020-12-25","numtoday"]<-2246
 df[df$prname=="Quebec"&df$date=="2020-12-26","numtoday"]<-2246
-
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-25",corrected_value = 173.66)
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-26",corrected_value = 173.67)
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Manitoba",correction_date = "2020-12-27",corrected_value = 173.67)
-
 df[df$prname=="Manitoba"&df$date=="2020-12-25","numtoday"]<-173.66
 df[df$prname=="Manitoba"&df$date=="2020-12-26","numtoday"]<-173.67
 df[df$prname=="Manitoba"&df$date=="2020-12-27","numtoday"]<-173.67
-
-
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-25",corrected_value = 6511.66) #4092+2246+173.66 = 6511.66
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-26",corrected_value = 6056.67) #8129-2246+173.66 = 6056.66 
-# df_corrected<-correct_df(metric="cases",Jurisdiction = "Canada",correction_date = "2020-12-27",corrected_value = 5555.66)#5903-173.66-173.66 = 5555.66 
-
 df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numtoday"]+2246+173.66
 df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numtoday"]-2246+173.66
 df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numtoday"]-(173.66*2)
-
-# cases over NY 2020
 df[df$prname=="Manitoba"&df$date=="2021-01-01","numtoday"]<-163
-df[df$prname=="Manitoba"&df$date=="2020-01-02","numtoday"]<-163
-
+df[df$prname=="Manitoba"&df$date=="2021-01-02","numtoday"]<-163
 df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]+163
 df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numtoday"]-163
-
-#deaths over Xmas 2020
+#deaths over Xmas and NY 2020
 df[df$prname=="Nova Scotia"&df$date=="2020-12-25","numdeathstoday"]<-3.25
 df[df$prname=="Nova Scotia"&df$date=="2020-12-26","numdeathstoday"]<-3.25
 df[df$prname=="Nova Scotia"&df$date=="2020-12-27","numdeathstoday"]<-3.25
@@ -100,13 +60,10 @@ df[df$prname=="Ontario"&df$date=="2020-12-26","numdeathstoday"]<-40.5
 df[df$prname=="Manitoba"&df$date=="2020-12-25","numdeathstoday"]<-9.33
 df[df$prname=="Manitoba"&df$date=="2020-12-26","numdeathstoday"]<-9.33
 df[df$prname=="Manitoba"&df$date=="2020-12-27","numdeathstoday"]<-9.33
-
 df[df$prname=="Canada"&df$date=="2020-12-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-25","numdeathstoday"]+3.25 +40.5 + 9.33
 df[df$prname=="Canada"&df$date=="2020-12-26","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-26","numdeathstoday"]+3.25 -40.5 + 9.33
 df[df$prname=="Canada"&df$date=="2020-12-27","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-27","numdeathstoday"]+3.25 - (9.33*2)
 df[df$prname=="Canada"&df$date=="2020-12-28","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-28","numdeathstoday"]-(3.25*3)
-
-#deaths over NY 2020
 df[df$prname=="British Columbia"&df$date=="2021-01-01","numdeathstoday"]<-11.25
 df[df$prname=="British Columbia"&df$date=="2021-01-02","numdeathstoday"]<-11.25
 df[df$prname=="British Columbia"&df$date=="2021-01-03","numdeathstoday"]<-11.25
@@ -118,42 +75,45 @@ df[df$prname=="Alberta"&df$date=="2021-01-03","numdeathstoday"]<-19.2
 df[df$prname=="Alberta"&df$date=="2021-01-04","numdeathstoday"]<-19.2
 df[df$prname=="Manitoba"&df$date=="2021-01-01","numdeathstoday"]<-5.5
 df[df$prname=="Manitoba"&df$date=="2021-01-02","numdeathstoday"]<-5.5
-
 df[df$prname=="Canada"&df$date=="2021-12-31","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2020-12-31","numdeathstoday"]+19.2
 df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-01","numdeathstoday"]+11.25+19.2 +5.5
 df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-02","numdeathstoday"]+11.25+19.2 -5.5
 df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-03","numdeathstoday"]+11.25+19.2
 df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-04","numdeathstoday"]-(11.25*3)-(19.2*4)
-
 #Weekend Jan23-24 stuff
+#NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
+df[df$prname=="Alberta"&df$date=="2021-01-25","numtoday"]<-362
+df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"] - 380
 df[df$prname=="British Columbia"&df$date=="2021-01-23","numdeathstoday"]<-8.66
 df[df$prname=="British Columbia"&df$date=="2021-01-24","numdeathstoday"]<-8.67
 df[df$prname=="British Columbia"&df$date=="2021-01-25","numdeathstoday"]<-8.67
 df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-23","numdeathstoday"]+ 8.66
 df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-24","numdeathstoday"]+ 8.67
 df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numdeathstoday"]- 8.66 - 8.67
-# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
-# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
-# df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
-
-#NOTE: We are excluding 380 cases AB reported on Jan25 as they were from "previous weeks". Not sure where to reassign them at the moment but should figure out a better solution.
-df[df$prname=="Alberta"&df$date=="2021-01-25","numtoday"]<-362
-df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"]<-df[df$prname=="Canada"&df$date=="2021-01-25","numtoday"] - 380
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
-
+#Weekend Jan30-31stuff
+df[df$prname=="British Columbia"&df$date=="2021-01-30","numdeathstoday"]<-7
+df[df$prname=="British Columbia"&df$date=="2021-01-31","numdeathstoday"]<-7
+df[df$prname=="British Columbia"&df$date=="2021-02-01","numdeathstoday"]<-7
+df[df$prname=="Canada"&df$date=="2021-01-30","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-30","numdeathstoday"]+ 7
+df[df$prname=="Canada"&df$date=="2021-01-31","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-01-31","numdeathstoday"]+ 7
+df[df$prname=="Canada"&df$date=="2021-02-01","numdeathstoday"]<-df[df$prname=="Canada"&df$date=="2021-02-01","numdeathstoday"]- 14
 
 
-#For now, we can just take our corrections forward, but may want to differentiate between raw data and corrected data at a later point
-# df<-df_corrected
+####################################################################################### #
+########      International comparison data; this gets updated once daily        ########
+####################################################################################### #
 
 
-
-# For the international comparison data; this gets updated once daily =======
 df_int <- read_csv('https://covid.ourworldindata.org/data/owid-covid-data.csv') %>%
   mutate(date = as.Date(date, format = "%Y-%m-%d")) %>%
   filter(date <= params$date)
 
-# Get provincial population data from StatsCan
+
+####################################################################################### #
+########               Provincial population data from StatsCan                  ########
+####################################################################################### #
+
+
 pt_pop_raw <- get_cansim("17-10-0005-01")
 
 #Filter to latest year of data
@@ -195,10 +155,13 @@ pt_pop20 <- pt_pop_raw %>%
          AgeGroup20=age_group_20,
          Population20=Population)
 
-# Extract population data by age group 20
-# pt_pop20 <- read_excel("Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\_Source Data\\Population data\\FPT_AgePop20.xlsx")
 
-# Get the hospitalization and ICU data =======
+
+####################################################################################### #
+########                  Get the hospitalization and ICU data                   ########
+####################################################################################### #
+
+
 # First scraped data for Alberta
 ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
     html_nodes(xpath = "//*[@id='summary']/div/script/text()") %>%
@@ -277,9 +240,10 @@ pt_hosp_icu <- pt_hosp_filter %>%
     )) %>%
   filter(date <= params$date)
 
-# Get case level data for age breakdown from the network drive ======
 
-# Import the latest xlsx file as a dataframe; using the Python script to identify the latest RDS file
+####################################################################################### #
+########                        Get case Report Form data                        ########
+####################################################################################### #
 
 #note - we make a call to this dataset in 04.R, and 04a.R codes, in case this is set to be deleted
 qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
@@ -345,6 +309,10 @@ lab_onset_metrics <- qry_lab_onset %>%
   distinct(Date, Avg_Onset, .keep_all = TRUE) %>%
   select(Date, Avg_Onset)
 
-# Get SALT lab data from the network drive ======
+
+####################################################################################### #
+########                              Get SALT lab data                          ########
+####################################################################################### #
+
 salt_raw <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
   

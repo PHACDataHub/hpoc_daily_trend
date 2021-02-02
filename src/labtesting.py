@@ -24,7 +24,7 @@ for i in ["Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontar
     # give plot a title
     plt.title(i, fontsize=36)
     # make a plot
-    ax.bar(SALT_PT.Week, SALT_PT.Week_patients_tested, align='center', alpha=0.5, label="Number of Tests")
+    ax.bar(SALT_PT.Week, SALT_PT.week_tests_performed, align='center', alpha=0.5, label="Number of Tests Performed")
     # set x-axis label
     ax.set_xlabel("Week",fontsize=36)
     # format x axis ticks
@@ -39,7 +39,7 @@ for i in ["Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontar
     # twin object for two different y-axis on the sample plot
     ax2=ax.twinx()
     # make a plot with different y-axis using second axis object
-    ax2.plot(SALT_PT.Week, SALT_PT["Percent_positive"],color="red",marker="o",markersize=12,label="Percent Positive")
+    ax2.plot(SALT_PT.Week, SALT_PT["percent_positive"],color="red",marker="o",markersize=12,label="Percent Positive")
     ax2.set_ylabel("Percent Positive",color="black",fontsize=36)
     ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1,decimals=0))
     ax2.tick_params(axis='y',labelsize=28)
@@ -60,7 +60,7 @@ for i in ["Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontar
     ax.spines['right'].set_visible(False)
     
     # add data labels
-    for x,y in zip(SALT_PT.Week,SALT_PT.Percent_positive):
+    for x,y in zip(SALT_PT.Week,SALT_PT.percent_positive):
 
         label = "{:.1%}".format(y)
     
