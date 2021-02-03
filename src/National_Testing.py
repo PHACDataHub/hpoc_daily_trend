@@ -20,13 +20,14 @@ fig,ax = plt.subplots()
 # give plot a title
 plt.title("Number of People Tested and Percent Positivity Across Canada\n7 Day Moving Average", fontsize=36)
 # make a plot
-ax.bar(National_Daily.Date, National_Daily.tests_performed, align='center', alpha=0.5, label="Number of Tests")
+ax.bar(National_Daily.Date, National_Daily.tests_performed, align='center', alpha=0.5, label="Number of Tests (Daily Values)")
 # set x-axis label
 ax.set_xlabel("Date",fontsize=36)
 # set format of x-axis ticks
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%b-%y'))
 # format x axis ticks
 ax.xaxis.set_major_locator(mdates.MonthLocator(bymonthday=1))
+ax.tick_params(axis='x',labelsize=20)
 # remove whitespace from graph
 ax.margins(x=0)
 # increase padding between tick marks and x axis
@@ -37,14 +38,15 @@ ax.tick_params(axis='y',labelsize=28)
 ax.set_ylabel("Number of Tests",color="black",fontsize=36)
 # set format of y-axis ticks
 ax.yaxis.set_major_formatter(mpl.ticker.StrMethodFormatter('{x:,.0f}'))
-    
+
 # twin object for two different y-axis on the sample plot
 ax2=ax.twinx()
 # make a plot with different y-axis using second axis object
-ax2.plot(National_Daily.Date, National_Daily["percent_positive"],color="red",marker="",markersize=12,label="Percent Positive")
+ax2.plot(National_Daily.Date, National_Daily["percent_positive"],color="red",marker="",markersize=12,label="Percent Positive (7MA)")
 ax2.set_ylabel("Percent Positive",color="black",fontsize=36)
 ax2.yaxis.set_major_formatter(mtick.PercentFormatter(1,decimals=0))
 ax2.tick_params(axis='y',labelsize=28)
+ax2.set_ylim([0,0.1]) #ylimit is set manually for now
 
 # add legend; put it outside the plot
 box = ax.get_position()

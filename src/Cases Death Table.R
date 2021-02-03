@@ -102,3 +102,4 @@ export_trend_cd<-export_case_death %>%
 
 #this will help when manual corrections need to be made!
 write_csv(export_trend_cd, "cases_deaths_15days.csv")
+

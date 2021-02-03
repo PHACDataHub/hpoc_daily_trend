@@ -1,6 +1,6 @@
 ---
 title: "Epi Trends Report"
-subtitle: '`r params$date`'
+subtitle: '`r format(params$date,"%B %d, %Y")`'
 output: 
   powerpoint_presentation:
     reference_doc: src/template.pptx
@@ -18,6 +18,7 @@ knitr::opts_chunk$set(echo = FALSE)
 # Import data from network drive using Python
 library(reticulate)
 source_python("src/00_get_data.py")
+
 
 # Load libraries
 library(readr)
@@ -41,6 +42,7 @@ library(hms)
 
 # Import data
 source("src/00_get_data.R")
+
 
 list_pt <-  if (params$region == "Major provinces") {
   c("Canada",
@@ -213,7 +215,7 @@ ft <- border_inner_h(ft, part = "all", border = border_h)
 ft <- autofit(ft)
 
 ft_1 <- footnote( ft, value = as_paragraph(
-              c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers,                  the previous day's values are carried over.")),
+              c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers, the previous day's values are carried over.")),
             ref_symbols = c("")) %>%
         footnote(., value = as_paragraph(
                     paste0("Updated Daily (Sun-Thurs). Data as of: ",format(max(Hosp_Metrics_Table$Date),"%B %d"))),
@@ -283,10 +285,7 @@ ft<-color(ft,color="white",part="header")
 # ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
 # ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
 
-ft_1 <- footnote(ft, value = as_paragraph(c("As of February 1st, test-based rather than person-based laboratory testing metrics are reported in this Figure/Table (see details in last slide).")),
-                ref_symbols = c("")) %>%
-  
-        footnote(., value = as_paragraph(
+ft_1 <- footnote(ft, value = as_paragraph(
                     paste0("Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
                   ref_symbols = c(""),
                   part = "header")      
@@ -298,10 +297,6 @@ Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)`
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
 knitr::include_graphics('National_Testing.jpg')
 ```
-
-::: notes
-* On January 15, 2021, Alberta provided cumulative testing data for December 11, 2020 to January 15, 2021. Values for Canada exclude Alberta as disaggregation by week was not possible with AB data provided
-:::
 
 # International Indicators
 

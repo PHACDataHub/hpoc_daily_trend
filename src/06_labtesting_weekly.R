@@ -66,9 +66,24 @@ Testing <- Testing %>%
 
 Testing <- Testing[,c(8,1,2,3,4,5,6,7)]
 
+#to replace the export that used to go to Yann Pelchat
+export_testing1<-Testing %>%
+  select(Jurisdiction, Week, week_tests_performed, week_positive_tests)%>%
+  filter(Jurisdiction=="Canada")
+# write.csv(export_testing1)
 
+export_testing2<-Testing %>%
+  select(Jurisdiction, Week, week_tests_performed, week_positive_tests, percent_positive) %>%
+  rename(Week_tests_performed=week_tests_performed,
+         Week_positive_tests=week_positive_tests,
+         Percent_Positive=percent_positive)
+write.csv(export_testing2, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Data Analysis\\NML_weekly_testing.csv')
 
+#For use in python script
 write.csv(Testing, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing.csv')
+
+
+
 
 #Adding if statements to prevent crash if only 1 week of data is available. Can adjust code next week once we have 2 weeks of data.
 if(unique(Testing$Week_no)>1){
@@ -140,7 +155,14 @@ key_Can_weekly_perc_positive<-percent(Testing$percent_positive[Testing$Week_no==
 
 # Create dataset for daily testing
 
-SALT3a <- SALT2 %>%
+SALT2a<-SALT %>%
+  mutate( Date = as.Date(str_sub(Report.Date, 1, 10)),
+    Time = as_hms(str_sub(Report.Date, 13, 20)),
+    datetime = strptime(paste(Date, Time), "%Y-%m-%d%H:%M:%S"))%>%
+  mutate(Current_week = ifelse(date(Date) + 7 <= max(Date), "No", "Yes")) %>%
+  arrange(Jurisdiction, datetime)
+
+SALT3a <- SALT2a %>%
   group_by(Jurisdiction,Date) %>%
   filter(datetime==max(datetime)) 
 
@@ -161,8 +183,9 @@ National_Daily_a <- SALT4a %>%
 
 #Question about whether or not the "daily tests performed" should be a 7dMA. I think in SAS right now it isn't.
 National_Daily <- National_Daily_a %>%
-  mutate(tests_performed=rollmean(daily_tests_performed,k=7,fill=NA,align="right")) %>%
-  mutate(percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
+  # mutate(tests_performed=rollmean(daily_tests_performed,k=7,fill=NA,align="right")) %>%
+  mutate(tests_performed=daily_tests_performed,
+         percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
   filter(Date>"2020-03-31")
 

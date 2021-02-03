@@ -80,7 +80,7 @@ Hosp_Metrics <- hosp_metrics1 %>%
 
 prorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec",
              "Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon",
-             "Northwest Territories")
+             "Northwest Territories","Nunavut")
 
 # For the table only, add the latest hosp/icu data for each PT to the Canada daily total.
 can_daily_totals<-all_hosp_icu_adj %>%
@@ -134,7 +134,7 @@ export_hosp<-Hosp_Metrics %>%
   select(Jurisdiction,prov,Population,Date,Hosp,Hosp7MA,hospweekchange,Hosp_popadj,ICU,ICU7MA,ICUweekchange,ICU_popadj)
 
 #Note - this export crashed on me today (Feb1). When manually opened, it said file was locked for use by 'another user' - can look into wrapping it in "try()" function perhaps. 
-# write_csv(export_hosp,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\Hosp_icu_historical_data.csv")
+write_csv(export_hosp,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\Hosp_icu_historical_data.csv")
 
 export_trend_hosp<-export_hosp %>%
   filter(Date>=max(Date)-14)

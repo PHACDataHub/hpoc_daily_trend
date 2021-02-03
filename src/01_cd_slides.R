@@ -4,7 +4,10 @@ for (i in list_pt){
         
         df_filter <- df %>%
                 filter(prname == i) %>%
-                filter(date >= "2020-03-08")
+                filter(date >= "2020-03-08") %>%
+                mutate(case_7dma = rollmean(numtoday, 7, na.pad = TRUE, align = "right"),
+                       death_7dma=rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right"))
+
         
         table_filter_case <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
@@ -124,9 +127,8 @@ for (i in list_pt){
                 scale_y_continuous(
                         "Number of cases",
                         labels = comma,
-                        limits = c(0, df_filter %>%
-                                           filter(date >= max(date) - weeks(2)) %>%
-                                           select(numtoday) %>% max()),
+                        limits = c(0, max(max(df_filter$numtoday[df_filter$date>=max(df_filter$date)-weeks(2)]),
+                                          (max(df_filter$case_7dma[df_filter$date>=max(df_filter$date)-weeks(2)])))),
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
@@ -145,8 +147,8 @@ for (i in list_pt){
                 geom_col(aes(fill = "Reported deaths"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
-                        y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
-                ),size=1.5) +
+                        y = death_7dma),
+                        size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("5 days"),
@@ -160,9 +162,8 @@ for (i in list_pt){
                 scale_y_continuous(
                         "Number of cases",
                         labels = comma,
-                        limits = c(0, df_filter %>%
-                                           filter(date >= max(date) - weeks(2)) %>%
-                                           select(numdeathstoday) %>% max()),
+                        limits = c(0, max(max(df_filter$numdeathstoday[df_filter$date>=max(df_filter$date)-weeks(2)]),
+                                          (max(df_filter$death_7dma[df_filter$date>=max(df_filter$date)-weeks(2)])))),
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
