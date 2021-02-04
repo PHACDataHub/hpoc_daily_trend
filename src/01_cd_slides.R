@@ -2,38 +2,24 @@ for (i in list_pt){
         cat('\n')  
         cat("#", i, "COVID-19 Indicators (Cases and Deaths)", "\n") 
         
-        df_filter <- df %>%
-                filter(prname == i) %>%
-                filter(date >= "2020-03-08") %>%
-                mutate(case_7dma = rollmean(numtoday, 7, na.pad = TRUE, align = "right"),
-                       death_7dma=rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right"))
+        #df_moving_averages is the dataset that we create in Cases_Death Table - using it to keep things consistent (Can 7dMA is corrected when PT non-reports over there)
+        df_filter <- df_weekly_changes %>%
+                filter(Jurisdiction == i) %>%
+                filter(Date >= "2020-03-08") 
 
         
         table_filter_case <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
-                value = c(
-                  df_filter %>% filter(date == max(date)) %>% mutate(numtoday=format(as.numeric(numtoday),big.mark=",")) %>% select(numtoday) %>% pull(),
-                  df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = round(mean(numtoday, na.rm = T))) %>% mutate(average=format(as.numeric(average),big.mark=",")) %>% pull(),
-                  df_filter %>% mutate(sdma = rollmean(numtoday, 7, na.pad = TRUE, align = "right")) %>%
-                    mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>% mutate(wow=percent(wow,0.1)) %>%
-                    filter(date == max(date)) %>%
-                    select(wow) %>% 
-                    pull()
-                )
-        )
+                value = c(format(as.numeric(df_filter$Cases_Daily[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                        format(as.numeric(df_filter$Cases_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                        percent(df_filter$Weekly_Change_Cases[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
         
         table_filter_death <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
-                value = c(
-                        df_filter %>% filter(date == max(date)) %>% mutate(numdeathstoday=format(as.numeric(numdeathstoday),big.mark=",")) %>% select(numdeathstoday) %>% pull(),
-                        df_filter %>% filter(date >= max(date) - days(6)) %>% summarise(average = round(mean(numdeathstoday, na.rm = T),digits=1)) %>% mutate(average=format(as.numeric(average),big.mark=",")) %>% pull(),
-                        df_filter %>% mutate(sdma = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")) %>%
-                                mutate(wow = (sdma - lag(sdma, 7)) / lag(sdma, 7)) %>% mutate(wow=percent(wow,0.1)) %>%
-                                filter(date == max(date)) %>%
-                                select(wow) %>%
-                                pull()
-                )
-        )
+                value = c(format(as.numeric(df_filter$Deaths_Daily[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                          format(as.numeric(df_filter$Deaths_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                          percent(df_filter$Weekly_Change_Deaths[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
+        
         
         # Code for conditional colouring of the text in the code
         cols_case <- matrix("black", nrow(table_filter_case), ncol(table_filter_case))
@@ -47,13 +33,12 @@ for (i in list_pt){
         )
         
         # Charting the plots
-        p1 <- ggplot(df_filter, aes(x = date, y = numtoday)) +
+        p1 <- ggplot(df_filter, aes(x = Date, y = Cases_Daily)) +
                 ggtitle(paste0("Reported COVID19 cases by date, ", i)) +
                 geom_col(aes(fill = "Reported cases"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
-                        y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
-                ),size=1.5) +
+                        y = Cases_Daily_7MA),size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("6 weeks"),
@@ -76,13 +61,12 @@ for (i in list_pt){
                         text = element_text(size = 20)
                 )
         
-        p2 <- ggplot(df_filter, aes(x = date, y = numdeathstoday)) +
+        p2 <- ggplot(df_filter, aes(x = Date, y = Deaths_Daily)) +
                 ggtitle(paste0("Reported COVID19 deaths by date, ", i)) +
                 geom_col(aes(fill = "Reported deaths"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
-                        y = rollmean(numdeathstoday, 7, na.pad = TRUE, align = "right")
-                ),size=1.5) +
+                        y = Deaths_Daily_7MA),size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("6 weeks"),
@@ -96,7 +80,7 @@ for (i in list_pt){
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
                 scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
-                labs(caption = paste0("Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$date),"%B %d"))) +
+                labs(caption = paste0("Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$Date),"%B %d"))) +
                 theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
@@ -107,28 +91,27 @@ for (i in list_pt){
                         plot.caption = element_text(hjust = 0)
                 )
         
-        p3 <- ggplot(df_filter, aes(x = date, y = numtoday)) +
+        p3 <- ggplot(df_filter, aes(x = Date, y = Cases_Daily)) +
                 ggtitle(paste0("Daily cases, past 2 weeks, ", i)) +
                 geom_col(aes(fill = "Reported cases"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
-                        y = rollmean(numtoday, 7, na.pad = TRUE, align = "right")
-                ),size=1.5) +
+                        y = Cases_Daily_7MA),size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("5 days"),
                         labels = label_date("%d%b"),
                         limits = c(
-                                df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() - weeks(2),
-                                df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() + 1
+                                df_filter %>% filter(Date == max(Date)) %>% select(Date) %>% pull() - weeks(2),
+                                df_filter %>% filter(Date == max(Date)) %>% select(Date) %>% pull() + 1
                         ),
                         expand = c(0, 0)
                 ) +
                 scale_y_continuous(
                         "Number of cases",
                         labels = comma,
-                        limits = c(0, max(max(df_filter$numtoday[df_filter$date>=max(df_filter$date)-weeks(2)]),
-                                          (max(df_filter$case_7dma[df_filter$date>=max(df_filter$date)-weeks(2)])))),
+                        limits = c(0, max(max(df_filter$Cases_Daily[df_filter$Date>=max(df_filter$Date)-weeks(2)]),
+                                          (max(df_filter$Cases_Daily_7MA[df_filter$Date>=max(df_filter$Date)-weeks(2)])))),
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported cases" = "lightblue")) +
@@ -142,28 +125,28 @@ for (i in list_pt){
                         text = element_text(size = 20)
                 )
         
-        p4 <- ggplot(df_filter, aes(x = date, y = numdeathstoday)) +
+        p4 <- ggplot(df_filter, aes(x = Date, y = Deaths_Daily)) +
                 ggtitle(paste0("Daily deaths, past 2 weeks, ", i)) +
                 geom_col(aes(fill = "Reported deaths"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
-                        y = death_7dma),
+                        y = Deaths_Daily_7MA),
                         size=1.5) +
                 scale_x_date(
                         NULL,
                         breaks = scales::breaks_width("5 days"),
                         labels = label_date("%d%b"),
                         limits = c(
-                                df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() - weeks(2),
-                                df_filter %>% filter(date == max(date)) %>% select(date) %>% pull() + 1
+                                df_filter %>% filter(Date == max(Date)) %>% select(Date) %>% pull() - weeks(2),
+                                df_filter %>% filter(Date == max(Date)) %>% select(Date) %>% pull() + 1
                         ),
                         expand = c(0, 0)
                 ) +
                 scale_y_continuous(
                         "Number of cases",
                         labels = comma,
-                        limits = c(0, max(max(df_filter$numdeathstoday[df_filter$date>=max(df_filter$date)-weeks(2)]),
-                                          (max(df_filter$death_7dma[df_filter$date>=max(df_filter$date)-weeks(2)])))),
+                        limits = c(0, max(max(df_filter$Deaths_Daily[df_filter$Date>=max(df_filter$Date)-weeks(2)]),
+                                          (max(df_filter$Deaths_Daily_7MA[df_filter$Date>=max(df_filter$Date)-weeks(2)])))),
                         expand = c(0, 0)
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +

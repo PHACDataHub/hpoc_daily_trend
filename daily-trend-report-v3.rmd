@@ -128,7 +128,15 @@ ft_1 <- ft %>% footnote(., i=1, j=6, value = as_paragraph(
             )),
             ref_symbols = c("*"),
             part = "header") %>% merge_v(part="footer") %>%
-
+          footnote(., value = as_paragraph(
+              if(any_non_report_flag==FALSE){
+                "All PTs provided daily updates today"
+              } else {
+                paste0("Note that daily updates were not provided by: ",str_c(key_PTs_nonreport, collapse=", "),". For calculation of the national 7MA of cases and deaths, days after the date of last report for these PTs were omitted.")
+                }),
+            ref_symbols = c(""),
+            part = "header") %>%
+  
         footnote(., value = as_paragraph(
               c("Source: Provincial and territorial website data. ")
             ),

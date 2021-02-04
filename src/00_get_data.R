@@ -6,9 +6,24 @@
 ####################################################################################### #
 
 
-df <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
+df_raw <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
   mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
   filter(date <= params$date)
+
+
+
+
+#Removing trailing unreported days from PTs, in the past 7 days.
+df<-df_raw 
+# %>%
+#   group_by(prname) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE))
 
 df_corrected<-df %>%
   select(-numtotal,-numdeaths)
@@ -165,7 +180,6 @@ pt_pop20 <- pt_pop_raw %>%
          AgeGroup20=age_group_20,
          Population20=Population)
 
-print("population data imported")
 
 ####################################################################################### #
 ########                  Get the hospitalization and ICU data                   ########
