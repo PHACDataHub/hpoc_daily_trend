@@ -143,4 +143,4 @@ export_trend_hosp<-export_hosp %>%
 write_csv(export_trend_hosp, "hosp_15days.csv")
 
 
-remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, Hosp_Export)
+remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, export_hosp)

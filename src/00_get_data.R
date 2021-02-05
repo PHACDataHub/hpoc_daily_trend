@@ -14,16 +14,15 @@ df_raw <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19
 
 
 #Removing trailing unreported days from PTs, in the past 7 days.
-df<-df_raw 
-# %>%
-#   group_by(prname) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
-#   filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE))
+df<-df_raw %>%
+  group_by(prname) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE)) %>%
+  filter(!(!prname %in% c("Canada", "Repatriated travellers")&date==max(date)&update==FALSE))
 
 df_corrected<-df %>%
   select(-numtotal,-numdeaths)
@@ -336,6 +335,5 @@ lab_onset_metrics <- qry_lab_onset %>%
 ####################################################################################### #
 ########                              Get SALT lab data                          ########
 ####################################################################################### #
-#note - read.csv outperforms readr::read_csv here by quite a bit.
 salt_raw <- read.csv("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/SALT/Submitted+Reports.csv")
 

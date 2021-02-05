@@ -11,13 +11,13 @@ for (i in list_pt){
         table_filter_case <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(format(as.numeric(df_filter$Cases_Daily[df_filter$Date==max(df_filter$Date)],big.mark=",")),
-                        format(as.numeric(df_filter$Cases_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                        format(round(as.numeric(df_filter$Cases_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=","))),
                         percent(df_filter$Weekly_Change_Cases[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
         
         table_filter_death <- data.frame(
                 desc = c(paste0("Reported on ", params$date), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(format(as.numeric(df_filter$Deaths_Daily[df_filter$Date==max(df_filter$Date)],big.mark=",")),
-                          format(as.numeric(df_filter$Deaths_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=",")),
+                          format(round(as.numeric(df_filter$Deaths_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=","))),
                           percent(df_filter$Weekly_Change_Deaths[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
         
         
@@ -43,7 +43,8 @@ for (i in list_pt){
                         NULL,
                         breaks = scales::breaks_width("6 weeks"),
                         labels = label_date("%d%b"),
-                        expand = c(0, 0)
+                        expand = c(0, 0),
+                        limits=c(as.Date("2020-03-08"),max(df_filter$Date))
                 ) +
                 scale_y_continuous(
                         "Number of cases",
@@ -71,7 +72,8 @@ for (i in list_pt){
                         NULL,
                         breaks = scales::breaks_width("6 weeks"),
                         labels = label_date("%d%b"),
-                        expand = c(0, 0)
+                        expand = c(0, 0),
+                        limits=c(as.Date("2020-03-08"),max(df_filter$Date))
                 ) +
                 scale_y_continuous(
                         "Number of deaths",

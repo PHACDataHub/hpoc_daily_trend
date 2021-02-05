@@ -42,7 +42,8 @@ library(hms)
 
 # Import data
 source("src/00_get_data.R")
-
+#Import table formatting functions
+source("src/format_tables.R")
 
 list_pt <-  if (params$region == "Major provinces") {
   c("Canada",
@@ -83,74 +84,8 @@ two_weeks_ago <- params$date - weeks(2)
 ```
 
 ```{r Cases and Death Table Part 2, message=FALSE, warning=FALSE}
-ft <- flextable(Case_Death_Stats)
-ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases > 0, color="red")
-ft <- color(ft, j = "Weekly_Change_Cases", i = ~ Weekly_Change_Cases < 0, color="dark green")
-ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths > 0, color="red")
-ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ Weekly_Change_Deaths < 0, color="dark green")
-ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Cases_7MA_per100k="7 Day cases MA per 100,000",Weekly_Change_Cases="Weekly Change in Cases",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Deaths_7MA_per100k="7 Day deaths MA per 100,000",Weekly_Change_Deaths="Weekly Change in Deaths",National_Death_Proportion="National Proportion of Deaths")
-#ft <- width(ft, width=1.2)
-ft <- height(ft, height=.52, part = "header")
-ft <- height(ft, height=.26, part = "body")
-ft <- fontsize(ft, size = 11, part="all")
-#ft <- fontsize(ft, size = 12, part="body")
-ft <- align(ft, align = "center", part="all")
-#Fill colours - first two columns in green
-ft<-bg(ft,j=1:2, bg="#9bbb59", part="header")
-ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=1:2, bg="#d7e4bd")
-ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=1:2, bg="#ebf1de")
-#columns 3-7 in blue
-ft<-bg(ft,j=3:7, bg="#17375e", part="header")
-ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=3:7, bg="#b9cde5")
-ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=3:7, bg="#dce6f2")
-#columns 8-12 in grey
-ft<-bg(ft,j=8:12, bg="#7f7f7f", part="header")
-ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2),j=8:12, bg="#d9d9d9")
-ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2),j=8:12, bg="#f2f2f2")
-#Header colour to white
-ft<-color(ft,color="white",part="header")
-big_border = fp_border(color="white", width=2)
-border_v = fp_border(color="white")
-border_h = fp_border(color="white")
-ft <- border_outer(ft, part = "all", border = big_border)
-ft <- border_inner_v(ft, part = "all", border = border_v)
-ft <- border_inner_h(ft, part = "all", border = border_h)
-
-ft_1 <- ft %>% footnote(., i=1, j=6, value = as_paragraph(
-              c("Weekly change is how the current week (days 1 to 7 days ago) compares against the previous week (8 to 14 days ago).  e.g. previous week = 75 total cases; current week = 50 total cases; weekly percent change from previous week to current week = 33.3% decrease (-33.3%)."#,
-                #"Source: Provincial and territorial website data")
-            )),
-            ref_symbols = c("*"),
-            part = "header") %>%
-        footnote(., i=1, j=11, value = as_paragraph(
-              c("Weekly change is how the current week (days 1 to 7 days ago) compares against the previous week (8 to 14 days ago).  e.g. previous week = 75 total cases; current week = 50 total cases; weekly percent change from previous week to current week = 33.3% decrease (-33.3%)."#,
-                #"Source: Provincial and territorial website data")
-            )),
-            ref_symbols = c("*"),
-            part = "header") %>% merge_v(part="footer") %>%
-          footnote(., value = as_paragraph(
-              if(any_non_report_flag==FALSE){
-                "All PTs provided daily updates today"
-              } else {
-                paste0("Note that daily updates were not provided by: ",str_c(key_PTs_nonreport, collapse=", "),". For calculation of the national 7MA of cases and deaths, days after the date of last report for these PTs were omitted.")
-                }),
-            ref_symbols = c(""),
-            part = "header") %>%
-  
-        footnote(., value = as_paragraph(
-              c("Source: Provincial and territorial website data. ")
-            ),
-            ref_symbols = c(""),
-            part = "header") %>%
-  
-        footnote(., value = as_paragraph(
-              paste0("Updated daily (Sun-Thurs). Data as of: ",max(Case_Death_Stats$Date))),
-            ref_symbols = c(""),
-            part = "header")
-
-#ft_1 <- autofit(ft_1)
-
-ft_1
+casedeath_table<-format_casedeath_table(input_table=Case_Death_Stats)
+casedeath_table
 ```
 
 
@@ -177,9 +112,6 @@ source_python("src/National_Testing.py")
 knitr::include_graphics('Canada_case_per_100k.jpg')
 ```
 
-::: notes
-Source: Provincial and territorial website data
-:::
 
 ```{r CD, code=xfun::read_utf8('src/01_cd_slides.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
@@ -194,45 +126,8 @@ Source: Provincial and territorial website data
 ```{r Hospitalization ICU Metrics Table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
 
 source("src/05a_hosp_table.R")
-
-ft <- flextable(Hosp_Metrics_Table)
-ft <- color(ft, j = "delta7h", i = ~ delta7h > 0, color="red")
-ft <- color(ft, j = "delta7h", i = ~ delta7h < 0, color="dark green")
-ft <- color(ft, j = "delta7i", i = ~ delta7i > 0, color="red")
-ft <- color(ft, j = "delta7i", i = ~ delta7i < 0, color="dark green")
-ft <- set_header_labels(ft, hosp7ma="Hospitalizations, 7 Day MA", delta7h="Weekly Change in Hospitalizations",icu7ma="ICU, 7 Day MA",delta7i="Weekly Change in ICU")
-#ft <- width(ft, width=1.2)
-ft <- height(ft, height=.39, part="header")
-ft <- height(ft, height=.26, part="body")
-ft <- fontsize(ft, size = 12, part="all")
-ft <- align(ft, align = "center", part="all")
-
-#shading headers, and alternating rows.
-ft<-bg(ft, bg="#4f81bd", part="header")
-ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
-ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
-ft<-color(ft,color="white",part="header")
-
-big_border = fp_border(color="black", width=2)
-border_v = fp_border(color="black")
-border_h = fp_border(color="black")
-
-ft <- border_outer(ft, part = "all", border = big_border)
-ft <- border_inner_v(ft, part = "all", border = border_v)
-ft <- border_inner_h(ft, part = "all", border = border_h)
-ft <- autofit(ft)
-
-ft_1 <- footnote( ft, value = as_paragraph(
-              c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers, the previous day's values are carried over.")),
-            ref_symbols = c("")) %>%
-        footnote(., value = as_paragraph(
-                    paste0("Updated Daily (Sun-Thurs). Data as of: ",format(max(Hosp_Metrics_Table$Date),"%B %d"))),
-                  ref_symbols = c(""),
-                  part = "header")
-            
-#ft_1 <- autofit(ft_1)
-
-ft_1
+hospicu_table<-format_hospicu_table(input_table=Hosp_Metrics_Table)
+hospicu_table
 ```
 
 
@@ -267,37 +162,8 @@ Indicators derived from the Case Report Forms
 ```
 
 ```{r Lab Testing Table, message=FALSE, warning=FALSE}
-ft <- flextable(Testing_Metrics)
-ft <- width(ft, width=1.2)
-ft <- height_all(ft, height=.26)
-ft <- fontsize(ft, size = 14, part="header")
-ft <- fontsize(ft, size = 12, part="body")
-ft <- align(ft, align = "center", part="all")
-
-big_border = fp_border(color="black", width=2)
-border_v = fp_border(color="black")
-border_h = fp_border(color="black")
-
-ft <- border_outer(ft, part = "all", border = big_border)
-ft <- border_inner_v(ft, part = "all", border = border_v)
-ft <- border_inner_h(ft, part = "all", border = border_h)
-
-#shading headers, and alternating rows.
-ft<-bg(ft, bg="#4f81bd", part="header")
-ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
-ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
-ft<-color(ft,color="white",part="header")
-
-#commented out the below for this week as causing program to crash due to non-existent columns
-#add conditional colour to change in testing variable 
-# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
-# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="dark green")
-
-ft_1 <- footnote(ft, value = as_paragraph(
-                    paste0("Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
-                  ref_symbols = c(""),
-                  part = "header")      
-ft_1
+labtesting_table<-format_labtesting_table(input_table=Testing_Metrics)
+labtesting_table
 ```
 Highlights:
 Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` people have been tested for COVID-19 across Canada with a total of `r scales::comma(key_Can_weekly_tests)` tested in the recent week. The weekly percent positivity is `r key_Can_weekly_perc_positive`

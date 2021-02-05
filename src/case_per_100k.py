@@ -71,13 +71,18 @@ ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18
     
 #plt.show()
     
+#Add caption
+date_updated= max((case_per_100k['Date'])).strftime('%B %d')
+text="Updated daily (Sun-Thurs). Data as of: "+date_updated
+fig.text(0, 0, text, ha='left',  size=20)
+
 #set dimensions of plot
 fig.set_size_inches(24, 10.5, forward=True)
 
 # save the plot as a file
 fig.savefig('Canada_case_per_100k.jpg',
    format='jpeg',
-dpi=100,
+dpi=300,
 bbox_inches='tight')
 
 
