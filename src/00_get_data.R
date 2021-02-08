@@ -244,23 +244,9 @@ pt_icu_filter <- bind_rows(pt_icu, ab_icu)
 pt_hosp_icu <- pt_hosp_filter %>%
     left_join(pt_icu_filter, by = c("prname", "date")) %>%
     filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU")) %>%
-    mutate(prname = factor(prname, c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU"))) %>%
     pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
-    mutate(prname = recode(prname,
-        "BC" = "British Columbia",
-        "AB" = "Alberta",
-        "SK" = "Saskatchewan",
-        "MB" = "Manitoba",
-        "ON" = "Ontario",
-        "QC" = "Quebec",
-        "NL" = "Newfoundland and Labrador",
-        "NB" = "New Brunswick",
-        "NS" = "Nova Scotia",
-        "PE" = "Prince Edward Island",
-        "YK" = "Yukon",
-        "NT" = "Northwest Territories",
-        "NU" = "Nunavut"
-    )) %>%
+    recode_PT_names_to_big(varname="prname")%>%
+    mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut"))) %>%
   filter(date <= params$date)
 
 
@@ -287,15 +273,8 @@ qry_canada <- qry_cases_raw %>%
 qry_cases <- qry_cases_raw %>%
     clean_names() %>%
     select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
-    mutate(prname = pt) %>%
-    mutate(prname = recode(prname,
-        "bc" = "British Columbia",
-        "ab" = "Alberta",
-        "sk" = "Saskatchewan",
-        "mb" = "Manitoba",
-        "on" = "Ontario",
-        "qc" = "Quebec"
-    )) %>%
+    mutate(prname = toupper(pt)) %>%
+    recode_PT_names_to_big(varname="prname") %>%
     group_by(episodedate, agegroup20, prname) %>%
     tally() %>%
     filter(!is.na(episodedate)) %>%

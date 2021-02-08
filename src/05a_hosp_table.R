@@ -112,20 +112,8 @@ Hosp_Metrics_Table <- Hosp_Metrics %>%
 #Export hospitalization data
 #only dif is we don't include repatriated travelers here, while they were included in the other export.
 export_hosp<-Hosp_Metrics %>%
-  mutate(prov=case_when(Jurisdiction=="Alberta" ~ "AB",
-                        Jurisdiction=="British Columbia" ~ "BC",
-                        Jurisdiction=="Manitoba" ~ "MB",
-                        Jurisdiction=="New Brunswick" ~ "NB",
-                        Jurisdiction=="Newfoundland and Labrador" ~ "NL",
-                        Jurisdiction=="Northwest Territories" ~ "NT",
-                        Jurisdiction=="Nova Scotia" ~ "NS",
-                        Jurisdiction=="Nunavut" ~ "NU",
-                        Jurisdiction=="Ontario"~"ON",
-                        Jurisdiction=="Prince Edward Island" ~ "PE",
-                        Jurisdiction=="Quebec"~"QC",
-                        Jurisdiction=="Saskatchewan"~"SK",
-                        Jurisdiction=="Yukon"~"YK",
-                        TRUE ~ "")) %>%
+mutate(prov=Jurisdiction) %>%
+  recode_PT_names_to_small(varname="prov") %>%
   rename(Hosp=Hospitalizations,
          Hosp7MA=hosp7ma,
          hospweekchange=delta7h,

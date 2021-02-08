@@ -99,21 +99,7 @@ any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$upd
 if(any_non_report_flag==TRUE){
   key_PTs_nonreport<-df_raw$prname[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 
   
-  key_PTs_nonreport<-recode(key_PTs_nonreport, 
-         "British Columbia"="BC",
-         "Alberta" = "AB",
-         "Saskatchewan"="SK",
-         "Manitoba"="MB",
-         "Ontario"="ON",
-         "Quebec"="QC",
-         "Newfoundland and Labrador"="NL",
-         "New Brunswick"="NB",
-         "Nova Scotia"="NS",
-         "Prince Edward Island"="PE",
-         "Yukon"="YK",
-         "Northwest Territories"="NT",
-         "Nunavut"="NU")
-  
+  key_PTs_nonreport<-recode_PT_names_to_small(key_PTs_nonreport)
 }
 
 Case_per_100K <- PT7 %>%

@@ -40,10 +40,12 @@ library(flextable)
 library(officer)
 library(hms)
 
+source("src/trend_report_functions.R")
+
 # Import data
 source("src/00_get_data.R")
-#Import table formatting functions
-source("src/format_tables.R")
+
+
 
 list_pt <-  if (params$region == "Major provinces") {
   c("Canada",

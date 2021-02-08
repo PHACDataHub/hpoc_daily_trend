@@ -1,4 +1,27 @@
-## Format tables script
+## Run Trend Report script
+
+
+#Script to generate Daily Trend Report!
+
+generate_trend_report<-function(report_date=""){
+
+if (report_date==""){
+  report_date<-format(Sys.Date(), "%d%b%Y")
+}
+library("rmarkdown")
+setwd("C:/rmd/")
+
+rmarkdown::render('daily-trend-report-v3.rmd',
+                  output_file = paste0('DailyTrendReport_', report_date,'.pptx'))
+}
+
+
+
+
+############################################################################################################################################ #
+############################################################################################################################################ #
+
+## Format tables 
 
 format_casedeath_table<-function(input_table){
 
@@ -179,4 +202,92 @@ ft_1 <- footnote(ft, value = as_paragraph(
 ft_1 <- autofit(ft_1)
 
 return(ft_1)
+}
+
+
+#############################
+
+## Recode PT names
+
+recode_PT_names_to_small <- function(dataset, varname = "") {
+  if (class(dataset)[1]=="character"){
+    dataset<-recode(dataset, 
+                              "British Columbia"="BC",
+                              "Alberta" = "AB",
+                              "Saskatchewan"="SK",
+                              "Manitoba"="MB",
+                              "Ontario"="ON",
+                              "Quebec"="QC",
+                              "Newfoundland and Labrador"="NL",
+                              "New Brunswick"="NB",
+                              "Nova Scotia"="NS",
+                              "Prince Edward Island"="PE",
+                              "Yukon"="YK",
+                              "Northwest Territories"="NT",
+                              "Nunavut"="NU",
+                              "Canada"="CA")
+  }
+  else{
+  dataset <- dataset %>%
+    mutate(
+      !!varname := case_when(
+        !!as.name(varname) == "British Columbia" ~ "BC",
+        !!as.name(varname) == "Alberta" ~ "AB",
+        !!as.name(varname) == "Saskatchewan" ~ "SK",
+        !!as.name(varname) == "Manitoba" ~ "MB",
+        !!as.name(varname) == "Ontario" ~ "ON",
+        !!as.name(varname) == "Quebec" ~ "QC",
+        !!as.name(varname) == "Newfoundland and Labrador" ~ "NL",
+        !!as.name(varname) == "New Brunswick" ~ "NB",
+        !!as.name(varname) == "Nova Scotia" ~ "NS",
+        !!as.name(varname) == "Prince Edward Island" ~ "PE",
+        !!as.name(varname) == "Yukon" ~ "YK",
+        !!as.name(varname) == "Northwest Territories" ~ "NT",
+        !!as.name(varname) == "Nunavut" ~ "NU",
+        !!as.name(varname) == "Canada" ~ "CA",
+        TRUE~!!as.name(varname)))
+  }
+  return(dataset)
+}
+  
+recode_PT_names_to_big <- function(dataset, varname = "") {
+  if (class(dataset)[1]=="character"){
+    dataset<-recode(dataset, 
+                    "BC" = "British Columbia",
+                    "AB" = "Alberta",
+                    "SK" = "Saskatchewan",
+                    "MB" = "Manitoba",
+                    "ON" = "Ontario",
+                    "QC" = "Quebec",
+                    "NL" = "Newfoundland and Labrador",
+                    "NB" = "New Brunswick",
+                    "NS" = "Nova Scotia",
+                    "PE" = "Prince Edward Island",
+                    "YK" = "Yukon",
+                    "NT"= "Northwest Territories",
+                    "NU" = "Nunavut",
+                    "CA" = "Canada")
+  }
+  else{
+  dataset <- dataset %>%
+    mutate(
+      !!varname := case_when(
+        !!as.name(varname) ==  "BC" ~ "British Columbia",
+        !!as.name(varname) ==  "AB" ~ "Alberta",
+        !!as.name(varname) ==  "SK" ~ "Saskatchewan",
+        !!as.name(varname) ==  "MB" ~ "Manitoba",
+        !!as.name(varname) ==  "ON" ~ "Ontario",
+        !!as.name(varname) ==  "QC" ~ "Quebec",
+        !!as.name(varname) ==  "NL" ~ "Newfoundland and Labrador",
+        !!as.name(varname) ==  "NB" ~ "New Brunswick",
+        !!as.name(varname) ==  "NS" ~"Nova Scotia",
+        !!as.name(varname) ==  "PE" ~ "Prince Edward Island",
+        !!as.name(varname) ==  "YK" ~ "Yukon",
+        !!as.name(varname) ==  "NT" ~ "Northwest Territories",
+        !!as.name(varname) ==  "NU" ~ "Nunavut",
+        !!as.name(varname) ==  "CA" ~ "Canada",
+        TRUE~ !!as.name(varname)))
+
+  }
+  return(dataset)
 }

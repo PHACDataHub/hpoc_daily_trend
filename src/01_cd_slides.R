@@ -34,7 +34,7 @@ for (i in list_pt){
         
         # Charting the plots
         p1 <- ggplot(df_filter, aes(x = Date, y = Cases_Daily)) +
-                ggtitle(paste0("Reported COVID19 cases by date, ", i)) +
+                ggtitle(bquote("Reported"~bold("cases")~"by date,"~.(i))) +
                 geom_col(aes(fill = "Reported cases"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
@@ -63,7 +63,7 @@ for (i in list_pt){
                 )
         
         p2 <- ggplot(df_filter, aes(x = Date, y = Deaths_Daily)) +
-                ggtitle(paste0("Reported COVID19 deaths by date, ", i)) +
+                ggtitle(bquote("Reported"~bold("deaths")~"by date,"~.(i))) +
                 geom_col(aes(fill = "Reported deaths"), width = 0.5) +
                 geom_line(aes(
                         colour = "7 day moving average (7MA)",
