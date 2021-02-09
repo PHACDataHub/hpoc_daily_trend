@@ -44,7 +44,13 @@ correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date
   return(data)
 }
 
-#hard-coded manual corrections
+
+
+########### Hard-coded manual corrections
+# May 3rd, extra 1317 cases from April were reported in QC, real value should be 892 (https://www.cbc.ca/news/canada/montreal/covid-19-quebec-may-3-1.5553881)
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-05-03",corrected_value = 892)
+# May 31st, extra 165 cases were reported in QC, real value should be 37 (https://montreal.ctvnews.ca/quebec-records-37-new-covid-19-deaths-but-adds-165-that-weren-t-recorded-1.4962370)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Quebec",correction_date = "2020-05-31",corrected_value = 37)
 
 # #data dump of deaths in Ontario on October 2-4
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "Ontario",correction_date = "2020-10-02",corrected_value = 2)
@@ -96,10 +102,14 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",corre
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
-#Weekend Jan30-31stuff
+#Weekend Jan30-31stuff (21 deaths reported on Feb.1 after not reporting over the weekend)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-30",corrected_value = 7)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 7)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-01",corrected_value = 7)
+#Weekend Feb6-7stuff (13 deaths reported on Feb.8 after not reporting over the weekend)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-30",corrected_value = 4.33)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 4.33)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-01",corrected_value = 4.34)
 
 #getting corrected values for the national number now
 can_corrected_case_death<-df_corrected %>%
@@ -123,6 +133,7 @@ df_corrected2<-df_corrected %>%
 
 #For now, we can just take our corrections forward, but may want to differentiate between raw data and corrected data one day
 df<-df_corrected2
+rm(df_corrected, df_corrected2)
 
 ####################################################################################### #
 ########      International comparison data; this gets updated once daily        ########
@@ -259,6 +270,10 @@ qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AN
   mutate(onsetdate = as.Date(onsetdate),
          episodedate=as.Date(episodedate),
          earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
+
+
+
+
 
 
 qry_canada <- qry_cases_raw %>%

@@ -11,6 +11,7 @@ SALT2 <- SALT %>%
            Week_before=paste(str_sub(months(date(Start_of_week)-7),1,3),"-",day(date(Start_of_week)-7), " to ", str_sub(months(date(End_of_week)-7),1,3),"-",day(date(End_of_week)-7))) %>%
     filter(Date <= floor_date(max(Date), "week")-1) %>%
     mutate(Current_week=ifelse(date(Date)+7 <= max(Date),"No","Yes")) %>%
+  filter(Date>="2021-01-23") %>% #Issues with historical data missing for some PTs - only taking last two weeks data for now.
     arrange(Jurisdiction,datetime)
 
 SALT3 <- SALT2 %>%
@@ -82,46 +83,6 @@ write.csv(export_testing2, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPARED
 #For use in python script
 write.csv(Testing, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing.csv')
 
-
-
-
-#Adding if statements to prevent crash if only 1 week of data is available. Can adjust code next week once we have 2 weeks of data.
-if(unique(Testing$Week_no)>1){
-Testing_Metrics <- Testing %>%
-  group_by(Jurisdiction) %>%
-  slice(tail(row_number(),2)) %>%
-  mutate(this_week=max(Week_no),
-         week_label=ifelse(Week_no==this_week, "thisweek","lastweek")) %>%
-  select(Jurisdiction,week_label,avg_tests_per_day,percent_positive) %>%
-  pivot_longer(cols = c("avg_tests_per_day","percent_positive"),
-               names_to="type",
-               values_to="value") %>%
-  pivot_wider(names_from = c(week_label, type),
-              names_glue= "{type}_{week_label}" ,
-              values_from=value) %>%
-  mutate(perc_change_in_tests=(avg_tests_per_day_thisweek-avg_tests_per_day_lastweek)/avg_tests_per_day_lastweek,
-         perc_change_in_pos=(percent_positive_thisweek-percent_positive_lastweek)/percent_positive_lastweek,
-         across(contains("avg"),round),
-         across(contains("perc"),label_percent(accuracy = 0.1))) %>%
-  select(Jurisdiction,avg_tests_per_day_thisweek, avg_tests_per_day_lastweek,perc_change_in_tests, 
-         percent_positive_thisweek, percent_positive_lastweek, perc_change_in_pos)
-
-this_week_num<-max(Testing$Week_no)
-this_week_label<-unique(Testing$Week[Testing$Week_no==this_week_num])
-last_week_num<-max(Testing$Week_no)-1
-last_week_label<-unique(Testing$Week[Testing$Week_no==last_week_num])
-juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
-
-Testing_Metrics <- Testing_Metrics %>%
-  rename(!!paste0("Average Daily Tests (",this_week_label,")") := avg_tests_per_day_thisweek,
-        !!paste0("Average Daily Tests (",last_week_label,")") := avg_tests_per_day_lastweek,
-        "Change in Tests" = perc_change_in_tests,
-        !!paste0("Percent Positivity (",this_week_label,")") := percent_positive_thisweek,
-        !!paste0("Percent Positivity (",last_week_label,")") := percent_positive_lastweek,
-        "Change in Percent Positivity" = perc_change_in_pos) %>%
-  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
-  arrange(Jurisdiction) 
-} else {
   Testing_Metrics <- Testing %>%
     group_by(Jurisdiction) %>%
     slice(tail(row_number(),2)) %>%
@@ -134,18 +95,24 @@ Testing_Metrics <- Testing_Metrics %>%
     pivot_wider(names_from = c(week_label, type),
                 names_glue= "{type}_{week_label}" ,
                 values_from=value) %>%
-    mutate(across(contains("avg"),round),
-           across(contains("perc"),label_percent(accuracy = 0.1)))
+    mutate(change_in_tests=(avg_tests_per_day_thisweek-avg_tests_per_day_lastweek)/avg_tests_per_day_lastweek,
+           change_in_positivity=(percent_positive_thisweek-percent_positive_lastweek)/percent_positive_lastweek) %>%
+    select(Jurisdiction,avg_tests_per_day_thisweek,avg_tests_per_day_lastweek,change_in_tests,percent_positive_thisweek,percent_positive_lastweek,change_in_positivity  )
   
   this_week_num<-max(Testing$Week_no)
   this_week_label<-unique(Testing$Week[Testing$Week_no==this_week_num])
+  last_week_num<-max(Testing$Week_no)-1
+  last_week_label<-unique(Testing$Week[Testing$Week_no==last_week_num])
+  
   juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
   Testing_Metrics <- Testing_Metrics %>%
     rename(!!paste0("Average Daily Tests (",this_week_label,")") := avg_tests_per_day_thisweek,
-           !!paste0("Percent Positivity (",this_week_label,")") := percent_positive_thisweek) %>%
+           !!paste0("Percent Positivity (",this_week_label,")") := percent_positive_thisweek,
+           !!paste0("Average Daily Tests (",last_week_label,")") := avg_tests_per_day_lastweek,
+           !!paste0("Percent Positivity (",last_week_label,")") := percent_positive_lastweek,
+    ) %>%
     mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder)) %>%
-    arrange(Jurisdiction) 
-}
+    arrange(Jurisdiction)
 
 #Creating "key_" R variables for inclusion in the slide text of the .Rmd
 key_Can_weekly_tests<-Testing$week_tests_performed[Testing$Week_no==this_week_num&Testing$Jurisdiction=="Canada"]
@@ -187,6 +154,7 @@ National_Daily <- National_Daily_a %>%
   mutate(tests_performed=daily_tests_performed,
          percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
-  filter(Date>"2020-03-31")
+  filter(Date>"2021-01-23") #For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
+  # filter(Date<params$date) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
 
 write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')

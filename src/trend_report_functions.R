@@ -2,7 +2,7 @@
 
 
 #Script to generate Daily Trend Report!
-
+## This is currently broken, will look into this at some point.
 generate_trend_report<-function(report_date=""){
 
 if (report_date==""){
@@ -15,7 +15,26 @@ rmarkdown::render('daily-trend-report-v3.rmd',
                   output_file = paste0('DailyTrendReport_', report_date,'.pptx'))
 }
 
+############################################################################################################################################ #
+############################################################################################################################################ #
 
+
+# correct_df() is a function to be able to more elegantly make corrections to the data.
+# data= ""            - dataset you wish to correct. df_corrected data set as default (probably should be forced choice)
+# metric= ""          - choice between updating "cases" or "deaths" = other text inputs will be ignored
+# Jurisdiction=""     - region that is being corrected. Currently takes only one input by design
+# correction_date=""  - date that you want to make correction for
+# corrected_value=""  - new input value that you want to make
+
+correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date="",corrected_value=""){
+  correction_date=as.Date(correction_date)
+  if (metric=="cases"){
+    data[data$prname==Jurisdiction & data$date==correction_date, "numtoday"]<-corrected_value
+  }else if (metric=="deaths"){
+    data[data$prname==Jurisdiction & data$date==correction_date, "numdeathstoday"]<-corrected_value
+  }
+  return(data)
+}
 
 
 ############################################################################################################################################ #
@@ -84,7 +103,7 @@ format_casedeath_table<-function(input_table){
       if(any_non_report_flag==FALSE){
         "All PTs provided daily updates today"
       } else {
-        paste0("Note that daily updates were not provided by: ",str_c(key_PTs_nonreport, collapse=", "),". 7MA of cases and deaths for these PTs are based on the date of last report. For calculation of the national 7MA of cases and deaths, days after the date of last report for these PTs were omitted.")
+        paste0("Note that daily updates were not provided by: ",turn_char_vec_to_comma_list(key_PTs_nonreport),". 7MA of cases and deaths for these PTs are based on the date of last report. For calculation of the national 7MA of cases and deaths, days after the date of last report for these PTs were omitted.")
       }),
       ref_symbols = c(""),
       part = "header") %>%
@@ -166,6 +185,21 @@ format_hospicu_table<-function(input_table){
 
 #Will update this function to be more like the other format_X_table functions next week when all columns are able to be completed.
 format_labtesting_table<-function(input_table){
+
+  input_table <- input_table %>%
+    mutate(across(contains("Average"),number, big.mark=","),
+           across(contains("Percent"),label_percent(accuracy = 0.1)),
+           across(contains("change"),label_percent(accuracy = 0.1)),
+           change_in_tests=case_when(change_in_tests>0 ~ paste0("+",change_in_tests),
+                             is.na(change_in_tests) ~ "NA",
+                             TRUE ~ as.character(change_in_tests)),
+           change_in_positivity=case_when(change_in_positivity>0 ~ paste0("+",change_in_positivity),
+                             is.na(change_in_positivity) ~ "NA",
+                             TRUE ~ as.character(change_in_positivity))) %>%
+    rename(`Weekly Change in Tests` = change_in_tests,
+           `Weekly Change in Percent Positivity` = change_in_positivity)
+  
+  
 ft <- flextable(input_table)
 ft <- width(ft, width=1.2)
 ft <- height_all(ft, height=.26)
@@ -191,8 +225,10 @@ ft<-color(ft,color="white",part="header")
 
 #commented out the below for this week as causing program to crash due to non-existent columns
 #add conditional colour to change in testing variable 
-# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` < 0, color="red")
-# ft <- color(ft, j = "Change from week before", i = ~ `Change from week before` > 0, color="green4")
+ft <- color(ft, j = "Weekly Change in Tests", i = ~ str_detect(`Weekly Change in Tests`, "\\-"), color="red")
+ft <- color(ft, j = "Weekly Change in Tests", i = ~ str_detect(`Weekly Change in Tests`, "\\+"), color="green4")
+ft <- color(ft, j = "Weekly Change in Percent Positivity", i = ~ str_detect(`Weekly Change in Percent Positivity`, "\\+"), color="red")
+ft <- color(ft, j = "Weekly Change in Percent Positivity", i = ~ str_detect(`Weekly Change in Percent Positivity`, "\\-"), color="green4")
 
 ft_1 <- footnote(ft, value = as_paragraph(
   paste0("Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
@@ -291,3 +327,31 @@ recode_PT_names_to_big <- function(dataset, varname = "") {
   }
   return(dataset)
 }
+
+
+############################################################################################################################################ #
+############################################################################################################################################ #
+
+# Function to take a character vec, to collapse into single comma-separated string, but add the word "and" before last of the list
+# used in Summary slide / footnotes
+turn_char_vec_to_comma_list<-function(vector){
+  if(class(vector)!="character"){
+    print("This is not a character vector")
+  }else if (length(vector)==1){
+    final_string<-vector
+  }else if (length(vector)==2){
+    final_string<-str_c(vector, collapse = " and ")
+  }else if (length(vector)>2){
+      final_string<-paste0(str_c(vector[1:length(vector)-1], collapse = ", "), ", and ",vector[length(vector)])
+  }
+  return(final_string)
+}
+
+############################################################################################################################################ #
+############################################################################################################################################ #
+
+
+#TODO: Function to change PRNAME var into a factor by PT order West to East, or alphabetically
+
+
+

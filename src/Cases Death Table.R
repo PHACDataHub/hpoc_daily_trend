@@ -69,12 +69,11 @@ Case_Death_Stats_1 <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
   group_by(Jurisdiction) %>% 
   filter(Date==max(Date)) %>%
-  mutate(Weekly_Change_Cases=percent(Weekly_Change_Cases,accuracy=0.1)) %>%
-  mutate(National_Case_Proportion=percent(National_Case_Proportion,accuracy=0.1)) %>%
-  mutate(Weekly_Change_Deaths=percent(Weekly_Change_Deaths,accuracy=0.1)) %>%
-  mutate(National_Death_Proportion=percent(National_Death_Proportion,accuracy=0.1)) %>%
-  mutate(Cases_Daily_7MA=round(Cases_Daily_7MA)) %>%
-  mutate(Deaths_Daily_7MA=round(Deaths_Daily_7MA,1)) 
+  mutate(Weekly_Change_Cases=percent(Weekly_Change_Cases,accuracy=0.1),
+         National_Case_Proportion=percent(National_Case_Proportion,accuracy=0.1),
+         Weekly_Change_Deaths=percent(Weekly_Change_Deaths,accuracy=0.1),
+         National_Death_Proportion=percent(National_Death_Proportion,accuracy=0.1),
+         Deaths_Daily_7MA=round(Deaths_Daily_7MA,1)) 
 
 juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
 
@@ -83,12 +82,9 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
   left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
          Date = format(Date, "%B %d"),
-         # Weekly_Change_Cases=case_when(Weekly_Change_Cases>0 ~ paste0("+",Weekly_Change_Cases),
-         #                               TRUE ~ as.character(Weekly_Change_Cases)),
-         # Weekly_Change_Deaths=case_when(Weekly_Change_Deaths>0 ~ paste0("+",Weekly_Change_Deaths),
-         #                                TRUE ~ as.character(Weekly_Change_Deaths)),
          Cases_7MA_per100k = round((Cases_Daily_7MA / Population)*100000,digits = 1),
-         Deaths_7MA_per100k=round((Deaths_Daily_7MA / Population)*100000,digits = 2)) %>%
+         Deaths_7MA_per100k=round((Deaths_Daily_7MA / Population)*100000,digits = 2),
+         Cases_Daily_7MA=ifelse(Cases_Daily_7MA<1, number(Cases_Daily_7MA, accuracy = 0.1), number(Cases_Daily_7MA, big.mark = ""))) %>%
   arrange(Jurisdiction)%>%
   select(Jurisdiction,Date,
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
@@ -126,7 +122,7 @@ export_case_death<-PT7 %>%
          Cases_PreviousWeek=lag(Cases_CurrentWeek,n=7L),
          Deaths_CurrentWeek=rollsum(x=Deaths_Daily, k=7,align="right", fill=NA),
          Deaths_PreviousWeek=lag(Deaths_CurrentWeek,n=7L),
-         Cases_Daily_7MA=round(Cases_Daily_7MA),
+         Cases_Daily_7MA=ifelse(Cases_Daily_7MA<1, round(Cases_Daily_7MA, digits = 0.1), round(Cases_Daily_7MA)),
          Deaths_Daily_7MA=round(Deaths_Daily_7MA,1),
          Cases_WeeklyPercentChange=round(Cases_WeeklyPercentChange*100,1),
          Deaths_WeeklyPercentChange=round(Deaths_WeeklyPercentChange*100,1),

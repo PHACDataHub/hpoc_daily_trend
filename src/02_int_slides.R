@@ -45,7 +45,7 @@ ggplot(int_cases, aes(date, new_cases_smoothed_per_million, group = location, co
                 plot.caption = element_text(hjust = 0)
         ) +
         labs(caption = paste0("Source: Our World in Data, https://ourworldindata.org/coronavirus
-                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_cases$date), "%B %d")))
+                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_cases$date), "%B %d")," (International data is lagged by one day)"))
 
 
 cat('\n') 
@@ -82,6 +82,6 @@ ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, 
     plot.caption = element_text(hjust = 0)
   ) +
   labs(caption = paste0("Source: Our World in Data, https://ourworldindata.org/coronavirus
-                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_deaths$date), "%B %d")))
+                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_deaths$date), "%B %d")," (International data is lagged by one day)"))
 
 cat('\n') 

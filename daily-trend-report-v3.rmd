@@ -39,6 +39,7 @@ library(stringr)
 library(flextable)
 library(officer)
 library(hms)
+# library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
 
 source("src/trend_report_functions.R")
 
@@ -168,7 +169,7 @@ labtesting_table<-format_labtesting_table(input_table=Testing_Metrics)
 labtesting_table
 ```
 Highlights:
-Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` people have been tested for COVID-19 across Canada with a total of `r scales::comma(key_Can_weekly_tests)` tested in the recent week. The weekly percent positivity is `r key_Can_weekly_perc_positive`
+Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` tests have been performed for COVID-19 across Canada, for a total of `r scales::comma(key_Can_weekly_tests)` tests. The weekly percent positivity is `r key_Can_weekly_perc_positive`
 
 ```{r National Testing Graphic, echo=FALSE, out.width='100%'}
 knitr::include_graphics('National_Testing.jpg')
@@ -180,3 +181,5 @@ Indicators derived from International Sources
 
 ```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
+
+
