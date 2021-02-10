@@ -107,7 +107,7 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-m
 ```
 
 ```{r Python Codes for Graphics, results='asis', message=FALSE, warning=FALSE}
-source_python("src/case_per_100k.py")
+source_python("src/case_per_100k_v2.py")
 source_python("src/National_Testing.py")
 ```
 
