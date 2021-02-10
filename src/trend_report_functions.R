@@ -45,7 +45,8 @@ correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date
 format_casedeath_table<-function(input_table){
 
   input_table<-input_table %>%
-    mutate(Weekly_Change_Cases=case_when(Weekly_Change_Cases>0 ~ paste0("+",Weekly_Change_Cases),
+    mutate(Cases_Daily_7MA=number(Cases_Daily_7MA, big.mark = ","),
+           Weekly_Change_Cases=case_when(Weekly_Change_Cases>0 ~ paste0("+",Weekly_Change_Cases),
                                          is.na(Weekly_Change_Cases) ~ "NA",
                                          TRUE ~ as.character(Weekly_Change_Cases)),
            Weekly_Change_Deaths=case_when(Weekly_Change_Deaths>0 ~ paste0("+",Weekly_Change_Deaths),

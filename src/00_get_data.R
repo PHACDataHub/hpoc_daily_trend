@@ -107,9 +107,9 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",corre
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 7)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-01",corrected_value = 7)
 #Weekend Feb6-7stuff (13 deaths reported on Feb.8 after not reporting over the weekend)
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-30",corrected_value = 4.33)
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 4.33)
-df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-01",corrected_value = 4.34)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-06",corrected_value = 4.33)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-07",corrected_value = 4.33)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-08",corrected_value = 4.34)
 
 #getting corrected values for the national number now
 can_corrected_case_death<-df_corrected %>%
@@ -265,7 +265,29 @@ pt_hosp_icu <- pt_hosp_filter %>%
 ########                        Get case Report Form data                        ########
 ####################################################################################### #
 
+# 
+# metabase_user='**********'
+# metabase_pass='**********'
+# 
+# # Time benchmarking:
+# # user  system elapsed 
+# # 10.91    0.25   80.22 +2.74 for metabase_login() 
+# system.time(
+# handle<- metabase_login(base_url = "https://discover-metabase.hres.ca/api",
+#                          database_id = 2, # phac database
+#                          username = metabase_user,
+#                          password = metabase_pass)
+# )
+# system.time(
+# trend_extract <- metabase_query(handle, "select phacid, phacreporteddate, episodedate, pt, age, agegroup10, agegroup20, onsetdate, earliestlabcollectiondate, sex, gender, sexgender, coviddeath, hosp, icu, exposure_cat from all_cases;")
+# )
+
+
+
 #note - we make a call to this dataset in 04.R, and 04a.R codes, in case this is set to be deleted
+# Time benchmarking:
+#   user  system elapsed 
+#   13.01    0.09   48.43
 qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
   mutate(onsetdate = as.Date(onsetdate),
          episodedate=as.Date(episodedate),

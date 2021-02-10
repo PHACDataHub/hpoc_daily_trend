@@ -39,7 +39,7 @@ library(stringr)
 library(flextable)
 library(officer)
 library(hms)
-# library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
+library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
 
 source("src/trend_report_functions.R")
 
@@ -138,7 +138,7 @@ hospicu_table
 ```
 
 
-# COVID-19 patients in hospital daily per 100,000 population 
+# COVID-19 patients in hospital daily per 100,000 population
 
 ```{r, code=xfun::read_utf8('src/05c_hosp_per.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
