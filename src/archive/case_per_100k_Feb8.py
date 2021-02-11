@@ -7,7 +7,10 @@ Created on Mon Dec  7 11:15:24 2020
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
+import numpy as np
 import matplotlib.dates as mdates
+import mpl_axes_aligner
 # import pathlib
 
 from mpl_axes_aligner import align
@@ -72,11 +75,12 @@ ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18
 #plt.show()
     
 #Add caption
-date_updated= max((case_per_100k['Date'])).strftime('%B %d')
-current_rate= str(case_per_100k[case_per_100k.Date == max((case_per_100k['Date']))].Case_per_100K_7MA.round(2).item())
-#current_rate=current_rate_df.iloc[0].round(2)
-#current_rate_string=str(current_rate)
-text="Spring peak: April 26, 4.55 cases/100k  \nWinter peak: January 10, 21.74 cases/100k \nToday's value ("+date_updated+"): "+current_rate+" cases/100k \nUpdated daily (Sun-Thurs). Data as of: "+date_updated
+date_updated= max((case_per_100k['Date']))
+date_updated_formatted= date_updated.strftime('%B %d')
+current_rate_df= case_per_100k[case_per_100k.Date == date_updated].Case_per_100K_7MA
+current_rate=current_rate_df.iloc[0].round(2)
+current_rate_string=str(current_rate)
+text="Spring peak: April 26, 4.55 cases/100k  \nWinter peak: January 10, 21.74 cases/100k \nToday's value ("+date_updated_formatted+"): "+current_rate_string+" cases/100k \nUpdated daily (Sun-Thurs). Data as of: "+date_updated_formatted
 fig.text(0, -0.1, text, ha='left',  size=20)
 
 #set dimensions of plot

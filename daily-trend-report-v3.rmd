@@ -107,11 +107,11 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-m
 ```
 
 ```{r Python Codes for Graphics, results='asis', message=FALSE, warning=FALSE}
-source_python("src/case_per_100k_v2.py")
+source_python("src/case_per_100k.py")
 source_python("src/National_Testing.py")
 ```
 
-```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
+```{r Insert Canada case per 100K, fig.cap=paste(key_100k_caption), echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
 knitr::include_graphics('Canada_case_per_100k.jpg')
 ```
 
@@ -171,7 +171,7 @@ labtesting_table
 Highlights:
 Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` tests have been performed for COVID-19 across Canada, for a total of `r scales::comma(key_Can_weekly_tests)` tests. The weekly percent positivity is `r key_Can_weekly_perc_positive`
 
-```{r National Testing Graphic, echo=FALSE, out.width='100%'}
+```{r National Testing Graphic, fig.cap=paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update),echo=FALSE, out.width='100%'}
 knitr::include_graphics('National_Testing.jpg')
 ```
 

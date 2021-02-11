@@ -82,16 +82,13 @@ for (i in list_pt){
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
                 scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
-                labs(caption = paste0("Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$Date),"%B %d"))) +
-                theme(
+              theme(
                         panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
                         panel.background = element_blank(),
                         axis.line = element_line(colour = "black"),
                         legend.position = "bottom",
-                        text = element_text(size = 20),
-                        plot.caption = element_text(hjust = 0)
-                )
+                        text = element_text(size = 20))
         
         p3 <- ggplot(df_filter, aes(x = Date, y = Cases_Daily)) +
                 ggtitle(paste0("Daily cases, past 2 weeks, ", i)) +
@@ -153,15 +150,19 @@ for (i in list_pt){
                 ) +
                 scale_fill_manual(name = "", values = c("Reported deaths" = "grey")) +
                 scale_colour_manual(name = "", values = c("7 day moving average (7MA)" = "black")) +
-                theme(
-                        panel.grid.major = element_blank(),
+                theme(panel.grid.major = element_blank(),
                         panel.grid.minor = element_blank(),
                         panel.background = element_blank(),
                         axis.line = element_line(colour = "black"),
                         legend.position = "bottom",
-                        text = element_text(size = 20)
-                )
-        
+                        text = element_text(size = 20))
+        if (i=="Canada"){
+                p2 = p2 + labs(caption = paste0("Spring peak: May 6, 176.6 deaths \nWinter peak: Jan. 26, 161.2 deaths\n","Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$Date),"%B %d"))) +
+                theme(plot.caption = element_text(hjust = 0))
+        } else {
+                p2 = p2 + labs(caption = paste0("Updated daily (Sun-Thurs). Data as of: ",format(max(df_filter$Date),"%B %d"))) +
+                        theme(plot.caption = element_text(hjust = 0))
+        }
         # Set the layout of the plots and tables in Patchwork syntax
         output <- p1 + p3 + gridExtra::tableGrob(table_filter_case[1:3, c("desc", "value")],
                                                  theme = ttheme_minimal(core = list(fg_params = list(

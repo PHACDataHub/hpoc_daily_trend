@@ -140,6 +140,28 @@ SALT4a <- SALT3a %>%
          daily_tests_negative = daily_tests_performed-daily_tests_positive,
          percent_positive = daily_tests_positive/daily_tests_performed)
 
+
+
+PTs_missing_latest_lab_date<-SALT4a %>%
+  group_by(Jurisdiction) %>%
+  filter(Date==max(Date)) %>%
+  ungroup %>%
+  filter(!Date==max(Date)) %>%
+  recode_PT_names_to_small(varname="Jurisdiction") %>%
+  mutate(Date=format(Date, "%b %d")) %>%
+  mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) %>%
+  select(text_var)
+
+key_lab_update<-format(max(SALT2a$Date), "%B %d")
+
+if (nrow(PTs_missing_latest_lab_date>0)){
+any_PTs_missing_latest_lab_date_flag=TRUE
+  key_PTs_missing_latest_lab_date<-turn_char_vec_to_comma_list(PTs_missing_latest_lab_date[[1]])
+} else{
+  any_PTs_missing_latest_lab_date_flag=FALSE
+}
+
+
 National_Daily_a <- SALT4a %>%
   select(Date, daily_tests_performed, daily_tests_positive, daily_tests_negative) %>%
   group_by(Date) %>%

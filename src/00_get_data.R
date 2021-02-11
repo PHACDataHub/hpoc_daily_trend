@@ -27,25 +27,6 @@ df<-df_raw %>%
 df_corrected<-df %>%
   select(-numtotal,-numdeaths)
 
-# correct_df() is a function to be able to more elegantly make corrections to the data.
-# data= ""            - dataset you wish to correct. df_corrected data set as default (probably should be forced choice)
-# metric= ""          - choice between updating "cases" or "deaths" = other text inputs will be ignored
-# Jurisdiction=""     - region that is being corrected. Currently takes only one input by design
-# correction_date=""  - date that you want to make correction for
-# corrected_value=""  - new input value that you want to make
-
-correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date="",corrected_value=""){
-  correction_date=as.Date(correction_date)
-  if (metric=="cases"){
-    data[data$prname==Jurisdiction & data$date==correction_date, "numtoday"]<-corrected_value
-  }else if (metric=="deaths"){
-    data[data$prname==Jurisdiction & data$date==correction_date, "numdeathstoday"]<-corrected_value
-  }
-  return(data)
-}
-
-
-
 ########### Hard-coded manual corrections
 # May 3rd, extra 1317 cases from April were reported in QC, real value should be 892 (https://www.cbc.ca/news/canada/montreal/covid-19-quebec-may-3-1.5553881)
 df_corrected<-correct_df(metric="cases",Jurisdiction = "Quebec",correction_date = "2020-05-03",corrected_value = 892)
@@ -194,6 +175,18 @@ pt_pop20 <- pt_pop_raw %>%
 ####################################################################################### #
 ########                  Get the hospitalization and ICU data                   ########
 ####################################################################################### #
+# 
+# Trying to import excel data this way instead of in python but this is HELLA slow... - will look into storing this data differently
+#
+# pt_hosp_raw_R<-read_excel('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\DATA AND ANALYSIS\\Web Scraping\\Trend analysis\\COVID-19 historical trends.xlsx', 
+#                           sheet='Hospitalization (current)',
+#                           skip = 15)
+# 
+# ## Read the ICU data
+# pt_icu_raw_R = read_excel('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\DATA AND ANALYSIS\\Web Scraping\\Trend analysis\\COVID-19 historical trends.xlsx', 
+#                           sheet='ICU (current)',
+#                           skip = 15)
+# 
 
 
 # First scraped data for Alberta

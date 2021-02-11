@@ -66,9 +66,9 @@ ax.spines['top'].set_visible(False)
 #plt.show()
 
 #Add caption
-date_updated= max(pd.to_datetime(National_Daily['Date'])).strftime('%B %d')
-text="Updated daily (Sun-Thurs). Data as of: "+date_updated
-fig.text(0, -0.15, text, ha='left',  size=20)
+# date_updated= max(pd.to_datetime(National_Daily['Date'])).strftime('%B %d')
+# text="Updated daily (Sun-Thurs). Data as of: "+date_updated
+# fig.text(0, -0.15, text, ha='left',  size=20)
 
 #set dimensions of plot
 fig.set_size_inches(30, 12, forward=True)

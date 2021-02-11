@@ -100,6 +100,11 @@ Case_per_100K <- PT7 %>%
   mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
 
+key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
+key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
+key_latest_date_100k_fig<-format(max(Case_per_100K$Date), "%B %d")
+key_100k_caption<-paste0("Spring peak: April 26, 4.55 cases/100k, Winter peak: January 10, 21.74 cases/100k, Today's value (",key_latest_date_100k_fig,"): ",key_latest_case_rate_7MA," cases/100k           Updated daily (Sun-Thurs). Data as of: ",key_latest_date_100k_fig)
+
 write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
 
 # creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
