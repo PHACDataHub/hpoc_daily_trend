@@ -22,7 +22,7 @@ dates<-seq(max(df_filter$date)-6, max(df_filter$date), by=1)
 correct_Can_7MA<-function(input_date=""){
   can_corrected_7mas<-df_filter %>%
   filter(!prname %in% c("Canada", "Repatriated travellers")) %>%
-  filter(date>= as.Date(input_date)-6) %>%
+  filter(date>= as.Date(input_date)-6 & date<= as.Date(input_date)) %>%
   group_by(prname) %>%
   summarise(PT_case7ma=mean(numtoday),
             PT_death7ma=mean(numdeathstoday)) %>%
