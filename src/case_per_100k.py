@@ -72,10 +72,10 @@ ax2.legend(lines + lines2, labels + labels2, loc="upper left", prop=dict(size=18
 #plt.show()
     
 #Add caption - now adding in .rmd code chunk
-# date_updated= max((case_per_100k['Date'])).strftime('%B %d')
-# current_rate= str(case_per_100k[case_per_100k.Date == max((case_per_100k['Date']))].Case_per_100K_7MA.round(2).item())
-# text="Spring peak: April 26, 4.55 cases/100k  \nWinter peak: January 10, 21.74 cases/100k \nToday's value ("+date_updated+"): "+current_rate+" cases/100k \nUpdated daily (Sun-Thurs). Data as of: "+date_updated
-# fig.text(0, -0.1, text, ha='left',  size=20)
+date_updated= max((case_per_100k['Date'])).strftime('%B %d')
+current_rate= str(case_per_100k[case_per_100k.Date == max((case_per_100k['Date']))].Case_per_100K_7MA.round(2).item())
+text="Spring peak: April 26, 4.55 cases/100k  \nWinter peak: January 10, 21.74 cases/100k \nToday's value ("+date_updated+"): "+current_rate+" cases/100k \nUpdated daily (Sun-Thurs). Data as of: "+date_updated
+fig.text(0, -0.1, text, ha='left',  size=20)
 
 #set dimensions of plot
 fig.set_size_inches(24, 10.5, forward=True)

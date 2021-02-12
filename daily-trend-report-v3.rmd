@@ -40,6 +40,7 @@ library(flextable)
 library(officer)
 library(hms)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
+library(googlesheets4) #trying to access hosp data this way!
 
 source("src/trend_report_functions.R")
 
@@ -111,7 +112,8 @@ source_python("src/case_per_100k.py")
 source_python("src/National_Testing.py")
 ```
 
-```{r Insert Canada case per 100K, fig.cap=paste(key_100k_caption), echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
+```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
+# fig.cap=paste(key_100k_caption) #insert this if want figure caption to text (still working this out so going back to python caption)
 knitr::include_graphics('Canada_case_per_100k.jpg')
 ```
 
@@ -127,7 +129,6 @@ knitr::include_graphics('Canada_case_per_100k.jpg')
 # COVID-19 Hospitalizations and ICU Statistics
 
 ```{r Hospitalization ICU Metrics Table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
-
 source("src/05a_hosp_table.R")
 hospicu_table<-format_hospicu_table(input_table=Hosp_Metrics_Table)
 hospicu_table

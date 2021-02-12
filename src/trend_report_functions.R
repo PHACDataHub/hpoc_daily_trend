@@ -64,11 +64,12 @@ format_casedeath_table<-function(input_table){
   ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ str_detect(Weekly_Change_Deaths, "\\+"), color="red")
   ft <- color(ft, j = "Weekly_Change_Deaths", i = ~ str_detect(Weekly_Change_Deaths, "\\-"), color="green4")
   ft <- set_header_labels(ft, Cases_Daily="Daily Cases", Cases_Daily_7MA="7 Day MA, Cases",Cases_7MA_per100k="7 Day cases MA per 100,000",Weekly_Change_Cases="Weekly Change in Cases",National_Case_Proportion="National Proportion of Cases",Deaths_Daily="Daily Deaths",Deaths_Daily_7MA="7 Day MA, Deaths",Deaths_7MA_per100k="7 Day deaths MA per 100,000",Weekly_Change_Deaths="Weekly Change in Deaths",National_Death_Proportion="National Proportion of Deaths")
-  #ft <- width(ft, width=1.2)
+  ft<-width(ft, j=1, width = 1.5)
+  ft<-width(ft, j=2:ncol(input_table), width = 1)
   ft <- height(ft, height=.52, part = "header")
   ft <- height(ft, height=.26, part = "body")
-  ft <- fontsize(ft, size = 11, part="all")
-  #ft <- fontsize(ft, size = 12, part="body")
+  ft <- fontsize(ft, size = 12, part="all")
+  ft <- fontsize(ft, j = 3:ncol(input_table),size = 14, part="body")
   ft <- align(ft, align = "center", part="header")
   ft <- align(ft, j = 1:2,align = "left", part="body")
   ft <- align(ft, j=3:ncol(input_table), align = "right", part="body")
@@ -125,7 +126,7 @@ format_casedeath_table<-function(input_table){
       ref_symbols = c(""),
       part = "header")
   
-  #ft_1 <- autofit(ft_1)
+
   
   return(ft_1)
 }
@@ -150,7 +151,9 @@ format_hospicu_table<-function(input_table){
   ft <- color(ft, j = "delta7i", i = ~ str_detect(delta7i, "\\+"), color="red")
   ft <- color(ft, j = "delta7i", i = ~ str_detect(delta7i, "\\-"), color="green4")
   ft <- set_header_labels(ft, hosp7ma="Hospitalizations, 7 Day MA", delta7h="Weekly Change in Hospitalizations",icu7ma="ICU, 7 Day MA",delta7i="Weekly Change in ICU")
-  #ft <- width(ft, width=1.2)
+  ft<-width(ft, j=1, width = 2.5)
+  ft<-width(ft, j=2, width = 1.25)
+  ft<-width(ft, j=3:ncol(input_table), width = 1.5)
   ft <- height(ft, height=.39, part="header")
   ft <- height(ft, height=.26, part="body")
   ft <- fontsize(ft, size = 12, part="all")
@@ -171,7 +174,6 @@ format_hospicu_table<-function(input_table){
   ft <- border_outer(ft, part = "all", border = big_border)
   ft <- border_inner_v(ft, part = "all", border = border_v)
   ft <- border_inner_h(ft, part = "all", border = border_h)
-  ft <- autofit(ft)
   
   ft_1 <- footnote( ft, value = as_paragraph(
     c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers, the previous day's values are carried over.")),
@@ -181,7 +183,7 @@ format_hospicu_table<-function(input_table){
       ref_symbols = c(""),
       part = "header")
   
-  #ft_1 <- autofit(ft_1)
+
   
   return(ft_1)
 }
@@ -189,7 +191,6 @@ format_hospicu_table<-function(input_table){
 ############################################################################################################################################ #
 ############################################################################################################################################ #
 
-#Will update this function to be more like the other format_X_table functions next week when all columns are able to be completed.
 format_labtesting_table<-function(input_table){
 
   input_table <- input_table %>%
@@ -207,10 +208,10 @@ format_labtesting_table<-function(input_table){
   
   
 ft <- flextable(input_table)
-ft <- width(ft, width=1.2)
+ft<-width(ft, j=1, width = 2.5)
+ft<-width(ft, j=2:ncol(input_table), width = 1.5)
 ft <- height_all(ft, height=.26)
-ft <- fontsize(ft, size = 14, part="header")
-ft <- fontsize(ft, size = 12, part="body")
+ft <- fontsize(ft, size = 14, part="all")
 ft <- align(ft, align = "center", part="header")
 ft <- align(ft, j = 1,align = "left", part="body")
 ft <- align(ft, j=2:ncol(input_table), align = "right", part="body")
@@ -241,7 +242,7 @@ ft_1 <- footnote(ft, value = as_paragraph(
   ref_symbols = c(""),
   part = "header")  
 
-ft_1 <- autofit(ft_1)
+
 
 return(ft_1)
 }

@@ -100,10 +100,6 @@ Hosp_Metrics_Table <- Hosp_Metrics %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = prorder),
          Hospitalizations=ifelse(Jurisdiction=="Canada", can_daily_totals[1],Hospitalizations),
          ICU = ifelse(Jurisdiction=="Canada", can_daily_totals[2], ICU),
-         # delta7h=case_when(delta7h>0 ~ paste0("+",delta7h),
-         #                   TRUE ~ as.character(delta7h)),
-         # delta7i=case_when(delta7i>0 ~ paste0("+",delta7i),
-         #                   TRUE ~ as.character(delta7i))
          hosp7ma=round(hosp7ma),
          icu7ma=round(icu7ma)) %>%
   arrange(Jurisdiction) 

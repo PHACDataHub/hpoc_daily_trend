@@ -5,12 +5,9 @@
 ######## PT cases and deaths data; this gets updated around 7:30 PM EST everyday ########
 ####################################################################################### #
 
-
 df_raw <- read_csv("https://health-infobase.canada.ca/src/data/covidLive/covid19.csv") %>%
   mutate(date = as.Date(date, format = "%d-%m-%Y")) %>%
   filter(date <= params$date)
-
-
 
 
 #Removing trailing unreported days from PTs, in the past 7 days.
@@ -176,17 +173,10 @@ pt_pop20 <- pt_pop_raw %>%
 ########                  Get the hospitalization and ICU data                   ########
 ####################################################################################### #
 # 
-# Trying to import excel data this way instead of in python but this is HELLA slow... - will look into storing this data differently
-#
-# pt_hosp_raw_R<-read_excel('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\DATA AND ANALYSIS\\Web Scraping\\Trend analysis\\COVID-19 historical trends.xlsx', 
-#                           sheet='Hospitalization (current)',
-#                           skip = 15)
-# 
-# ## Read the ICU data
-# pt_icu_raw_R = read_excel('Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\DATA AND ANALYSIS\\Web Scraping\\Trend analysis\\COVID-19 historical trends.xlsx', 
-#                           sheet='ICU (current)',
-#                           skip = 15)
-# 
+
+#Yet another way to import data, through google sheets! (Work in progress)
+# g_sheets_user<-"hsfluepi@phac-aspc.gc.ca"
+# g_sheets_pass<-"epiavian"
 
 
 # First scraped data for Alberta
@@ -285,11 +275,6 @@ qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AN
   mutate(onsetdate = as.Date(onsetdate),
          episodedate=as.Date(episodedate),
          earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
-
-
-
-
-
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
