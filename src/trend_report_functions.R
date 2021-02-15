@@ -1,4 +1,21 @@
-## Run Trend Report script
+
+
+
+############################################################################################################################################ #
+############################################################################################################################################ #
+
+
+#Helpful character vectors, can be used for filtering datasets, and can be combined with "recode_PT_names_to_XXX" functions
+
+all_PTs_plus_Can<-c("CAN","BC","AB","SK","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
+all_PTs<-c("CAN","BC","AB","SK","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
+big_6_PTs<-c("BC","AB","SK","MB","ON","QC")
+atlantic_PTs<-c("NL", "NB","NS","PE")
+territory_PTs<-c("YK","NT","NU")
+
+
+############################################################################################################################################ #
+############################################################################################################################################ #
 
 
 #Script to generate Daily Trend Report!
@@ -51,6 +68,8 @@ format_casedeath_table<-function(input_table){
            National_Death_Proportion=percent(National_Death_Proportion,accuracy=0.1),
            Deaths_Daily_7MA=round(Deaths_Daily_7MA,1),
            Cases_Daily_7MA=ifelse(Cases_Daily_7MA<1, number(Cases_Daily_7MA, accuracy = 0.1), number(Cases_Daily_7MA, big.mark = ",")),
+           Cases_7MA_per100k=round(Cases_7MA_per100k,digits = 1),
+           Deaths_7MA_per100k=round(Deaths_7MA_per100k, digits = 2),
            Weekly_Change_Cases=case_when(Weekly_Change_Cases>0 ~ paste0("+",Weekly_Change_Cases),
                                          is.na(Weekly_Change_Cases) ~ "NA",
                                          TRUE ~ as.character(Weekly_Change_Cases)),
@@ -252,7 +271,7 @@ return(ft_1)
 
 ## Recode PT names
 
-recode_PT_names_to_small <- function(dataset, varname = "") {
+recode_PT_names_to_small <- function(dataset, geo_variable = "") {
   if (class(dataset)[1]=="character"){
     dataset<-recode(dataset, 
                               "British Columbia"="BC",
@@ -268,32 +287,32 @@ recode_PT_names_to_small <- function(dataset, varname = "") {
                               "Yukon"="YK",
                               "Northwest Territories"="NT",
                               "Nunavut"="NU",
-                              "Canada"="CA")
+                              "Canada"="CAN")
   }
   else{
   dataset <- dataset %>%
     mutate(
-      !!varname := case_when(
-        !!as.name(varname) == "British Columbia" ~ "BC",
-        !!as.name(varname) == "Alberta" ~ "AB",
-        !!as.name(varname) == "Saskatchewan" ~ "SK",
-        !!as.name(varname) == "Manitoba" ~ "MB",
-        !!as.name(varname) == "Ontario" ~ "ON",
-        !!as.name(varname) == "Quebec" ~ "QC",
-        !!as.name(varname) == "Newfoundland and Labrador" ~ "NL",
-        !!as.name(varname) == "New Brunswick" ~ "NB",
-        !!as.name(varname) == "Nova Scotia" ~ "NS",
-        !!as.name(varname) == "Prince Edward Island" ~ "PE",
-        !!as.name(varname) == "Yukon" ~ "YK",
-        !!as.name(varname) == "Northwest Territories" ~ "NT",
-        !!as.name(varname) == "Nunavut" ~ "NU",
-        !!as.name(varname) == "Canada" ~ "CA",
-        TRUE~!!as.name(varname)))
+      !!geo_variable := case_when(
+        !!as.name(geo_variable) == "British Columbia" ~ "BC",
+        !!as.name(geo_variable) == "Alberta" ~ "AB",
+        !!as.name(geo_variable) == "Saskatchewan" ~ "SK",
+        !!as.name(geo_variable) == "Manitoba" ~ "MB",
+        !!as.name(geo_variable) == "Ontario" ~ "ON",
+        !!as.name(geo_variable) == "Quebec" ~ "QC",
+        !!as.name(geo_variable) == "Newfoundland and Labrador" ~ "NL",
+        !!as.name(geo_variable) == "New Brunswick" ~ "NB",
+        !!as.name(geo_variable) == "Nova Scotia" ~ "NS",
+        !!as.name(geo_variable) == "Prince Edward Island" ~ "PE",
+        !!as.name(geo_variable) == "Yukon" ~ "YK",
+        !!as.name(geo_variable) == "Northwest Territories" ~ "NT",
+        !!as.name(geo_variable) == "Nunavut" ~ "NU",
+        !!as.name(geo_variable) == "Canada" ~ "CAN",
+        TRUE~!!as.name(geo_variable)))
   }
   return(dataset)
 }
   
-recode_PT_names_to_big <- function(dataset, varname = "") {
+recode_PT_names_to_big <- function(dataset, geo_variable = "") {
   if (class(dataset)[1]=="character"){
     dataset<-recode(dataset, 
                     "BC" = "British Columbia",
@@ -309,27 +328,27 @@ recode_PT_names_to_big <- function(dataset, varname = "") {
                     "YK" = "Yukon",
                     "NT"= "Northwest Territories",
                     "NU" = "Nunavut",
-                    "CA" = "Canada")
+                    "CAN" = "Canada")
   }
   else{
   dataset <- dataset %>%
     mutate(
-      !!varname := case_when(
-        !!as.name(varname) ==  "BC" ~ "British Columbia",
-        !!as.name(varname) ==  "AB" ~ "Alberta",
-        !!as.name(varname) ==  "SK" ~ "Saskatchewan",
-        !!as.name(varname) ==  "MB" ~ "Manitoba",
-        !!as.name(varname) ==  "ON" ~ "Ontario",
-        !!as.name(varname) ==  "QC" ~ "Quebec",
-        !!as.name(varname) ==  "NL" ~ "Newfoundland and Labrador",
-        !!as.name(varname) ==  "NB" ~ "New Brunswick",
-        !!as.name(varname) ==  "NS" ~"Nova Scotia",
-        !!as.name(varname) ==  "PE" ~ "Prince Edward Island",
-        !!as.name(varname) ==  "YK" ~ "Yukon",
-        !!as.name(varname) ==  "NT" ~ "Northwest Territories",
-        !!as.name(varname) ==  "NU" ~ "Nunavut",
-        !!as.name(varname) ==  "CA" ~ "Canada",
-        TRUE~ !!as.name(varname)))
+      !!geo_variable := case_when(
+        !!as.name(geo_variable) ==  "BC" ~ "British Columbia",
+        !!as.name(geo_variable) ==  "AB" ~ "Alberta",
+        !!as.name(geo_variable) ==  "SK" ~ "Saskatchewan",
+        !!as.name(geo_variable) ==  "MB" ~ "Manitoba",
+        !!as.name(geo_variable) ==  "ON" ~ "Ontario",
+        !!as.name(geo_variable) ==  "QC" ~ "Quebec",
+        !!as.name(geo_variable) ==  "NL" ~ "Newfoundland and Labrador",
+        !!as.name(geo_variable) ==  "NB" ~ "New Brunswick",
+        !!as.name(geo_variable) ==  "NS" ~"Nova Scotia",
+        !!as.name(geo_variable) ==  "PE" ~ "Prince Edward Island",
+        !!as.name(geo_variable) ==  "YK" ~ "Yukon",
+        !!as.name(geo_variable) ==  "NT" ~ "Northwest Territories",
+        !!as.name(geo_variable) ==  "NU" ~ "Nunavut",
+        !!as.name(geo_variable) ==  "CAN" ~ "Canada",
+        TRUE~ !!as.name(geo_variable)))
 
   }
   return(dataset)
@@ -357,8 +376,45 @@ turn_char_vec_to_comma_list<-function(vector){
 ############################################################################################################################################ #
 ############################################################################################################################################ #
 
+#Function to change PRNAME var into a factor by PT order West to East, or alphabetically
 
-#TODO: Function to change PRNAME var into a factor by PT order West to East, or alphabetically
+# Need to add a feature that automatically detects whether PTs are in "big" or "small" format, and return as factor accordingly
 
+factor_PT_west_to_east<-function(input_data,geo_variable, size="small"){
+  
+  if (size=="big"){
+    juriorder <- c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut", "Canada")
+  } else if (size=="small"){
+    juriorder <- c("BC","AB","SK","MB","ON","QC","NL","NB","NS","PE","YK","NT","NU","CAN")
+  } else {
+    print("Error in size argument of 'factor_PT_west_to_east()', use 'small' if PT names are abbreviated, 'big' if full names are used")
+  }
+  
+  output_data<-input_data %>%
+      mutate(!!geo_variable := factor(!!as.name(geo_variable), levels = juriorder))
+  
+  if (exists('output_data')==FALSE){
+    output_data<-input_data
+  }  
+  return(output_data)
+}
 
+factor_PT_alphabetical<-function(input_data,geo_variable,size="small"){
+  if (size=="big"){
+  juriorder <- c(sort(recode_PT_names_to_big(all_PTs)),"Canada")
+  
+  } else if (size=="small"){
+    juriorder <- c(sort(all_PTs),"Canada")
+  } else {
+    print("Error in size argument of 'factor_PT_alphabetical()', use 'small' if PT names are abbreviated, 'big' if full names are used")
+  }
+    
+  output_data<-input_data %>%
+      mutate(!!geo_variable := factor(!!as.name(geo_variable), levels = juriorder))
+  if (exists('output_data')==FALSE){
+    output_data<-input_data
+  }
+  
+  return(output_data)
+}
 

@@ -61,12 +61,15 @@ PT7 <- df_weekly_changes %>%
   left_join(Canada7,by="Date",keep=FALSE) %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
-  dplyr::rename(Jurisdiction=Jurisdiction.x)
+  dplyr::rename(Jurisdiction=Jurisdiction.x) %>%
+  left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
+  mutate( Cases_7MA_per100k = (Cases_Daily_7MA / Population)*100000,digits = 2,
+            Deaths_7MA_per100k=(Deaths_Daily_7MA / Population)*100000,digits = 2)
 
 
 
 Case_Death_Stats_1 <- PT7 %>% 
-  select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
+  select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k, Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Deaths_7MA_per100k,Weekly_Change_Deaths,National_Death_Proportion) %>%
   group_by(Jurisdiction) %>% 
   filter(Date==max(Date))
 
@@ -74,11 +77,8 @@ juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","
 
 Case_Death_Stats <- Case_Death_Stats_1 %>%
   filter(Jurisdiction!="Repatriated travellers") %>%
-  left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
   mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
-         Date = format(Date, "%B %d"),
-         Cases_7MA_per100k = round((Cases_Daily_7MA / Population)*100000,digits = 1),
-         Deaths_7MA_per100k=round((Deaths_Daily_7MA / Population)*100000,digits = 2)) %>%
+         Date = format(Date, "%B %d")) %>%
   arrange(Jurisdiction)%>%
   select(Jurisdiction,Date,
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
@@ -128,8 +128,8 @@ export_case_death<-PT7 %>%
          Cases_National_Proportion=label_percent(accuracy = 0.01)(round(Cases_National_Proportion,3)),
          Deaths_National_Proportion=label_percent(accuracy = 0.01)(round(Deaths_National_Proportion,3))) %>%
   ungroup() %>%
-  select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
-         Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
+  select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_7MA_per100k, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
+         Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_7MA_per100k, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
 
 write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
 

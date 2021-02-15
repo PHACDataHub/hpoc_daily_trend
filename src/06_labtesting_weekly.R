@@ -147,12 +147,12 @@ PTs_missing_latest_lab_date<-SALT4a %>%
   filter(Date==max(Date)) %>%
   ungroup %>%
   filter(!Date==max(Date)) %>%
-  recode_PT_names_to_small(varname="Jurisdiction") %>%
+  recode_PT_names_to_small(geo_variable = "Jurisdiction") %>%
   mutate(Date=format(Date, "%b %d")) %>%
   mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) %>%
   select(text_var)
 
-key_lab_update<-format(max(SALT2a$Date), "%B %d")
+key_lab_update<-format(max(SALT2a$Date)-1, "%B %d")
 
 if (nrow(PTs_missing_latest_lab_date>0)){
 any_PTs_missing_latest_lab_date_flag=TRUE
@@ -176,7 +176,7 @@ National_Daily <- National_Daily_a %>%
   mutate(tests_performed=daily_tests_performed,
          percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
-  filter(Date>"2021-01-23") #For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
-  # filter(Date<params$date) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
+  filter(Date>"2021-01-23") %>%#For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
+  filter(Date<=max(Date)-1) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
 
 write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')

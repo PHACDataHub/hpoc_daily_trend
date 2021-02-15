@@ -109,7 +109,7 @@ Hosp_Metrics_Table <- Hosp_Metrics %>%
 #only dif is we don't include repatriated travelers here, while they were included in the other export.
 export_hosp<-Hosp_Metrics %>%
 mutate(prov=Jurisdiction) %>%
-  recode_PT_names_to_small(varname="prov") %>%
+  recode_PT_names_to_small(geo_variable="prov") %>%
   rename(Hosp=Hospitalizations,
          Hosp7MA=hosp7ma,
          hospweekchange=delta7h,

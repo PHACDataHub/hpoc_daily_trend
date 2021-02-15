@@ -179,6 +179,9 @@ pt_pop20 <- pt_pop_raw %>%
 # g_sheets_pass<-"epiavian"
 
 
+#3.6 seconds time! just need to reformat now
+hosp_data<-read_sheet("https://docs.google.com/spreadsheets/d/1aodkeukVF1r3F-w2jJnTclVIW_swlLeFHv_Xnsmsgtc/edit#gid=1708078290", sheet="hosp_and_icu")
+
 # First scraped data for Alberta
 ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
     html_nodes(xpath = "//*[@id='summary']/div/script/text()") %>%
@@ -239,7 +242,7 @@ pt_hosp_icu <- pt_hosp_filter %>%
     left_join(pt_icu_filter, by = c("prname", "date")) %>%
     filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU")) %>%
     pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
-    recode_PT_names_to_big(varname="prname")%>%
+    recode_PT_names_to_big(geo_variable="prname")%>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut"))) %>%
   filter(date <= params$date)
 
@@ -255,15 +258,13 @@ pt_hosp_icu <- pt_hosp_filter %>%
 # # Time benchmarking:
 # # user  system elapsed 
 # # 10.91    0.25   80.22 +2.74 for metabase_login() 
-# system.time(
 # handle<- metabase_login(base_url = "https://discover-metabase.hres.ca/api",
 #                          database_id = 2, # phac database
 #                          username = metabase_user,
 #                          password = metabase_pass)
-# )
-# system.time(
-# trend_extract <- metabase_query(handle, "select phacid, phacreporteddate, episodedate, pt, age, agegroup10, agegroup20, onsetdate, earliestlabcollectiondate, sex, gender, sexgender, coviddeath, hosp, icu, exposure_cat from all_cases;")
-# )
+# qry_cases_raw <- metabase_query(handle, "select phacid, phacreporteddate, episodedate, pt, age_years, agegroup10, agegroup20, onsetdate, earliestlabcollectiondate, sex, gender, sexgender, coviddeath, hosp, icu, exposure_cat from all_cases;") %>%
+#   rename(age=age_years)
+
 
 
 
@@ -274,7 +275,8 @@ pt_hosp_icu <- pt_hosp_filter %>%
 qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
   mutate(onsetdate = as.Date(onsetdate),
          episodedate=as.Date(episodedate),
-         earliestlabcollectiondate = as.Date(earliestlabcollectiondate))
+         earliestlabcollectiondate = as.Date(earliestlabcollectiondate)) %>%
+  rename(age=age_years)
 
 qry_canada <- qry_cases_raw %>%
   clean_names() %>%
@@ -289,7 +291,7 @@ qry_cases <- qry_cases_raw %>%
     clean_names() %>%
     select(phacid, pt, episodedate, age, agegroup10, agegroup20) %>%
     mutate(prname = toupper(pt)) %>%
-    recode_PT_names_to_big(varname="prname") %>%
+    recode_PT_names_to_big(geo_variable="prname") %>%
     group_by(episodedate, agegroup20, prname) %>%
     tally() %>%
     filter(!is.na(episodedate)) %>%
