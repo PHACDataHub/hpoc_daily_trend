@@ -7,8 +7,9 @@
 
 #Helpful character vectors, can be used for filtering datasets, and can be combined with "recode_PT_names_to_XXX" functions
 
-all_PTs_plus_Can<-c("CAN","BC","AB","SK","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
-all_PTs<-c("CAN","BC","AB","SK","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
+all_PTs<-c("BC","AB","SK","MB","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
+all_PTs_plus_Can<-c(all_PTs, "CAN")
+
 big_6_PTs<-c("BC","AB","SK","MB","ON","QC")
 atlantic_PTs<-c("NL", "NB","NS","PE")
 territory_PTs<-c("YK","NT","NU")
@@ -271,7 +272,7 @@ return(ft_1)
 
 ## Recode PT names
 
-recode_PT_names_to_small <- function(dataset, geo_variable = "") {
+recode_PT_names_to_small <- function(dataset, geo_variable = "Jurisdiction") {
   if (class(dataset)[1]=="character"){
     dataset<-recode(dataset, 
                               "British Columbia"="BC",
@@ -312,7 +313,7 @@ recode_PT_names_to_small <- function(dataset, geo_variable = "") {
   return(dataset)
 }
   
-recode_PT_names_to_big <- function(dataset, geo_variable = "") {
+recode_PT_names_to_big <- function(dataset, geo_variable = "Jurisdiction") {
   if (class(dataset)[1]=="character"){
     dataset<-recode(dataset, 
                     "BC" = "British Columbia",
@@ -380,7 +381,7 @@ turn_char_vec_to_comma_list<-function(vector){
 
 # Need to add a feature that automatically detects whether PTs are in "big" or "small" format, and return as factor accordingly
 
-factor_PT_west_to_east<-function(input_data,geo_variable, size="small"){
+factor_PT_west_to_east<-function(input_data,geo_variable="Jurisdiction", size="small"){
   
   if (size=="big"){
     juriorder <- c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut", "Canada")
@@ -399,7 +400,7 @@ factor_PT_west_to_east<-function(input_data,geo_variable, size="small"){
   return(output_data)
 }
 
-factor_PT_alphabetical<-function(input_data,geo_variable,size="small"){
+factor_PT_alphabetical<-function(input_data,geo_variable="Jurisdiction",size="small"){
   if (size=="big"){
   juriorder <- c(sort(recode_PT_names_to_big(all_PTs)),"Canada")
   

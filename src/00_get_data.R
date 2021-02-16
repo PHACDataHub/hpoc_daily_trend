@@ -136,7 +136,7 @@ latest_can_pop <- pt_pop_raw %>%
   select(GEO,VALUE) %>%
   dplyr::rename(Population=VALUE)
 
-#Deriving population 20 year age groups instead of importing excel file with this data pre-calculated
+#Deriving population 20 year age groups
 pt_pop20 <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
   filter(str_detect(`Age group`, "to|90 years and over"),REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
@@ -175,12 +175,12 @@ pt_pop20 <- pt_pop_raw %>%
 # 
 
 #Yet another way to import data, through google sheets! (Work in progress)
-# g_sheets_user<-"hsfluepi@phac-aspc.gc.ca"
-# g_sheets_pass<-"epiavian"
+# g_sheets_user<-"********"
+# g_sheets_pass<-"********"
 
 
-#3.6 seconds time! just need to reformat now
-hosp_data<-read_sheet("https://docs.google.com/spreadsheets/d/1aodkeukVF1r3F-w2jJnTclVIW_swlLeFHv_Xnsmsgtc/edit#gid=1708078290", sheet="hosp_and_icu")
+#3.6 seconds time! just need to reformat now to match current "pt_hosp_raw" and "pt_icu_raw" datasets
+# hosp_data<-read_sheet("https://docs.google.com/spreadsheets/d/1aodkeukVF1r3F-w2jJnTclVIW_swlLeFHv_Xnsmsgtc/edit#gid=1708078290", sheet="hosp_and_icu")
 
 # First scraped data for Alberta
 ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
