@@ -288,7 +288,8 @@ recode_PT_names_to_small <- function(dataset, geo_variable = "Jurisdiction") {
                               "Yukon"="YK",
                               "Northwest Territories"="NT",
                               "Nunavut"="NU",
-                              "Canada"="CAN")
+                              "Canada"="CAN",
+                              "Repatriated travellers"="Repatriated travellers")
   }
   else{
   dataset <- dataset %>%
@@ -308,6 +309,7 @@ recode_PT_names_to_small <- function(dataset, geo_variable = "Jurisdiction") {
         !!as.name(geo_variable) == "Northwest Territories" ~ "NT",
         !!as.name(geo_variable) == "Nunavut" ~ "NU",
         !!as.name(geo_variable) == "Canada" ~ "CAN",
+        !!as.name(geo_variable) == "Repatriated travellers" ~ "Repatriated travellers",
         TRUE~!!as.name(geo_variable)))
   }
   return(dataset)
@@ -329,7 +331,8 @@ recode_PT_names_to_big <- function(dataset, geo_variable = "Jurisdiction") {
                     "YK" = "Yukon",
                     "NT"= "Northwest Territories",
                     "NU" = "Nunavut",
-                    "CAN" = "Canada")
+                    "CAN" = "Canada",
+                    "Repatriated travellers" = "Repatriated travellers")
   }
   else{
   dataset <- dataset %>%
@@ -349,6 +352,7 @@ recode_PT_names_to_big <- function(dataset, geo_variable = "Jurisdiction") {
         !!as.name(geo_variable) ==  "NT" ~ "Northwest Territories",
         !!as.name(geo_variable) ==  "NU" ~ "Nunavut",
         !!as.name(geo_variable) ==  "CAN" ~ "Canada",
+        !!as.name(geo_variable) ==  "Repatriated travellers" ~ "Repatriated travellers",
         TRUE~ !!as.name(geo_variable)))
 
   }
@@ -381,12 +385,19 @@ turn_char_vec_to_comma_list<-function(vector){
 
 # Need to add a feature that automatically detects whether PTs are in "big" or "small" format, and return as factor accordingly
 
-factor_PT_west_to_east<-function(input_data,geo_variable="Jurisdiction", size="small"){
-  
-  if (size=="big"){
-    juriorder <- c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut", "Canada")
-  } else if (size=="small"){
-    juriorder <- c("BC","AB","SK","MB","ON","QC","NL","NB","NS","PE","YK","NT","NU","CAN")
+factor_PT_west_to_east<-function(input_data,geo_variable="Jurisdiction", size="small",Canada_first=FALSE){
+    if (size=="big"){
+    if (Canada_first==TRUE){
+      juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut", "Repatriated travellers")
+    } else if (Canada_first==FALSE){
+      juriorder <- c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut", "Repatriated travellers","Canada")
+    }
+  }else if (size=="small"){
+    if (Canada_first==TRUE){
+        juriorder <- c("CAN","BC","AB","SK","MB","ON","QC","NL","NB","NS","PE","YK","NT","NU","Repatriated travellers")
+    } else if (Canada_first==FALSE){
+      juriorder <- c("BC","AB","SK","MB","ON","QC","NL","NB","NS","PE","YK","NT","NU","Repatriated travellers","CAN")
+    }
   } else {
     print("Error in size argument of 'factor_PT_west_to_east()', use 'small' if PT names are abbreviated, 'big' if full names are used")
   }
@@ -402,10 +413,9 @@ factor_PT_west_to_east<-function(input_data,geo_variable="Jurisdiction", size="s
 
 factor_PT_alphabetical<-function(input_data,geo_variable="Jurisdiction",size="small"){
   if (size=="big"){
-  juriorder <- c(sort(recode_PT_names_to_big(all_PTs)),"Canada")
-  
+      juriorder <- c(sort(recode_PT_names_to_big(all_PTs)),"Repatriated travellers","Canada")
   } else if (size=="small"){
-    juriorder <- c(sort(all_PTs),"Canada")
+    juriorder <- c(sort(all_PTs),"Repatriated travellers","CAN")
   } else {
     print("Error in size argument of 'factor_PT_alphabetical()', use 'small' if PT names are abbreviated, 'big' if full names are used")
   }

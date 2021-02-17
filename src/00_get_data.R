@@ -134,7 +134,9 @@ latest_can_pop <- pt_pop_raw %>%
   mutate(REF_DATE=as.numeric(REF_DATE)) %>%
   filter(`Age group`=="All ages",REF_DATE==max(REF_DATE),Sex=="Both sexes") %>%
   select(GEO,VALUE) %>%
-  dplyr::rename(Population=VALUE)
+  dplyr::rename(Population=VALUE,
+                Jurisdiction=GEO)
+
 
 #Deriving population 20 year age groups
 pt_pop20 <- pt_pop_raw %>%
@@ -173,78 +175,64 @@ pt_pop20 <- pt_pop_raw %>%
 ########                  Get the hospitalization and ICU data                   ########
 ####################################################################################### #
 # 
-
-#Yet another way to import data, through google sheets! (Work in progress)
-# g_sheets_user<-"********"
-# g_sheets_pass<-"********"
-
-
-#3.6 seconds time! just need to reformat now to match current "pt_hosp_raw" and "pt_icu_raw" datasets
-# hosp_data<-read_sheet("https://docs.google.com/spreadsheets/d/1aodkeukVF1r3F-w2jJnTclVIW_swlLeFHv_Xnsmsgtc/edit#gid=1708078290", sheet="hosp_and_icu")
+gs4_deauth()
+hosp_data_raw<-read_sheet("https://docs.google.com/spreadsheets/d/17KL40qJ8tpFalFeBv1XDopTXaFm7z3Q9J2dtqqsQaJg/edit?usp=sharing", sheet="hosp_and_icu") %>%
+  filter(!Jurisdiction=="AB") %>%
+  mutate(hosp=parse_number(as.character(hosp)),
+         icu=parse_number(as.character(icu)))
 
 # First scraped data for Alberta
-ab_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
+AB_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-statistics.htm") %>%
     html_nodes(xpath = "//*[@id='summary']/div/script/text()") %>%
     .[1] %>%
     html_text()
 
 #extracts dates
-dates <- ab_severity %>% 
+AB_dates <- AB_severity %>% 
   str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>% 
   unlist() %>% 
   as.Date() %>% 
   unique()
 
-counts <- ab_severity %>%
+AB_counts <- AB_severity %>%
     str_extract_all("((?:\\d+,)+\\d+)") %>%
     unlist()
 
-non_icu <- counts[15] %>% # changed element as that had changed from before
+AB_non_icu <- AB_counts[15] %>% 
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-icu <- counts[7] %>% # changed element as that had changed from before
+AB_icu <- AB_counts[7] %>% 
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-ab_all <- tibble(date = dates, hospitalized = non_icu + icu, icu) %>%
-  mutate(prname = "AB")
+AB_all <- tibble(Date = AB_dates, hosp = AB_non_icu + AB_icu, icu=AB_icu) %>%
+  mutate(Jurisdiction = "AB")
 
-ab_hosp <- ab_all %>%
-  select(prname, date, hospitalized)
+combined_hosp_data<-bind_rows(hosp_data_raw,AB_all) %>%
+  arrange(Date) %>%
+  filter(Date>"2020-03-31") %>%
+  group_by(Date)
 
-ab_icu <- ab_all %>%
-  select(prname, date, icu)
+Canada_hosp_data<-combined_hosp_data %>%
+  group_by(Date) %>%
+  summarise(hosp=sum(hosp, na.rm = TRUE),
+            icu=sum(icu, na.rm = TRUE)) %>%
+  mutate(Jurisdiction="CAN")
 
-# Then import data for rest of provinces from the file that has human scraped data
-# Hospitalization data, wrangling the input from the Python script
-pt_hosp <- pivot_longer(pt_hosp_raw, !"P/T", names_to = "date", values_to = "hospitalized") %>%
-  mutate(date = as.Date((date))) %>%
-  dplyr::rename("prname" = "P/T") %>%
-  mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
-  filter(prname != "AB")
-
-pt_hosp_filter <- bind_rows(pt_hosp, ab_hosp)
-
-# ICU data, wrangling the input from the Python script
-pt_icu <- pivot_longer(pt_icu_raw, !"P/T", names_to = "date", values_to = "icu") %>%
-  mutate(date = as.Date((date))) %>%
-  dplyr::rename("prname" = "P/T") %>%
-  mutate(prname = recode(prname, "Ttl" = "Canada")) %>%
-  filter(prname != "AB")
-
-pt_icu_filter <- bind_rows(pt_icu, ab_icu)
-
-# combine hosp and ICU data
-pt_hosp_icu <- pt_hosp_filter %>%
-    left_join(pt_icu_filter, by = c("prname", "date")) %>%
-    filter(prname %in% c("Canada", "BC", "AB", "SK", "MB", "ON", "QC","NL","NB","NS","PE","YK","NT","NU")) %>%
-    pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
-    recode_PT_names_to_big(geo_variable="prname")%>%
-    mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut"))) %>%
-  filter(date <= params$date)
+all_hosp_data<-bind_rows(combined_hosp_data,Canada_hosp_data) %>%
+  arrange(Date) %>%
+  rename(hospitalized=hosp)%>%
+  recode_PT_names_to_big() %>%
+  factor_PT_west_to_east(size="big") %>%
+  pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
+  mutate(Date=as.Date(Date)) %>%
+  filter(Date <= params$date) 
+  
+pt_hosp_icu<-all_hosp_data %>%
+  filter(!Jurisdiction=="Repatriated travellers")
 
 
 ####################################################################################### #

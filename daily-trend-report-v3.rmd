@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Import data from network drive using Python
 library(reticulate)
-source_python("src/00_get_data.py")
+# source_python("src/00_get_data.py")
 
 
 # Load libraries

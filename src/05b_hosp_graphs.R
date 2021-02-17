@@ -1,21 +1,20 @@
 # Filter province
 pt_hosp_icu_filter <- pt_hosp_icu %>%
-#    filter(prname %in% jurisdiction) %>%
-    filter(date >= "2020-04-01") %>%
-    filter(date != max(date)) %>% # to prevent dip from AB
-    group_by(prname) %>%
-    mutate(label = if_else(date == max(date), as.character(round(cases, digits = 1)), NA_character_))
-    
-pt_hosp_icu_filter$prname <- recode(pt_hosp_icu_filter$prname, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
-
+    filter(Date >= "2020-04-01") %>%
+    group_by(Jurisdiction) %>%
+    filter(Date != max(Date)) %>% # to prevent dip from AB
+    mutate(label = if_else(Date == max(Date), as.character(round(cases, digits = 1)), NA_character_),
+           Jurisdiction=as.character(Jurisdiction)) %>%
+    recode_PT_names_to_small() %>%
+  factor_PT_west_to_east()
 
 cat('\n')  
 cat("# COVID-19 patients in hospital daily across Canada", "\n") 
 
 # Plot National
-ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type)) +
+ggplot(pt_hosp_icu_filter %>% filter(Jurisdiction=="CAN"), aes(Date, cases, colour = type)) +
     geom_line(size = 2) +
-    facet_wrap(vars(prname), scales = "free_y") +
+    facet_wrap(vars(Jurisdiction), scales = "free_y") +
     scale_x_date(
         NULL,
         breaks = scales::breaks_width("1 month"),
@@ -32,7 +31,7 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         panel.background = element_blank(),
         axis.line = element_line(colour = "black"),
         strip.background = element_blank(),
-        strip.text = element_text(hjust = 0, size = 26, face = "bold"),
+        strip.text = element_blank(),
         legend.position = "bottom",
         legend.title = element_blank(),
         legend.key=element_blank(),
@@ -40,8 +39,8 @@ ggplot(pt_hosp_icu_filter %>% filter(prname==""), aes(date, cases, colour = type
         legend.key.size = unit(3,"line"),
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)) +
-    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max(pt_hosp_icu_filter$date), "%B %d")," as AB does not report same-day hospitalizations.",
-                          "\nUpdated daily (Sun-Thurs). Data as of: ",format(max(pt_hosp_icu$date), "%B %d")))
+    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max(pt_hosp_icu_filter$Date), "%B %d")," as AB does not report same-day hospitalizations.",
+                          "\nUpdated daily (Sun-Thurs). Data as of: ",format(max(pt_hosp_icu$Date), "%B %d")))
 
 cat('\n') 
 
@@ -50,9 +49,9 @@ cat("# COVID-19 patients in hospital daily in selected provinces and territories
 
 
 # Plot by PT
-ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON")), aes(date, cases, colour = type)) +
+ggplot(pt_hosp_icu_filter %>% filter(Jurisdiction %in% c("BC","AB","SK","MB","QC","ON")), aes(Date, cases, colour = type)) +
   geom_line(size = 2) +
-  facet_wrap(vars(prname), scales = "free") +
+  facet_wrap(vars(Jurisdiction), scales = "free") +
   scale_x_date(
     NULL,
     breaks = scales::breaks_width("3 months"),
@@ -79,6 +78,6 @@ ggplot(pt_hosp_icu_filter %>% filter(prname %in% c("BC","AB","SK","MB","QC","ON"
     plot.caption = element_text(hjust = 0)
   ) +
   labs(caption = paste0("Source: Provincial and territorial website data. 
-                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(pt_hosp_icu$date), "%B %d")))
+                        \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(pt_hosp_icu$Date), "%B %d")))
 
 cat('\n') 

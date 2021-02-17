@@ -62,7 +62,7 @@ PT7 <- df_weekly_changes %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
   dplyr::rename(Jurisdiction=Jurisdiction.x) %>%
-  left_join(latest_can_pop, by=c("Jurisdiction"="GEO")) %>%
+  left_join(latest_can_pop, by=c("Jurisdiction")) %>%
   mutate( Cases_7MA_per100k = (Cases_Daily_7MA / Population)*100000,digits = 2,
             Deaths_7MA_per100k=(Deaths_Daily_7MA / Population)*100000,digits = 2)
 
@@ -95,7 +95,7 @@ if(any_non_report_flag==TRUE){
 Case_per_100K <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
   filter(Jurisdiction=="Canada") %>%
-  left_join(latest_can_pop,by=c("Jurisdiction"="GEO"),keep=FALSE) %>%
+  left_join(latest_can_pop,by=c("Jurisdiction"),keep=FALSE) %>%
   mutate(Case_per_100K = (Cases_Daily/Population)*100000) %>%
   mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
