@@ -27,7 +27,7 @@ qry_cases_per <- qry_cases_filter %>%
 qry_cases_per$prname <- recode(qry_cases_per$prname, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
 
 # Plot
-ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
+plot<-ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
     facet_wrap(~prname, scales = "free") +
     scale_y_continuous("Number of reported cases per 100,000\n(7 Day moving average)", labels = comma_format(accuracy = 1)) +
@@ -64,3 +64,7 @@ ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)
     )
+if (jurisdiction[1]=="Canada"){
+  plot<-plot+theme(strip.text=element_blank())
+}
+plot

@@ -79,7 +79,7 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "Manitoba",        corre
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-23",corrected_value = 8.66)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British columbia",correction_date = "2021-01-24",corrected_value = 8.67)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-25",corrected_value = 8.67)
-df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360) 
+df_corrected<-correct_df(metric="cases",Jurisdiction = "Alberta",correction_date = "2021-01-25",corrected_value = 360)
 #Weekend Jan30-31stuff (21 deaths reported on Feb.1 after not reporting over the weekend)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-30",corrected_value = 7)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-01-31",corrected_value = 7)
@@ -88,6 +88,12 @@ df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",corre
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-06",corrected_value = 4.33)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-07",corrected_value = 4.33)
 df_corrected<-correct_df(metric="deaths",Jurisdiction = "British Columbia",correction_date = "2021-02-08",corrected_value = 4.34)
+#Feb15+16 death corrections
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Manitoba",correction_date = "2021-02-15",corrected_value = 2)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Manitoba",correction_date = "2021-02-16",corrected_value = 2)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Saskatchewan",correction_date = "2021-02-15",corrected_value = 1.5)
+df_corrected<-correct_df(metric="deaths",Jurisdiction = "Saskatchewan",correction_date = "2021-02-16",corrected_value = 1.5)
+
 
 #getting corrected values for the national number now
 can_corrected_case_death<-df_corrected %>%
@@ -174,7 +180,7 @@ pt_pop20 <- pt_pop_raw %>%
 ####################################################################################### #
 ########                  Get the hospitalization and ICU data                   ########
 ####################################################################################### #
-# 
+#
 gs4_deauth()
 hosp_data_raw<-read_sheet("https://docs.google.com/spreadsheets/d/17KL40qJ8tpFalFeBv1XDopTXaFm7z3Q9J2dtqqsQaJg/edit?usp=sharing", sheet="hosp_and_icu") %>%
   filter(!Jurisdiction=="AB") %>%
@@ -188,22 +194,22 @@ AB_severity <- xml2::read_html("https://www.alberta.ca/stats/covid-19-alberta-st
     html_text()
 
 #extracts dates
-AB_dates <- AB_severity %>% 
-  str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>% 
-  unlist() %>% 
-  as.Date() %>% 
+AB_dates <- AB_severity %>%
+  str_extract_all("\\d{4}-\\d{2}-\\d{2}") %>%
+  unlist() %>%
+  as.Date() %>%
   unique()
 
 AB_counts <- AB_severity %>%
     str_extract_all("((?:\\d+,)+\\d+)") %>%
     unlist()
 
-AB_non_icu <- AB_counts[15] %>% 
+AB_non_icu <- AB_counts[15] %>%
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
 
-AB_icu <- AB_counts[7] %>% 
+AB_icu <- AB_counts[7] %>%
     strsplit(split = ",") %>%
     unlist() %>%
     as.numeric()
@@ -229,8 +235,8 @@ all_hosp_data<-bind_rows(combined_hosp_data,Canada_hosp_data) %>%
   factor_PT_west_to_east(size="big") %>%
   pivot_longer("hospitalized":"icu", names_to = "type", values_to = "cases") %>%
   mutate(Date=as.Date(Date)) %>%
-  filter(Date <= params$date) 
-  
+  filter(Date <= params$date)
+
 pt_hosp_icu<-all_hosp_data %>%
   filter(!Jurisdiction=="Repatriated travellers")
 
@@ -239,13 +245,13 @@ pt_hosp_icu<-all_hosp_data %>%
 ########                        Get case Report Form data                        ########
 ####################################################################################### #
 
-# 
+#
 # metabase_user='**********'
 # metabase_pass='**********'
-# 
+#
 # # Time benchmarking:
-# # user  system elapsed 
-# # 10.91    0.25   80.22 +2.74 for metabase_login() 
+# # user  system elapsed
+# # 10.91    0.25   80.22 +2.74 for metabase_login()
 # handle<- metabase_login(base_url = "https://discover-metabase.hres.ca/api",
 #                          database_id = 2, # phac database
 #                          username = metabase_user,
@@ -258,7 +264,7 @@ pt_hosp_icu<-all_hosp_data %>%
 
 #note - we make a call to this dataset in 04.R, and 04a.R codes, in case this is set to be deleted
 # Time benchmarking:
-#   user  system elapsed 
+#   user  system elapsed
 #   13.01    0.09   48.43
 qry_cases_raw <- readRDS("Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/_Source Data/CaseReportForm/trend_extract.rds") %>%
   mutate(onsetdate = as.Date(onsetdate),
@@ -288,33 +294,33 @@ qry_cases <- qry_cases_raw %>%
     mutate(prname = factor(prname, c("Canada", "British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec"))) %>%
     dplyr::rename(cases = n)
 
-#generate onset lab collection dataframes
-
-qry_lab_onset <- qry_cases_raw %>%
-  clean_names() %>%
-  filter(pt != "Repatriate") %>%
-  filter(onsetdate >= "2020-03-01") %>%
-  filter(onsetdate <= (max(onsetdate - days(15)))) %>%
-  select(onsetdate, earliestlabcollectiondate) %>%
-  filter(!is.na(onsetdate)) %>%
-  mutate(delay = earliestlabcollectiondate - onsetdate) %>%
-  filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
-  group_by(onsetdate) %>%
-  dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
-            daily_case = n())
-
-#export onset lab collection dataframe as csv
-write.csv(qry_lab_onset, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\onset.csv')
-
-#create dataframe for onset metrics
-
-lab_onset_metrics <- qry_lab_onset %>%
-  mutate(Date = format(as.Date(onsetdate), "%b %Y")) %>%
-  group_by(Date) %>%
-  mutate(Avg_Onset = round(mean(mean_delay),digits = 2)) %>%
-  distinct(Date, Avg_Onset, .keep_all = TRUE) %>%
-  select(Date, Avg_Onset)
-
+#generate onset lab collection dataframes - currently not being used, but can be incorporated into weekly report!
+#
+# qry_lab_onset <- qry_cases_raw %>%
+#   clean_names() %>%
+#   filter(pt != "Repatriate") %>%
+#   filter(onsetdate >= "2020-03-01") %>%
+#   filter(onsetdate <= (max(onsetdate - days(15)))) %>%
+#   select(onsetdate, earliestlabcollectiondate) %>%
+#   filter(!is.na(onsetdate)) %>%
+#   mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+#   filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
+#   group_by(onsetdate) %>%
+#   dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
+#             daily_case = n())
+#
+# #export onset lab collection dataframe as csv
+# write.csv(qry_lab_onset, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\onset.csv')
+#
+# #create dataframe for onset metrics
+#
+# lab_onset_metrics <- qry_lab_onset %>%
+#   mutate(Date = format(as.Date(onsetdate), "%b %Y")) %>%
+#   group_by(Date) %>%
+#   mutate(Avg_Onset = round(mean(mean_delay),digits = 2)) %>%
+#   distinct(Date, Avg_Onset, .keep_all = TRUE) %>%
+#   select(Date, Avg_Onset)
+#
 
 ####################################################################################### #
 ########                              Get SALT lab data                          ########
