@@ -138,5 +138,4 @@ export_trend_cd<-export_case_death %>%
   filter(Date>=max(Date)-14)
 
 #this will help when manual corrections need to be made!
-write_csv(export_trend_cd, "cases_deaths_15days.csv")
-
+write_csv(export_trend_cd, ".\\output\\cases_deaths_15days.csv")

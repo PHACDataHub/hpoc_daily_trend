@@ -10,6 +10,9 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 import matplotlib.dates as mdates
+import pathlib 
+
+from pathlib import Path
 
 National_Daily = pd.read_csv(r'Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/testing_daily.csv', index_col=0)
 National_Daily['Date'] = pd.to_datetime(National_Daily['Date'])
@@ -73,10 +76,25 @@ ax.spines['top'].set_visible(False)
 #set dimensions of plot
 fig.set_size_inches(30, 12, forward=True)
 
-# save the plot as a file
-fig.savefig('National_Testing.jpg',
-   format='jpeg',
+#save to output folder via python
+# main_folder_string=str(Path(Path.cwd()).parents[0])
+# fig.savefig(main_folder_string+'./output/Testing_National.jpg',
+#     format='jpeg',
+# dpi=300,
+# bbox_inches='tight')
+
+# getting to "output" directory if running in r
+main_folder_string=str(Path(Path.cwd()))
+fig.savefig(main_folder_string+'\output\Testing_National.jpg',
+    format='jpeg',
 dpi=300,
 bbox_inches='tight')
+
+
+# # save the plot as a file
+# fig.savefig('Testing_National.jpg',
+#    format='jpeg',
+# dpi=300,
+# bbox_inches='tight')
 
 plt.clf()

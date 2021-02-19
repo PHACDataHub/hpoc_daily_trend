@@ -101,7 +101,7 @@ export_trend_hosp<-export_hosp %>%
   arrange(Date)
 
 #this will help when manual corrections need to be made!
-write_csv(export_trend_hosp, "hosp_15days.csv")
+write_csv(export_trend_hosp, ".\\output\\hosp_15days.csv")
 
 
 remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, export_hosp)

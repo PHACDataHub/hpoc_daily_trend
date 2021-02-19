@@ -6,6 +6,7 @@ output:
     reference_doc: src/template.pptx
 params:
   date: !r Sys.Date()
+  report: trend
   region:
     label: "Select which P/Ts to include in report"
     value: Major provinces
@@ -74,13 +75,22 @@ list_pt <-  if (params$region == "Major provinces") {
     "Yukon")
 }
 two_weeks_ago <- params$date - weeks(2)
+
+#can possibly designate this folder as a param variable
+output_folder<-"C:\\rmd\\output\\"
+
+eval_if_trend<-(params$report=="trend")
 ```
 
-# Summary
 
-- Bullet 1
-- Bullet 2
-- Bullet 3
+```{r Summary, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+"# Summary
+
+* bullet 1
+* bullet 2
+* bullet 3")
+```
 
 # COVID-19 Cases and Deaths Summary Statistics
 
@@ -107,14 +117,18 @@ user=getpass.getuser()
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
 ```
 
-```{r Python Codes for Graphics, results='asis', message=FALSE, warning=FALSE}
+```{r Python National incidence rate figure, results='asis', message=FALSE, warning=FALSE}
 source_python("src/case_per_100k.py")
+
+```
+
+```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend}
 source_python("src/National_Testing.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
 # fig.cap=paste(key_100k_caption) #insert this if want figure caption to text (still working this out so going back to python caption)
-knitr::include_graphics('Canada_case_per_100k.jpg')
+knitr::include_graphics(paste0(output_folder,"Canada_case_per_100k.jpg"))
 ```
 
 
@@ -126,27 +140,31 @@ knitr::include_graphics('Canada_case_per_100k.jpg')
 ```{r PT C, code=xfun::read_utf8('src/03_pt_slides.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-# COVID-19 Hospitalizations and ICU Statistics
+```{r Hospitalization header, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+"# COVID-19 Hospitalizations and ICU Statistics")
+```
 
-```{r Hospitalization ICU Metrics Table, echo=FALSE, message=FALSE, warning=FALSE, results='asis'}
+```{r Hospitalization ICU Metrics Table, echo=FALSE, message=FALSE, warning=FALSE, results='asis',eval=eval_if_trend}
 source("src/05a_hosp_table.R")
 hospicu_table<-format_hospicu_table(input_table=Hosp_Metrics_Table)
 hospicu_table
 ```
 
-
 ```{r HospICU, code=xfun::read_utf8('src/05b_hosp_graphs.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
-
 
 # COVID-19 patients in hospital daily per 100,000 population
 
 ```{r, code=xfun::read_utf8('src/05c_hosp_per.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-# Epi Indicators
+```{r Epi indicators header, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+"# Epi Indicators
 
-Indicators derived from the Case Report Forms
+Indicators derived from the Case Report Forms")
+```
 
 # COVID-19 cases by age (crude), Canada
 ```{r Canada Crude C, code=c(Sys.setenv(age_prname="Canada"), xfun::read_utf8('src/04a_crude_can_age.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
@@ -160,27 +178,38 @@ Indicators derived from the Case Report Forms
 ```{r PT Age C, code=c(Sys.setenv(age_prname="pts"), xfun::read_utf8('src/04_age_slides.R')), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
-# Laboratory Indicators
-
-```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```{r Laboratory indicators header, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+"# Laboratory Indicators")
 ```
 
-```{r Lab Testing Table, message=FALSE, warning=FALSE}
+```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), , eval=eval_if_trend, results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```
+
+```{r Lab Testing Table, message=FALSE, warning=FALSE, eval=eval_if_trend}
 labtesting_table<-format_labtesting_table(input_table=Testing_Metrics)
 labtesting_table
 ```
-Highlights:
-Over the past week, a daily average of `r scales::comma(key_Can_weekly_tests/7)` tests have been performed for COVID-19 across Canada, for a total of `r scales::comma(key_Can_weekly_tests)` tests. The weekly percent positivity is `r key_Can_weekly_perc_positive`
 
-```{r National Testing Graphic, fig.cap=paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update),echo=FALSE, out.width='100%'}
-knitr::include_graphics('National_Testing.jpg')
+```{r Laboratory table text, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+paste0("Highlights:
+Over the past week, a daily average of ",scales::comma(key_Can_weekly_tests/7)," tests have been performed for COVID-19 across Canada, for a total of ",scales::comma(key_Can_weekly_tests)," tests. The weekly percent positivity is ",key_Can_weekly_perc_positive))
 ```
 
-# International Indicators
+```{r National Testing Graphic, fig.cap=paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update),echo=FALSE, out.width='100%', eval=eval_if_trend}
+knitr::include_graphics(paste0(output_folder,"Testing_National.jpg"))
+```
 
-Indicators derived from International Sources
+```{r International indicators header, echo=FALSE, results='asis', eval=eval_if_trend}
+cat(
+"# International Indicators
 
-```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+Indicators derived from International Sources")
+```
+
+
+```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20, eval=eval_if_trend}
 ```
 
 

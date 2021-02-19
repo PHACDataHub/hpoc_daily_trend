@@ -1,18 +1,16 @@
 
-
-
 ############################################################################################################################################ #
 ############################################################################################################################################ #
 
 
 #Helpful character vectors, can be used for filtering datasets, and can be combined with "recode_PT_names_to_XXX" functions
 
-all_PTs<-c("BC","AB","SK","MB","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
-all_PTs_plus_Can<-c(all_PTs, "CAN")
+PTs_all<-c("BC","AB","SK","MB","ON","QC","NL", "NB","NS","PE","YK","NT","NU")
+PTs_all_plus_Can<-c(all_PTs, "CAN")
 
-big_6_PTs<-c("BC","AB","SK","MB","ON","QC")
-atlantic_PTs<-c("NL", "NB","NS","PE")
-territory_PTs<-c("YK","NT","NU")
+PTs_big6<-c("BC","AB","SK","MB","ON","QC")
+PTs_atlantic<-c("NL", "NB","NS","PE")
+PTs_territories<-c("YK","NT","NU")
 
 
 ############################################################################################################################################ #
@@ -20,7 +18,6 @@ territory_PTs<-c("YK","NT","NU")
 
 
 #Script to generate Daily Trend Report!
-## This is currently broken, will look into this at some point.
 generate_trend_report<-function(report_date=""){
 
 if (report_date==""){
@@ -29,8 +26,29 @@ if (report_date==""){
 library("rmarkdown")
 setwd("C:/rmd/")
 
-rmarkdown::render('daily-trend-report-v3.rmd',
-                  output_file = paste0('DailyTrendReport_', report_date,'.pptx'))
+rmarkdown::render('Trend_Report.rmd',
+                  output_file = paste0('DailyTrendReport_', report_date,'.pptx'),
+                  envir = parent.frame())
+}
+
+############################################################################################################################################ #
+############################################################################################################################################ #
+
+generate_Nemer_report<-function(report_date=""){
+
+  if (report_date==""){
+    report_date<-format(Sys.Date(), "%d%b%Y")
+  }
+  library("rmarkdown")
+  setwd("C:/rmd/")
+
+  input_params<-list(report="Nemer")
+
+  rmarkdown::render('Trend_Report.rmd',
+                    output_file = paste0('TrendReport_', report_date,'.pptx'),
+                    params = input_params,
+                    envir = parent.frame())
+  #eventually, can write to: \\Ncr-a_irbv2s\irbv2\PHAC\IDPCB\CIRID\VIPS-SAR\EMERGENCY PREPAREDNESS AND RESPONSE HC4\EMERGENCY EVENT\WUHAN UNKNOWN PNEU - 2020\EPI SUMMARY\Nemer Report
 }
 
 ############################################################################################################################################ #
@@ -58,7 +76,7 @@ correct_df<-function(data=df_corrected,metric="",Jurisdiction="",correction_date
 ############################################################################################################################################ #
 ############################################################################################################################################ #
 
-## Format tables 
+## Format tables
 
 format_casedeath_table<-function(input_table){
 
@@ -77,7 +95,7 @@ format_casedeath_table<-function(input_table){
            Weekly_Change_Deaths=case_when(Weekly_Change_Deaths>0 ~ paste0("+",Weekly_Change_Deaths),
                                          is.na(Weekly_Change_Deaths) ~ "NA",
                                          TRUE ~ as.character(Weekly_Change_Deaths)))
-  
+
   ft <- flextable(input_table)
   ft <- color(ft, j = "Weekly_Change_Cases", i = ~ str_detect(Weekly_Change_Cases, "\\+"), color="red")
   ft <- color(ft, j = "Weekly_Change_Cases", i = ~ str_detect(Weekly_Change_Cases, "\\-"), color="green4")
@@ -113,7 +131,7 @@ format_casedeath_table<-function(input_table){
   ft <- border_outer(ft, part = "all", border = big_border)
   ft <- border_inner_v(ft, part = "all", border = border_v)
   ft <- border_inner_h(ft, part = "all", border = border_h)
-  
+
   ft_1 <- ft %>% footnote(., i=1, j=6, value = as_paragraph(
     c("Weekly change is how the current week (days 1 to 7 days ago) compares against the previous week (8 to 14 days ago).  e.g. previous week = 75 total cases; current week = 50 total cases; weekly percent change from previous week to current week = 33.3% decrease (-33.3%). 'NA' is used when there were no cases or deaths during either week, 'Inf' is used when there were is at least one case or death during the current week, but none the prior week"#,
       #"Source: Provincial and territorial website data")
@@ -134,20 +152,20 @@ format_casedeath_table<-function(input_table){
       }),
       ref_symbols = c(""),
       part = "header") %>%
-    
+
     footnote(., value = as_paragraph(
       c("Source: Provincial and territorial website data. ")
     ),
     ref_symbols = c(""),
     part = "header") %>%
-    
+
     footnote(., value = as_paragraph(
       paste0("Updated daily (Sun-Thurs). Data as of: ",max(Case_Death_Stats$Date))),
       ref_symbols = c(""),
       part = "header")
-  
 
-  
+
+
   return(ft_1)
 }
 
@@ -163,8 +181,8 @@ format_hospicu_table<-function(input_table){
            delta7i=case_when(delta7i>0 ~ paste0("+",delta7i),
                                           is.na(delta7i) ~ "NA",
                                           TRUE ~ as.character(delta7i)))
-  
-  
+
+
   ft <- flextable(input_table)
   ft <- color(ft, j = "delta7h", i = ~ str_detect(delta7h, "\\+"), color="red")
   ft <- color(ft, j = "delta7h", i = ~ str_detect(delta7h, "\\-"), color="green4")
@@ -180,21 +198,21 @@ format_hospicu_table<-function(input_table){
   ft <- align(ft, align = "center", part="header")
   ft <- align(ft, j = 1:2,align = "left", part="body")
   ft <- align(ft, j=3:ncol(input_table), align = "right", part="body")
-  
+
   #shading headers, and alternating rows.
   ft<-bg(ft, bg="#4f81bd", part="header")
   ft<-bg(ft,i=seq(1,nrow(ft$body$dataset),2), bg="#d0d8e8")
   ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
   ft<-color(ft,color="white",part="header")
-  
+
   big_border = fp_border(color="black", width=2)
   border_v = fp_border(color="black")
   border_h = fp_border(color="black")
-  
+
   ft <- border_outer(ft, part = "all", border = big_border)
   ft <- border_inner_v(ft, part = "all", border = border_v)
   ft <- border_inner_h(ft, part = "all", border = border_h)
-  
+
   ft_1 <- footnote( ft, value = as_paragraph(
     c("Source: Provincial and territorial website data. When a PT does not report updated hospitalization/ICU numbers, the previous day's values are carried over.")),
     ref_symbols = c("")) %>%
@@ -202,9 +220,9 @@ format_hospicu_table<-function(input_table){
       paste0("Updated Daily (Sun-Thurs). Data as of: ",format(max(Hosp_Metrics_Table$Date),"%B %d"))),
       ref_symbols = c(""),
       part = "header")
-  
 
-  
+
+
   return(ft_1)
 }
 
@@ -225,8 +243,8 @@ format_labtesting_table<-function(input_table){
                              TRUE ~ as.character(change_in_positivity))) %>%
     rename(`Weekly Change in Tests` = change_in_tests,
            `Weekly Change in Percent Positivity` = change_in_positivity)
-  
-  
+
+
 ft <- flextable(input_table)
 ft<-width(ft, j=1, width = 2.5)
 ft<-width(ft, j=2:ncol(input_table), width = 1.5)
@@ -251,16 +269,16 @@ ft<-bg(ft,i=seq(2,nrow(ft$body$dataset),2), bg="#e8edf4")
 ft<-color(ft,color="white",part="header")
 
 #commented out the below for this week as causing program to crash due to non-existent columns
-#add conditional colour to change in testing variable 
+#add conditional colour to change in testing variable
 ft <- color(ft, j = "Weekly Change in Tests", i = ~ str_detect(`Weekly Change in Tests`, "\\-"), color="red")
 ft <- color(ft, j = "Weekly Change in Tests", i = ~ str_detect(`Weekly Change in Tests`, "\\+"), color="green4")
 ft <- color(ft, j = "Weekly Change in Percent Positivity", i = ~ str_detect(`Weekly Change in Percent Positivity`, "\\+"), color="red")
 ft <- color(ft, j = "Weekly Change in Percent Positivity", i = ~ str_detect(`Weekly Change in Percent Positivity`, "\\-"), color="green4")
 
 ft_1 <- footnote(ft, value = as_paragraph(
-  paste0("Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
+  paste0("Note: Lab testing numbers may vary slightly as PTs continually update lab testing data. Updated Mondays. Data as of: ", format(max(SALT4$Date), "%B %d"))),
   ref_symbols = c(""),
-  part = "header")  
+  part = "header")
 
 
 
@@ -268,13 +286,11 @@ return(ft_1)
 }
 
 
-#############################
-
 ## Recode PT names
 
 recode_PT_names_to_small <- function(dataset, geo_variable = "Jurisdiction") {
   if (class(dataset)[1]=="character"){
-    dataset<-recode(dataset, 
+    dataset<-recode(dataset,
                               "British Columbia"="BC",
                               "Alberta" = "AB",
                               "Saskatchewan"="SK",
@@ -314,10 +330,10 @@ recode_PT_names_to_small <- function(dataset, geo_variable = "Jurisdiction") {
   }
   return(dataset)
 }
-  
+
 recode_PT_names_to_big <- function(dataset, geo_variable = "Jurisdiction") {
   if (class(dataset)[1]=="character"){
-    dataset<-recode(dataset, 
+    dataset<-recode(dataset,
                     "BC" = "British Columbia",
                     "AB" = "Alberta",
                     "SK" = "Saskatchewan",
@@ -401,13 +417,13 @@ factor_PT_west_to_east<-function(input_data,geo_variable="Jurisdiction", size="s
   } else {
     print("Error in size argument of 'factor_PT_west_to_east()', use 'small' if PT names are abbreviated, 'big' if full names are used")
   }
-  
+
   output_data<-input_data %>%
       mutate(!!geo_variable := factor(!!as.name(geo_variable), levels = juriorder))
-  
+
   if (exists('output_data')==FALSE){
     output_data<-input_data
-  }  
+  }
   return(output_data)
 }
 
@@ -419,13 +435,13 @@ factor_PT_alphabetical<-function(input_data,geo_variable="Jurisdiction",size="sm
   } else {
     print("Error in size argument of 'factor_PT_alphabetical()', use 'small' if PT names are abbreviated, 'big' if full names are used")
   }
-    
+
   output_data<-input_data %>%
       mutate(!!geo_variable := factor(!!as.name(geo_variable), levels = juriorder))
   if (exists('output_data')==FALSE){
     output_data<-input_data
   }
-  
+
   return(output_data)
 }
 

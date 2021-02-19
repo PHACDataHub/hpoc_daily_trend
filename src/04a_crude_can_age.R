@@ -56,3 +56,4 @@ ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episode
     plot.caption = element_text(hjust = 0)
   )
 
+

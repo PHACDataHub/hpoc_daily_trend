@@ -8,10 +8,10 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-# import pathlib
+import pathlib 
 
 from mpl_axes_aligner import align
-# from pathlib import Path
+from pathlib import Path
 
 case_per_100k = pd.read_csv(r'Y:/PHAC/IDPCB/CIRID/VIPS-SAR/EMERGENCY PREPAREDNESS AND RESPONSE HC4/EMERGENCY EVENT/WUHAN UNKNOWN PNEU - 2020/EPI SUMMARY/Trend analysis/_Current/Trend Report/rmd/case_per_100k.csv', index_col=0)
 case_per_100k['Date'] = pd.to_datetime(case_per_100k['Date'])
@@ -82,17 +82,25 @@ fig.set_size_inches(24, 10.5, forward=True)
 
 # save the plot as a file
 
-# # getting to "output" directory
-# main_folder_string=str(Path(Path.cwd()).parents[0]) 
+# getting to "output" directory if running in python
+# main_folder_string=str(Path(Path.cwd()).parents[0])
 # fig.savefig(main_folder_string+'./output/Canada_case_per_100k.jpg',
-#    format='jpeg',
+#     format='jpeg',
 # dpi=300,
 # bbox_inches='tight')
+# plt.clf()
 
-
-fig.savefig('Canada_case_per_100k.jpg',
-   format='jpeg',
+# getting to "output" directory if running in r
+main_folder_string=str(Path(Path.cwd()))
+fig.savefig(main_folder_string+'\output\Canada_case_per_100k.jpg',
+    format='jpeg',
 dpi=300,
 bbox_inches='tight')
-
 plt.clf()
+
+# Saving to main directory
+# fig.savefig('Canada_case_per_100k.jpg',
+#     format='jpeg',
+# dpi=300,
+# bbox_inches='tight')
+# plt.clf()
