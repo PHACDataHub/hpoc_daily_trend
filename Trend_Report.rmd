@@ -7,21 +7,12 @@ output:
 params:
   date: !r Sys.Date()
   report: trend
-  region:
-    label: "Select which P/Ts to include in report"
-    value: Major provinces
-    input: select
-    choices: [All P/Ts, Major provinces]        
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 
-# Import data from network drive using Python
-library(reticulate)
-# source_python("src/00_get_data.py")
-
-
 # Load libraries
+library(reticulate)
 library(readr)
 library(tidyverse)
 library(patchwork)
@@ -42,40 +33,8 @@ library(officer)
 library(hms)
 library(googlesheets4)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
-library(PHACTrendR)
+library(PHACTrendR) #need to run: install_github("Michael-Elten/PHACTrendR") to install this package
 
-
-# source("src/trend_report_functions.R")
-
-# Import data
-# source("src/00_get_data.R")
-
-
-
-# list_pt <-  if (params$region == "Major provinces") {
-#   c("Canada",
-#     "British Columbia",
-#     "Alberta",
-#     "Saskatchewan",
-#     "Manitoba",
-#     "Ontario",
-#     "Quebec")
-# } else {
-#   c("Canada",
-#     "British Columbia",
-#     "Alberta",
-#     "Saskatchewan",
-#     "Manitoba",
-#     "Ontario",
-#     "Quebec",
-#     "New Brunswick",
-#     "Prince Edward Island",
-#     "Nova Scotia",
-#     "Newfoundland and Labrador",
-#     "Northwest Territories",
-#     "Nunavut",
-#     "Yukon")
-# }
 list_pt<-c("Canada",recode_PT_names_to_big(PHACTrendR::PTs_big6))
 
 two_weeks_ago <- params$date - weeks(2)
