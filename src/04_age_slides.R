@@ -1,12 +1,21 @@
+CRF_data<-PHACTrendR::import_case_report_form_data()
+
+qry_cases_raw<-CRF_data[[1]]
+
+#I think some manipulations done in the import_case_report_form_data() function should be removed, and added here
+qry_cases<-CRF_data[[2]]
+
+
 jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
 juriorder2<-c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec")
+
 # Filter province
 qry_cases_filter <- qry_cases %>%
-    filter(prname %in% jurisdiction) %>%
+    filter(Jurisdiction %in% jurisdiction) %>%
     mutate(episodedate = as.Date(episodedate)) %>%
     filter(!is.na(episodedate)) %>%
-    arrange(prname, agegroup20, episodedate) %>%
-    group_by(prname, agegroup20) %>%
+    arrange(Jurisdiction, agegroup20, episodedate) %>%
+    group_by(Jurisdiction, agegroup20) %>%
     mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
     mutate(agegroup20 = as.character(agegroup20)) %>%
     filter(agegroup20 != "Unknown") %>%
@@ -18,18 +27,18 @@ qry_cases_filter <- qry_cases %>%
 # Compute cases per 100K
 
 qry_cases_per <- qry_cases_filter %>%
-  left_join(pt_pop20, by=c("prname"="Jurisdiction", "agegroup20"="AgeGroup20")) %>%
+  left_join(pt_pop20, by=c("Jurisdiction"="Jurisdiction", "agegroup20"="AgeGroup20")) %>%
   mutate(cases_per = (cases/Population20)*100000) %>%
   mutate(sdma_per = rollmean(cases_per, 7, na.pad = TRUE, align = "right")) %>%
   filter(episodedate >= "2020-06-01") %>%
-  mutate(prname=factor(prname, levels=juriorder2))
+  factor_PT_west_to_east(size="big")
 
-qry_cases_per$prname <- recode(qry_cases_per$prname, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
+qry_cases_per$Jurisdiction <- recode(qry_cases_per$Jurisdiction, "Canada"="", "British Columbia"="BC","Alberta"="AB","Saskatchewan"="SK","Manitoba"="MB","Quebec"="QC","Ontario"="ON")
 
 # Plot
 plot<-ggplot(qry_cases_per, aes(x = episodedate, y = sdma_per, colour = agegroup20)) +
     geom_line(size = 1.5) +
-    facet_wrap(~prname, scales = "free") +
+    facet_wrap(~Jurisdiction, scales = "free") +
     scale_y_continuous("Number of reported cases per 100,000\n(7 Day moving average)", labels = comma_format(accuracy = 1)) +
     scale_x_date(
         "Date of illness onset",

@@ -40,40 +40,44 @@ library(stringr)
 library(flextable)
 library(officer)
 library(hms)
+library(googlesheets4)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package (https://github.com/PHACDataHub/metabaser for more info)
-library(googlesheets4) #trying to access hosp data this way!
+library(PHACTrendR)
 
-source("src/trend_report_functions.R")
+
+# source("src/trend_report_functions.R")
 
 # Import data
-source("src/00_get_data.R")
+# source("src/00_get_data.R")
 
 
 
-list_pt <-  if (params$region == "Major provinces") {
-  c("Canada",
-    "British Columbia",
-    "Alberta",
-    "Saskatchewan",
-    "Manitoba",
-    "Ontario",
-    "Quebec")
-} else {
-  c("Canada",
-    "British Columbia",
-    "Alberta",
-    "Saskatchewan",
-    "Manitoba",
-    "Ontario",
-    "Quebec",
-    "New Brunswick",
-    "Prince Edward Island",
-    "Nova Scotia",
-    "Newfoundland and Labrador",
-    "Northwest Territories",
-    "Nunavut",
-    "Yukon")
-}
+# list_pt <-  if (params$region == "Major provinces") {
+#   c("Canada",
+#     "British Columbia",
+#     "Alberta",
+#     "Saskatchewan",
+#     "Manitoba",
+#     "Ontario",
+#     "Quebec")
+# } else {
+#   c("Canada",
+#     "British Columbia",
+#     "Alberta",
+#     "Saskatchewan",
+#     "Manitoba",
+#     "Ontario",
+#     "Quebec",
+#     "New Brunswick",
+#     "Prince Edward Island",
+#     "Nova Scotia",
+#     "Newfoundland and Labrador",
+#     "Northwest Territories",
+#     "Nunavut",
+#     "Yukon")
+# }
+list_pt<-c("Canada",recode_PT_names_to_big(PHACTrendR::PTs_big6))
+
 two_weeks_ago <- params$date - weeks(2)
 
 #can possibly designate this folder as a param variable
@@ -120,10 +124,6 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-m
 ```{r Python National incidence rate figure, results='asis', message=FALSE, warning=FALSE}
 source_python("src/case_per_100k.py")
 
-```
-
-```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend}
-source_python("src/National_Testing.py")
 ```
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
@@ -195,6 +195,10 @@ labtesting_table
 cat(
 paste0("Highlights:
 Over the past week, a daily average of ",scales::comma(key_Can_weekly_tests/7)," tests have been performed for COVID-19 across Canada, for a total of ",scales::comma(key_Can_weekly_tests)," tests. The weekly percent positivity is ",key_Can_weekly_perc_positive))
+```
+
+```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend}
+source_python("src/National_Testing.py")
 ```
 
 ```{r National Testing Graphic, fig.cap=paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update),echo=FALSE, out.width='100%', eval=eval_if_trend}

@@ -1,10 +1,13 @@
+#using package to get data"
+df<-import_adjusted_case_death_data()
+df_raw<-import_raw_case_death_data()
+
 df_filter <- df %>%
   filter(date >= "2020-03-08")
 
 #Derive 7dMA for cases and deaths, as well as weekly changes for cases/deaths. NOTE - the national numbers are vulnerable to non-reporting here.
 df_moving_averages <- df_filter %>%
-  dplyr::rename(Jurisdiction = prname,
-                Cases_Cumulative = numtotal,
+  dplyr::rename(Cases_Cumulative = numtotal,
                 Deaths_Cumulative = numdeaths,
                 Cases_Daily=numtoday,
                 Deaths_Daily=numdeathstoday,
@@ -21,9 +24,9 @@ df_moving_averages <- df_filter %>%
 dates<-seq(max(df_filter$date)-6, max(df_filter$date), by=1)
 correct_Can_7MA<-function(input_date=""){
   can_corrected_7mas<-df_filter %>%
-  filter(!prname %in% c("Canada", "Repatriated travellers")) %>%
+  filter(!Jurisdiction %in% c("Canada", "Repatriated travellers")) %>%
   filter(date>= as.Date(input_date)-6 & date<= as.Date(input_date)) %>%
-  group_by(prname) %>%
+  group_by(Jurisdiction) %>%
   summarise(PT_case7ma=mean(numtoday),
             PT_death7ma=mean(numdeathstoday)) %>%
   ungroup() %>%
@@ -87,7 +90,7 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
 #to automate a footnote on the cases/deaths table - should probably abbreviate the PTs
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)
 if(any_non_report_flag==TRUE){
-  key_PTs_nonreport<-df_raw$prname[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 
+  key_PTs_nonreport<-df_raw$Jurisdiction[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 
   
   key_PTs_nonreport<-recode_PT_names_to_small(key_PTs_nonreport)
 }

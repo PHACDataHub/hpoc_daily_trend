@@ -1,5 +1,4 @@
-#manually calculated 7 day MA and 7 day MA per 1,000,000 and check for discrepancy.
-#no discrepancy found; using provided variables
+df_int<-import_international_data()
 
 int_cases <- df_int %>%
   filter(iso_code %in% c("AUS","CAN","DNK","FRA","DEU","IRL","ISR","ZAF","GBR","USA")) %>%

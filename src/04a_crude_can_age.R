@@ -2,11 +2,11 @@ jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("Briti
 
 # Filter province
 qry_crude_filter <- qry_cases %>%
-  filter(prname %in% jurisdiction) %>%
+  filter(Jurisdiction %in% jurisdiction) %>%
   mutate(episodedate = as.Date(episodedate)) %>%
   filter(!is.na(episodedate)) %>%
-  arrange(prname, agegroup20, episodedate) %>%
-  group_by(prname, agegroup20) %>%
+  arrange(Jurisdiction, agegroup20, episodedate) %>%
+  group_by(Jurisdiction, agegroup20) %>%
   mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
   mutate(agegroup20 = as.character(agegroup20)) %>%
   filter(agegroup20 != "Unknown") %>%
@@ -15,12 +15,12 @@ qry_crude_filter <- qry_cases %>%
   filter(agegroup20 != "") %>%
   ungroup()
 
-qry_crude_filter$prname <- recode(qry_crude_filter$prname, "Canada"="")
+qry_crude_filter$Jurisdiction <- recode(qry_crude_filter$Jurisdiction, "Canada"="")
 
 # Plot Crude Cases (Canada)
 ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episodedate, y = sdma, colour = agegroup20)) +
   geom_line(size = 1.5) +
-  facet_wrap(vars(prname), scales = "free_y") +
+  facet_wrap(vars(Jurisdiction), scales = "free_y") +
   scale_y_continuous("Number of reported cases, 7 Day moving average", labels = comma_format(accuracy = 1)) +
   scale_x_date(
     "Date of illness onset",
