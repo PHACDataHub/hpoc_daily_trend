@@ -1,3 +1,5 @@
+all_hosp_data<-import_hosp_data()
+
 
 all_hosp_icu_adj<-all_hosp_data %>%
   group_by(Jurisdiction) %>%

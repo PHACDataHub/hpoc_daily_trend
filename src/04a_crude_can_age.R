@@ -1,12 +1,50 @@
 jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
 
+qry_cases_raw<-PHACTrendR::import_case_report_form_data()
+
+qry_canada <- qry_cases_raw %>%
+  janitor::clean_names() %>%
+  select(phacid, pt, earliestdate, age, agegroup10, agegroup20) %>%
+  filter(!is.na(age)) %>%
+  group_by(earliestdate, agegroup20) %>%
+  tally() %>%
+  mutate(Jurisdiction = "Canada") %>%
+  filter(!is.na(earliestdate))
+
+qry_cases <- qry_cases_raw %>%
+  janitor::clean_names() %>%
+  select(phacid, pt, earliestdate, age, agegroup10, agegroup20) %>%
+  mutate(Jurisdiction = toupper(pt)) %>%
+  recode_PT_names_to_big() %>%
+  group_by(earliestdate, agegroup20, Jurisdiction) %>%
+  dplyr::tally() %>%
+  dplyr::filter(!is.na(earliestdate)) %>%
+  dplyr::bind_rows(qry_canada) %>%
+  filter(Jurisdiction %in% c("Canada", recode_PT_names_to_big(PHACTrendR::PTs_big6))) %>%
+  factor_PT_west_to_east(Canada_first=TRUE, size="big") %>%
+  dplyr::rename(cases = n)
+
+# Not used in the trend report for the time being. Code preserved as may be needed in weekly report code.
+# qry_lab_onset <- qry_cases_raw %>%
+#   janitor::clean_names() %>%
+#   filter(pt != "Repatriate") %>%
+#   filter(onsetdate >= "2020-03-01") %>%
+#   filter(onsetdate <= (max(onsetdate - days(15)))) %>%
+#   select(onsetdate, earliestlabcollectiondate) %>%
+#   filter(!is.na(onsetdate)) %>%
+#   mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+#   filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
+#   group_by(onsetdate) %>%
+#   dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
+#                    daily_case = n())
+
 # Filter province
 qry_crude_filter <- qry_cases %>%
-  filter(prname %in% jurisdiction) %>%
-  mutate(episodedate = as.Date(episodedate)) %>%
-  filter(!is.na(episodedate)) %>%
-  arrange(prname, agegroup20, episodedate) %>%
-  group_by(prname, agegroup20) %>%
+  filter(Jurisdiction %in% jurisdiction) %>%
+  mutate(earliestdate = as.Date(earliestdate)) %>%
+  filter(!is.na(earliestdate)) %>%
+  arrange(Jurisdiction, agegroup20, earliestdate) %>%
+  group_by(Jurisdiction, agegroup20) %>%
   mutate(sdma = rollmean(cases, 7, na.pad = TRUE, align = "right")) %>%
   mutate(agegroup20 = as.character(agegroup20)) %>%
   filter(agegroup20 != "Unknown") %>%
@@ -15,12 +53,12 @@ qry_crude_filter <- qry_cases %>%
   filter(agegroup20 != "") %>%
   ungroup()
 
-qry_crude_filter$prname <- recode(qry_crude_filter$prname, "Canada"="")
+qry_crude_filter$Jurisdiction <- recode(qry_crude_filter$Jurisdiction, "Canada"="")
 
 # Plot Crude Cases (Canada)
-ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episodedate, y = sdma, colour = agegroup20)) +
+ggplot(qry_crude_filter %>% filter(earliestdate >= "2020-06-01"), aes(x = earliestdate, y = sdma, colour = agegroup20)) +
   geom_line(size = 1.5) +
-  facet_wrap(vars(prname), scales = "free_y") +
+  facet_wrap(vars(Jurisdiction), scales = "free_y") +
   scale_y_continuous("Number of reported cases, 7 Day moving average", labels = comma_format(accuracy = 1)) +
   scale_x_date(
     "Date of illness onset",
@@ -28,8 +66,8 @@ ggplot(qry_crude_filter %>% filter(episodedate >= "2020-06-01"), aes(x = episode
     labels = label_date("%d%b")
   ) +
   geom_rect(aes(
-    xmin = qry_crude_filter %>% filter(episodedate == max(episodedate) - days(14)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
-    xmax = qry_crude_filter %>% filter(episodedate == max(episodedate)) %>% select(episodedate) %>% distinct() %>% pull() %>% as.Date(),
+    xmin = qry_crude_filter %>% filter(earliestdate == max(earliestdate) - days(14)) %>% select(earliestdate) %>% distinct() %>% pull() %>% as.Date(),
+    xmax = qry_crude_filter %>% filter(earliestdate == max(earliestdate)) %>% select(earliestdate) %>% distinct() %>% pull() %>% as.Date(),
     ymin = -Inf,
     ymax = Inf
   ),

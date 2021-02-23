@@ -1,10 +1,13 @@
+#using package to get data"
+df<-import_adjusted_case_death_data()
+df_raw<-import_raw_case_death_data()
+
 df_filter <- df %>%
   filter(date >= "2020-03-08")
 
 #Derive 7dMA for cases and deaths, as well as weekly changes for cases/deaths. NOTE - the national numbers are vulnerable to non-reporting here.
 df_moving_averages <- df_filter %>%
-  dplyr::rename(Jurisdiction = prname,
-                Cases_Cumulative = numtotal,
+  dplyr::rename(Cases_Cumulative = numtotal,
                 Deaths_Cumulative = numdeaths,
                 Cases_Daily=numtoday,
                 Deaths_Daily=numdeathstoday,
@@ -21,9 +24,9 @@ df_moving_averages <- df_filter %>%
 dates<-seq(max(df_filter$date)-6, max(df_filter$date), by=1)
 correct_Can_7MA<-function(input_date=""){
   can_corrected_7mas<-df_filter %>%
-  filter(!prname %in% c("Canada", "Repatriated travellers")) %>%
+  filter(!Jurisdiction %in% c("Canada", "Repatriated travellers")) %>%
   filter(date>= as.Date(input_date)-6 & date<= as.Date(input_date)) %>%
-  group_by(prname) %>%
+  group_by(Jurisdiction) %>%
   summarise(PT_case7ma=mean(numtoday),
             PT_death7ma=mean(numdeathstoday)) %>%
   ungroup() %>%
@@ -73,12 +76,10 @@ Case_Death_Stats_1 <- PT7 %>%
   group_by(Jurisdiction) %>% 
   filter(Date==max(Date))
 
-juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
-
 Case_Death_Stats <- Case_Death_Stats_1 %>%
   filter(Jurisdiction!="Repatriated travellers") %>%
-  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
-         Date = format(Date, "%B %d")) %>%
+  factor_PT_west_to_east(size="big", Canada_first = TRUE) %>%
+  mutate(Date = format(Date, "%B %d")) %>%
   arrange(Jurisdiction)%>%
   select(Jurisdiction,Date,
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
@@ -87,7 +88,7 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
 #to automate a footnote on the cases/deaths table - should probably abbreviate the PTs
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)
 if(any_non_report_flag==TRUE){
-  key_PTs_nonreport<-df_raw$prname[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 
+  key_PTs_nonreport<-df_raw$Jurisdiction[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 
   
   key_PTs_nonreport<-recode_PT_names_to_small(key_PTs_nonreport)
 }
@@ -101,9 +102,10 @@ Case_per_100K <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
 
 key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
-key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
 key_latest_date_100k_fig<-format(max(Case_per_100K$Date), "%B %d")
 key_100k_caption<-paste0("Spring peak: April 26, 4.55 cases/100k, Winter peak: January 10, 21.74 cases/100k, Today's value (",key_latest_date_100k_fig,"): ",key_latest_case_rate_7MA," cases/100k           Updated daily (Sun-Thurs). Data as of: ",key_latest_date_100k_fig)
+
+
 
 write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
 

@@ -1,5 +1,5 @@
-hosp_per <- pt_hosp_icu %>%
-  filter(type=="hospitalized") %>%
+hosp_per <- all_hosp_data %>%
+  filter(type=="hospitalized" & !Jurisdiction=="Repatriated travellers") %>%
   select(Jurisdiction,Date,cases)
 
 hosp_per <- hosp_per %>%
@@ -8,7 +8,7 @@ hosp_per <- hosp_per %>%
 hosp_per <- hosp_per  %>%
   mutate(hosp_per=(cases/Population)*100000) %>%
   filter(Date>"2020-03-31") %>%
-  filter(Jurisdiction %in% recode_PT_names_to_big(big_6_PTs))
+  filter(Jurisdiction %in% recode_PT_names_to_big(PHACTrendR::PTs_big6))
 
 ggplot(data=hosp_per, aes(x=Date, y=hosp_per, group=Jurisdiction, colour=Jurisdiction)) +
   geom_line(size = 1.5) +

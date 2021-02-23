@@ -1,3 +1,5 @@
+salt_raw<-import_SALT_data()
+
 SALT <- salt_raw #filter any PTs, etc. out here.
 
 
@@ -67,7 +69,7 @@ Testing <- Testing %>%
 
 Testing <- Testing[,c(8,1,2,3,4,5,6,7)]
 
-#to replace the export that used to go to Yann Pelchat
+#to replace the export that used to go to Yann Pelchat - awaiting confirmation that it is still needed.
 export_testing1<-Testing %>%
   select(Jurisdiction, Week, week_tests_performed, week_positive_tests)%>%
   filter(Jurisdiction=="Canada")
@@ -176,7 +178,8 @@ National_Daily <- National_Daily_a %>%
   mutate(tests_performed=daily_tests_performed,
          percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
-  filter(Date>"2021-01-23") %>%#For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
+  filter(Date>"2021-01-23") %>%   #For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
   filter(Date<=max(Date)-1) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
 
 write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')
+
