@@ -1,13 +1,4 @@
-CRF_data<-PHACTrendR::import_case_report_form_data()
-
-qry_cases_raw<-CRF_data[[1]]
-
-#I think some manipulations done in the import_case_report_form_data() function should be removed, and added here
-qry_cases<-CRF_data[[2]]
-
-
 jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
-juriorder2<-c("British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec")
 
 # Filter province
 qry_cases_filter <- qry_cases %>%

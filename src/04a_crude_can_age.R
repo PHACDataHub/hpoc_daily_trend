@@ -1,5 +1,43 @@
 jurisdiction <- if (Sys.getenv("age_prname") == "Canada") "Canada" else c("British Columbia", "Alberta", "Saskatchewan", "Manitoba", "Ontario", "Quebec")
 
+qry_cases_raw<-PHACTrendR::import_case_report_form_data()
+
+qry_canada <- qry_cases_raw %>%
+  janitor::clean_names() %>%
+  select(phacid, pt, earliestdate, age, agegroup10, agegroup20) %>%
+  filter(!is.na(age)) %>%
+  group_by(earliestdate, agegroup20) %>%
+  tally() %>%
+  mutate(Jurisdiction = "Canada") %>%
+  filter(!is.na(earliestdate))
+
+qry_cases <- qry_cases_raw %>%
+  janitor::clean_names() %>%
+  select(phacid, pt, earliestdate, age, agegroup10, agegroup20) %>%
+  mutate(Jurisdiction = toupper(pt)) %>%
+  recode_PT_names_to_big() %>%
+  group_by(earliestdate, agegroup20, Jurisdiction) %>%
+  dplyr::tally() %>%
+  dplyr::filter(!is.na(earliestdate)) %>%
+  dplyr::bind_rows(qry_canada) %>%
+  filter(Jurisdiction %in% c("Canada", recode_PT_names_to_big(PHACTrendR::PTs_big6))) %>%
+  factor_PT_west_to_east(Canada_first=TRUE, size="big") %>%
+  dplyr::rename(cases = n)
+
+# Not used in the trend report for the time being. Code preserved as may be needed in weekly report code.
+# qry_lab_onset <- qry_cases_raw %>%
+#   janitor::clean_names() %>%
+#   filter(pt != "Repatriate") %>%
+#   filter(onsetdate >= "2020-03-01") %>%
+#   filter(onsetdate <= (max(onsetdate - days(15)))) %>%
+#   select(onsetdate, earliestlabcollectiondate) %>%
+#   filter(!is.na(onsetdate)) %>%
+#   mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+#   filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
+#   group_by(onsetdate) %>%
+#   dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
+#                    daily_case = n())
+
 # Filter province
 qry_crude_filter <- qry_cases %>%
   filter(Jurisdiction %in% jurisdiction) %>%

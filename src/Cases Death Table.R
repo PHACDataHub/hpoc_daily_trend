@@ -76,12 +76,10 @@ Case_Death_Stats_1 <- PT7 %>%
   group_by(Jurisdiction) %>% 
   filter(Date==max(Date))
 
-juriorder <- c("Canada","British Columbia","Alberta","Saskatchewan","Manitoba","Ontario","Quebec","Newfoundland and Labrador","New Brunswick","Nova Scotia","Prince Edward Island","Yukon","Northwest Territories","Nunavut")
-
 Case_Death_Stats <- Case_Death_Stats_1 %>%
   filter(Jurisdiction!="Repatriated travellers") %>%
-  mutate(Jurisdiction =  factor(Jurisdiction, levels = juriorder),
-         Date = format(Date, "%B %d")) %>%
+  factor_PT_west_to_east(size="big", Canada_first = TRUE) %>%
+  mutate(Date = format(Date, "%B %d")) %>%
   arrange(Jurisdiction)%>%
   select(Jurisdiction,Date,
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
@@ -104,9 +102,10 @@ Case_per_100K <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
 
 key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
-key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
 key_latest_date_100k_fig<-format(max(Case_per_100K$Date), "%B %d")
 key_100k_caption<-paste0("Spring peak: April 26, 4.55 cases/100k, Winter peak: January 10, 21.74 cases/100k, Today's value (",key_latest_date_100k_fig,"): ",key_latest_case_rate_7MA," cases/100k           Updated daily (Sun-Thurs). Data as of: ",key_latest_date_100k_fig)
+
+
 
 write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
 
