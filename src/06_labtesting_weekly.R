@@ -1,19 +1,21 @@
 salt_raw<-import_SALT_data()
 
 SALT <- salt_raw %>%
-  select(Report.Date,Jurisdiction,Tests.Performed,Positive.Test.Results,Percent.Positive.Test.Results) %>%
+  select(Report.Date,Jurisdiction,Tests.Performed,Positive.Test.Results,Percent.Positive.Test.Results, Latest.Update.Date) %>%
   rename(tests_performed=Tests.Performed,
          positive_tests=Positive.Test.Results,
          percent_positive=Percent.Positive.Test.Results) %>%
-  mutate(positive_tests = ifelse (!is.na(positive_tests), positive_tests, round(tests_performed*(percent_positive/100))),  #some PTs (AB, ON) only report % positive
+  mutate(update_date = as.Date(str_sub(Latest.Update.Date, 1, 10)),
+         Date = as.Date(str_sub(Report.Date, 1, 10)),
+         Time = as_hms(str_sub(Report.Date, 13, 20)),
+         datetime = strptime(paste(Date, Time), "%Y-%m-%d%H:%M:%S"),
+         positive_tests = ifelse (!is.na(positive_tests), positive_tests, round(tests_performed*(percent_positive/100))),  #some PTs (AB, ON) only report % positive
          percent_positive = ifelse (!is.na(percent_positive), percent_positive, round((positive_tests/tests_performed)*100, digits = 3)))
 
 
 SALT2 <- SALT %>%
-    mutate(Date=as.Date(str_sub(Report.Date,1,10)),
-           Time=as_hms(str_sub(Report.Date,13,20)),
-           datetime=strptime(paste(Date, Time), "%Y-%m-%d%H:%M:%S"),
-           Start_of_week=floor_date(Date, "week"),
+  select(-Latest.Update.Date,-update_date)%>%
+    mutate(Start_of_week=floor_date(Date, "week"),
            End_of_week=date(Start_of_week)+6,
            Week=paste(str_sub(months(Start_of_week),1,3),"-",day(Start_of_week), " to ", str_sub(months(End_of_week),1,3),"-",day(End_of_week)),
            Week_before=paste(str_sub(months(date(Start_of_week)-7),1,3),"-",day(date(Start_of_week)-7), " to ", str_sub(months(date(End_of_week)-7),1,3),"-",day(date(End_of_week)-7))) %>%
@@ -137,9 +139,7 @@ key_labtesting_table_footnote<-paste0("The following PTs did not report all 7 da
 # Create dataset for daily testing
 
 SALT2a<-SALT %>%
-  mutate( Date = as.Date(str_sub(Report.Date, 1, 10)),
-    Time = as_hms(str_sub(Report.Date, 13, 20)),
-    datetime = strptime(paste(Date, Time), "%Y-%m-%d%H:%M:%S"))%>%
+  select(-Latest.Update.Date,-update_date)%>%
   mutate(Current_week = ifelse(date(Date) + 7 <= max(Date), "No", "Yes")) %>%
   arrange(Jurisdiction, datetime)
 
