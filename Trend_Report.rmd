@@ -140,7 +140,7 @@ cat(
 "# Laboratory Indicators")
 ```
 
-```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), , eval=eval_if_trend, results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
+```{r Lab Testing Metrics, code=xfun::read_utf8('src/06_labtesting_weekly.R'), eval=eval_if_trend, results = "hide", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20}
 ```
 
 ```{r Lab Testing Table, message=FALSE, warning=FALSE, eval=eval_if_trend}

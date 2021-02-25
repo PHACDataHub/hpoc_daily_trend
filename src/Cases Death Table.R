@@ -85,7 +85,49 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
          Deaths_Daily,Deaths_Daily_7MA, Deaths_7MA_per100k, Weekly_Change_Deaths, National_Death_Proportion)
 
-#to automate a footnote on the cases/deaths table - should probably abbreviate the PTs
+#Deriving "key" variables for automation of summary bullets
+
+key_national_7MA_cases<-comma(Case_Death_Stats$Cases_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"])
+key_national_weekly_change_cases<-PHACTrendR::turn_num_to_percent_change(Case_Death_Stats$Weekly_Change_Cases[Case_Death_Stats$Jurisdiction=="Canada"])
+key_national_7MA_deaths<-comma(Case_Death_Stats$Deaths_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"])
+key_national_weekly_change_deaths<-PHACTrendR::turn_num_to_percent_change(Case_Death_Stats$Weekly_Change_Deaths[Case_Death_Stats$Jurisdiction=="Canada"])
+
+key_sum_PTs_no_increase_cases<-Case_Death_Stats %>%
+  filter(!Jurisdiction=="Canada" & !Weekly_Change_Cases>0) %>%
+  ungroup() %>%
+  count() %>%
+  as.numeric()
+
+key_PTs_increase_cases<-Case_Death_Stats %>%
+  filter(!Jurisdiction=="Canada" & Weekly_Change_Cases>0) %>%
+  select(Jurisdiction, Weekly_Change_Cases) %>%
+  arrange(desc(Weekly_Change_Cases)) %>%
+  turn_num_to_percent_change(numeric_variable="Weekly_Change_Cases",accuracy = 1) %>%
+  mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Cases,")")) %>%
+  ungroup()
+
+key_PTs_increase_cases<-turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
+
+key_sum_PTs_no_increase_deaths<-Case_Death_Stats %>%
+  filter(!Jurisdiction=="Canada" & !Weekly_Change_Deaths>0) %>%
+  ungroup() %>%
+  count() %>%
+  as.numeric()
+
+key_PTs_increase_deaths<-Case_Death_Stats %>%
+  filter(!Jurisdiction=="Canada" & Weekly_Change_Deaths>0) %>%
+  select(Jurisdiction, Weekly_Change_Deaths) %>%
+  arrange(desc(Weekly_Change_Deaths)) %>%
+  turn_num_to_percent_change(numeric_variable="Weekly_Change_Deaths",accuracy = 1) %>%
+  mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Deaths,")")) %>%
+  ungroup()
+
+key_PTs_increase_deaths<-turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
+
+
+
+
+#to automate a footnote on the cases/deaths table
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)
 if(any_non_report_flag==TRUE){
   key_PTs_nonreport<-df_raw$Jurisdiction[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update)] 

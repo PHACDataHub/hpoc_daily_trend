@@ -30,7 +30,6 @@ hosp_metrics1[hosp_metrics1$Jurisdiction=="Canada"&hosp_metrics1$Date==max(hosp_
 
 hosp_metrics1<-hosp_metrics1%>%
   mutate(delta7=(hosp7ma-lag(hosp7ma,7))/lag(hosp7ma,7)) %>%
-  mutate(delta7=percent(delta7,accuracy = 0.1)) %>%
   select(Jurisdiction, Date, cases, hosp7ma, delta7) %>%
   rename("Jurisdiction"=Jurisdiction, "Date"=Date, "Hospitalizations"=cases, 
          #"7 Day MA of Hospitalizations"=hosp7ma, 
@@ -46,7 +45,6 @@ hosp_metrics2[hosp_metrics2$Jurisdiction=="Canada"&hosp_metrics2$Date==max(hosp_
 
 hosp_metrics2<-hosp_metrics2%>%
   mutate(delta7=(icu7ma-lag(icu7ma,7))/lag(icu7ma,7)) %>%
-  mutate(delta7=percent(delta7,accuracy=0.1)) %>%
   select(Jurisdiction, Date, cases, icu7ma, delta7) %>%
   rename("Jurisdiction"=Jurisdiction, "Date"=Date, "ICU"=cases, 
          #"7 Day MA of ICU"=icu7ma,

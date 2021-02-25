@@ -12,13 +12,13 @@ for (i in list_pt){
                 desc = c(paste0("Reported on ", format(max(df_filter$Date),"%B %d")), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(number(df_filter$Cases_Daily[df_filter$Date==max(df_filter$Date)],big.mark=","),
                         number(df_filter$Cases_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=","),
-                        percent(df_filter$Weekly_Change_Cases[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
+                        PHACTrendR::turn_num_to_percent_change(df_filter$Weekly_Change_Cases[df_filter$Date==max(df_filter$Date)])))
         
         table_filter_death <- data.frame(
                 desc = c(paste0("Reported on ", format(max(df_filter$Date),"%B %d")), "7-day moving average (per day):", "Weekly percent change"),
                 value = c(number(df_filter$Deaths_Daily[df_filter$Date==max(df_filter$Date)],big.mark=","),
                           number(df_filter$Deaths_Daily_7MA[df_filter$Date==max(df_filter$Date)],big.mark=","),
-                          percent(df_filter$Weekly_Change_Deaths[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
+                          PHACTrendR::turn_num_to_percent_change(df_filter$Weekly_Change_Deaths[df_filter$Date==max(df_filter$Date)],accuracy = 0.1)))
         
         
         # Code for conditional colouring of the text in the code
