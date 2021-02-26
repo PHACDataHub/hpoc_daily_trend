@@ -23,13 +23,13 @@ for (i in list_pt){
         
         # Code for conditional colouring of the text in the code
         cols_case <- matrix("black", nrow(table_filter_case), ncol(table_filter_case))
-        cols_case[3, 2] <- if_else(table_filter_case[3, 2] > 0, "red",
-                                   if_else(table_filter_case[3, 2] < 0, "green3", "black")
+        cols_case[3, 2] <- if_else(str_detect(table_filter_case[3, 2], "\\+"), "red",
+                                   if_else(str_detect(table_filter_case[3, 2], "\\-"), "green3", "black")
         )
         
         cols_death <- matrix("black", nrow(table_filter_death), ncol(table_filter_death))
-        cols_death[3, 2] <- if_else(table_filter_death[3, 2] > 0, "red",
-                                    if_else(table_filter_death[3, 2] < 0, "green3", "black")
+        cols_death[3, 2] <- if_else(str_detect(table_filter_death[3, 2], "\\+"), "red",
+                                   if_else(str_detect(table_filter_death[3, 2], "\\-"), "green3", "black")
         )
         
         # Charting the plots

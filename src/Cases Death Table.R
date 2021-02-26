@@ -85,6 +85,51 @@ Case_Death_Stats <- Case_Death_Stats_1 %>%
          Cases_Daily,Cases_Daily_7MA,Cases_7MA_per100k,Weekly_Change_Cases,National_Case_Proportion,
          Deaths_Daily,Deaths_Daily_7MA, Deaths_7MA_per100k, Weekly_Change_Deaths, National_Death_Proportion)
 
+Case_per_100K <- PT7 %>%
+  select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
+  filter(Jurisdiction=="Canada") %>%
+  left_join(latest_can_pop,by=c("Jurisdiction"),keep=FALSE) %>%
+  mutate(Case_per_100K = (Cases_Daily/Population)*100000) %>%
+  mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
+  select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
+
+
+write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
+
+# creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
+# Still some vars missing: Recovered_Cumulative, Recovered_Daily, Recovered_Daily_7MA, Tested_Cumulative, Tested_Daily, Tested_Daily_7MA, National_cases_currentweek, National_deaths_currentweek
+export_case_death<-PT7 %>%
+  rename(Cases_WeeklyPercentChange=Weekly_Change_Cases,
+         Deaths_WeeklyPercentChange=Weekly_Change_Deaths,
+         Cases_National_Proportion=National_Case_Proportion,
+         Deaths_National_Proportion=National_Death_Proportion,
+         Recovered_Cumulative=numrecover,
+         Recovered_Daily=numrecoveredtoday) %>%
+  group_by(Jurisdiction) %>%
+  mutate(Cases_CurrentWeek=rollsum(x=Cases_Daily, k=7,align="right", fill=NA),
+         Cases_PreviousWeek=lag(Cases_CurrentWeek,n=7L),
+         Deaths_CurrentWeek=rollsum(x=Deaths_Daily, k=7,align="right", fill=NA),
+         Deaths_PreviousWeek=lag(Deaths_CurrentWeek,n=7L),
+         Cases_Daily_7MA=ifelse(Cases_Daily_7MA<1, round(Cases_Daily_7MA, digits = 0.1), round(Cases_Daily_7MA)),
+         Deaths_Daily_7MA=round(Deaths_Daily_7MA,1),
+         Cases_WeeklyPercentChange=round(Cases_WeeklyPercentChange*100,1),
+         Deaths_WeeklyPercentChange=round(Deaths_WeeklyPercentChange*100,1),
+         Cases_National_Proportion=label_percent(accuracy = 0.01)(round(Cases_National_Proportion,3)),
+         Deaths_National_Proportion=label_percent(accuracy = 0.01)(round(Deaths_National_Proportion,3))) %>%
+  ungroup() %>%
+  select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_7MA_per100k, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
+         Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_7MA_per100k, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
+
+write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
+
+
+export_trend_cd<-export_case_death %>%
+  filter(Date>=max(Date)-14)
+
+#this will help when manual corrections need to be made!
+write_csv(export_trend_cd, ".\\output\\cases_deaths_15days.csv")
+
+# For summary bullets / table footnotes:
 #Deriving "key" variables for automation of summary bullets
 
 key_national_7MA_cases<-comma(Case_Death_Stats$Cases_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"])
@@ -124,9 +169,6 @@ key_PTs_increase_deaths<-Case_Death_Stats %>%
 
 key_PTs_increase_deaths<-turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
 
-
-
-
 #to automate a footnote on the cases/deaths table
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)
 if(any_non_report_flag==TRUE){
@@ -134,52 +176,7 @@ if(any_non_report_flag==TRUE){
   
   key_PTs_nonreport<-recode_PT_names_to_small(key_PTs_nonreport)
 }
-
-Case_per_100K <- PT7 %>%
-  select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
-  filter(Jurisdiction=="Canada") %>%
-  left_join(latest_can_pop,by=c("Jurisdiction"),keep=FALSE) %>%
-  mutate(Case_per_100K = (Cases_Daily/Population)*100000) %>%
-  mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
-  select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
-
 key_latest_case_rate_7MA<-round(Case_per_100K$Case_per_100K_7MA[Case_per_100K$Date==max(Case_per_100K$Date)],digits = 2)
 key_latest_date_100k_fig<-format(max(Case_per_100K$Date), "%B %d")
 key_100k_caption<-paste0("Spring peak: April 26, 4.55 cases/100k, Winter peak: January 10, 21.74 cases/100k, Today's value (",key_latest_date_100k_fig,"): ",key_latest_case_rate_7MA," cases/100k           Updated daily (Sun-Thurs). Data as of: ",key_latest_date_100k_fig)
 
-
-
-write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
-
-# creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
-# Still some vars missing: Recovered_Cumulative, Recovered_Daily, Recovered_Daily_7MA, Tested_Cumulative, Tested_Daily, Tested_Daily_7MA, National_cases_currentweek, National_deaths_currentweek
-export_case_death<-PT7 %>%
-  rename(Cases_WeeklyPercentChange=Weekly_Change_Cases,
-         Deaths_WeeklyPercentChange=Weekly_Change_Deaths,
-         Cases_National_Proportion=National_Case_Proportion,
-         Deaths_National_Proportion=National_Death_Proportion,
-         Recovered_Cumulative=numrecover,
-         Recovered_Daily=numrecoveredtoday) %>%
-  group_by(Jurisdiction) %>%
-  mutate(Cases_CurrentWeek=rollsum(x=Cases_Daily, k=7,align="right", fill=NA),
-         Cases_PreviousWeek=lag(Cases_CurrentWeek,n=7L),
-         Deaths_CurrentWeek=rollsum(x=Deaths_Daily, k=7,align="right", fill=NA),
-         Deaths_PreviousWeek=lag(Deaths_CurrentWeek,n=7L),
-         Cases_Daily_7MA=ifelse(Cases_Daily_7MA<1, round(Cases_Daily_7MA, digits = 0.1), round(Cases_Daily_7MA)),
-         Deaths_Daily_7MA=round(Deaths_Daily_7MA,1),
-         Cases_WeeklyPercentChange=round(Cases_WeeklyPercentChange*100,1),
-         Deaths_WeeklyPercentChange=round(Deaths_WeeklyPercentChange*100,1),
-         Cases_National_Proportion=label_percent(accuracy = 0.01)(round(Cases_National_Proportion,3)),
-         Deaths_National_Proportion=label_percent(accuracy = 0.01)(round(Deaths_National_Proportion,3))) %>%
-  ungroup() %>%
-  select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_7MA_per100k, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
-         Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_7MA_per100k, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
-
-write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
-
-
-export_trend_cd<-export_case_death %>%
-  filter(Date>=max(Date)-14)
-
-#this will help when manual corrections need to be made!
-write_csv(export_trend_cd, ".\\output\\cases_deaths_15days.csv")
