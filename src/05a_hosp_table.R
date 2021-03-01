@@ -80,7 +80,6 @@ Hosp_Metrics_Table <- Hosp_Metrics %>%
   factor_PT_west_to_east(size = "big",Canada_first = TRUE) %>%
   arrange(Jurisdiction) 
 
-
 #Export hospitalization data
 #only dif is we don't include repatriated travelers here, while they were included in the other export.
 export_hosp<-Hosp_Metrics %>%
@@ -105,3 +104,30 @@ write_csv(export_trend_hosp, ".\\output\\hosp_15days.csv")
 
 
 remove(hosp_metrics1,hosp_metrics2, Hosp_Metrics, export_hosp)
+
+
+
+############ For summary bullets
+
+national_hosp_stats<-Hosp_Metrics_Table %>%
+  ungroup() %>%
+  filter(Jurisdiction=="Canada")
+
+
+key_national_7MA_hosp<-national_hosp_stats %>%
+  select(hosp7ma) %>%
+  as.numeric() 
+
+key_national_hosp_change<-national_hosp_stats %>%
+  select(delta7h) %>%
+  as.numeric() %>%
+  turn_num_to_percent_change()
+
+key_national_7MA_icu<-national_hosp_stats %>%
+  select(icu7ma) %>%
+  as.numeric()
+
+key_national_icu_change<-national_hosp_stats %>%
+  select(delta7i) %>%
+  as.numeric() %>%
+  turn_num_to_percent_change()

@@ -89,8 +89,8 @@ Case_per_100K <- PT7 %>%
   select(Jurisdiction,Date,Cases_Daily,Cases_Daily_7MA,Weekly_Change_Cases,National_Case_Proportion,Deaths_Daily,Deaths_Daily_7MA,Weekly_Change_Deaths,National_Death_Proportion) %>%
   filter(Jurisdiction=="Canada") %>%
   left_join(latest_can_pop,by=c("Jurisdiction"),keep=FALSE) %>%
-  mutate(Case_per_100K = (Cases_Daily/Population)*100000) %>%
-  mutate(Case_per_100K_7MA = rollmean(Case_per_100K,k=7,fill=NA,align=c("right"))) %>%
+  mutate(Case_per_100K = (Cases_Daily/Population)*100000,
+         Case_per_100K_7MA = (Cases_Daily_7MA/Population)*100000) %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
 
 

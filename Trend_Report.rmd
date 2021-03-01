@@ -34,6 +34,7 @@ library(hms)
 library(googlesheets4)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package for the first time (https://github.com/PHACDataHub/metabaser for more info)
 library(PHACTrendR) #need to run: install_github("Michael-Elten/PHACTrendR") to install this package for the first time
+# library(kableExtra) #for saving CPHO table as image
 
 list_pt<-c("Canada",recode_PT_names_to_big(PHACTrendR::PTs_big6))
 
