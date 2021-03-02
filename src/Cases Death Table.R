@@ -18,7 +18,6 @@ df_moving_averages <- df_filter %>%
          Deaths_Daily_7MA = rollmean(Deaths_Daily, k=7, fill=NA, align=c("right"))) %>%
   ungroup()
 
-#Temporary fix - 
 #Loop that goes through the last 7 days and recalculates the national 7dMAs for cases and deaths
 # this is done because when a PT does not report, it shifts the days of their contribution to national 7MA
 dates<-seq(max(df_filter$date)-6, max(df_filter$date), by=1)
@@ -120,8 +119,9 @@ export_case_death<-PT7 %>%
   select(Jurisdiction, update, Date, Cases_Cumulative, Cases_Daily, Cases_Daily_7MA, Cases_7MA_per100k, Cases_CurrentWeek, Cases_PreviousWeek,Cases_WeeklyPercentChange,  Cases_National_Proportion, 
          Deaths_Cumulative, Deaths_Daily, Deaths_Daily_7MA, Deaths_7MA_per100k, Deaths_CurrentWeek, Deaths_PreviousWeek, Deaths_WeeklyPercentChange, Deaths_National_Proportion)
 
-write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv")
-
+tryCatch(write_csv(export_case_death, "Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\COVID_CaseDeath_7MA.csv"),
+         warning=function(x) "error in case/death export",
+         error=function(x) "error in case/death export")
 
 export_trend_cd<-export_case_death %>%
   filter(Date>=max(Date)-14)
@@ -134,11 +134,11 @@ write_csv(export_trend_cd, ".\\output\\cases_deaths_15days.csv")
 
 key_national_7MA_cases<-comma(Case_Death_Stats$Cases_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"])
 key_national_weekly_change_cases<-PHACTrendR::turn_num_to_percent_change(Case_Death_Stats$Weekly_Change_Cases[Case_Death_Stats$Jurisdiction=="Canada"])
-key_national_7MA_deaths<-comma(Case_Death_Stats$Deaths_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"])
+key_national_7MA_deaths<-comma(Case_Death_Stats$Deaths_Daily_7MA[Case_Death_Stats$Jurisdiction=="Canada"],accuracy = 0.1)
 key_national_weekly_change_deaths<-PHACTrendR::turn_num_to_percent_change(Case_Death_Stats$Weekly_Change_Deaths[Case_Death_Stats$Jurisdiction=="Canada"])
 
 key_sum_PTs_no_increase_cases<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & !Weekly_Change_Cases>0) %>%
+  filter(!Jurisdiction=="Canada" & (Weekly_Change_Cases<0|is.na(Weekly_Change_Cases))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()
@@ -151,10 +151,10 @@ key_PTs_increase_cases<-Case_Death_Stats %>%
   mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Cases,")")) %>%
   ungroup()
 
-key_PTs_increase_cases<-turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
+key_PTs_increase_cases<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
 
 key_sum_PTs_no_increase_deaths<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & !Weekly_Change_Deaths>0) %>%
+  filter(!Jurisdiction=="Canada" & (Weekly_Change_Deaths<0|is.na(Weekly_Change_Deaths))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()
@@ -167,7 +167,7 @@ key_PTs_increase_deaths<-Case_Death_Stats %>%
   mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Deaths,")")) %>%
   ungroup()
 
-key_PTs_increase_deaths<-turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
+key_PTs_increase_deaths<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
 
 #to automate a footnote on the cases/deaths table
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)

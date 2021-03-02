@@ -131,3 +131,35 @@ key_national_icu_change<-national_hosp_stats %>%
   select(delta7i) %>%
   as.numeric() %>%
   turn_num_to_percent_change()
+
+key_sum_PTs_no_increase_hosp<-Hosp_Metrics_Table %>%
+  filter(!Jurisdiction=="Canada" & (delta7h<0|is.na(delta7h))) %>%
+  ungroup() %>%
+  count() %>%
+  as.numeric()
+
+key_PTs_increase_hosp<-Hosp_Metrics_Table %>%
+  filter(!Jurisdiction=="Canada" & delta7h>0) %>%
+  select(Jurisdiction, delta7h) %>%
+  arrange(desc(delta7h)) %>%
+  turn_num_to_percent_change(numeric_variable="delta7h",accuracy = 1) %>%
+  mutate(text_var=paste0(Jurisdiction," (",delta7h,")")) %>%
+  ungroup()
+
+key_PTs_increase_hosp<-turn_char_vec_to_comma_list(key_PTs_increase_hosp$text_var)
+
+key_sum_PTs_no_increase_icu<-Hosp_Metrics_Table %>%
+  filter(!Jurisdiction=="Canada" & (delta7i<0|is.na(delta7i))) %>%
+  ungroup() %>%
+  count() %>%
+  as.numeric()
+
+key_PTs_increase_icu<-Hosp_Metrics_Table %>%
+  filter(!Jurisdiction=="Canada" & delta7i>0) %>%
+  select(Jurisdiction, delta7i) %>%
+  arrange(desc(delta7i)) %>%
+  turn_num_to_percent_change(numeric_variable="delta7i",accuracy = 1) %>%
+  mutate(text_var=paste0(Jurisdiction," (",delta7i,")")) %>%
+  ungroup()
+
+key_PTs_increase_icu<-turn_char_vec_to_comma_list(key_PTs_increase_icu$text_var)

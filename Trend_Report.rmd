@@ -172,3 +172,8 @@ Indicators derived from International Sources")
 
 ```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20, eval=eval_if_trend}
 ```
+
+
+```{r CPHO Table, echo=FALSE, results='asis', eval=eval_if_trend}
+source("src/CPHO_table.R")
+```

@@ -5,6 +5,17 @@
 # library(dplyr)
 # library(tibble)
 # library(kableExtra)
+# library(scales)
+
+#in case want to switch to params$date later on
+CPHO_table_date<-Sys.Date()
+
+#different date formats used in this table
+CPHO_table_date_filename<-format(CPHO_table_date, "%Y-%m-%d")
+CPHO_table_date_title<-format(CPHO_table_date, "%B %d, %Y")
+CPHO_table_value_date<-format(CPHO_table_date,"%b %d")
+#created as part of 04 labtesting weekly.R
+lab_dates<-this_week_label
 
 
 
@@ -43,8 +54,7 @@ key_Can_weekly_tests
 key_Can_avg_tests_per_day
 key_Can_weekly_perc_positive
 
-value_date<-format(Sys.Date(),"%b %d")
-lab_dates<-this_week_label
+
 
 #Numbers for CPHO statement - February XX 2021
 #National Indicator  |  Value   |  Cut off Date
@@ -76,11 +86,34 @@ Value<-c(comma(new_cases),
          key_Can_weekly_tests,
          key_Can_avg_tests_per_day)
 
-`Cut off Date`<-c(rep(value_date,9),rep(lab_dates,3))
+`Cut-off Date`<-c(rep(CPHO_table_value_date,9),rep(lab_dates,3))
 
-CPHO_table<-tibble(`National Indicator`,Value,`Cut off Date`)
+CPHO_table<-tibble(`National Indicator`,Value,`Cut-off Date`)
 
 CPHO_table_formatted<-flextable(CPHO_table)
-save_as_image(CPHO_table_formatted, "output/CPHO_table.png",webshot="webshot")
+CPHO_table_formatted<-autofit(CPHO_table_formatted)
+CPHO_table_formatted <- CPHO_table_formatted %>% footnote(., i=10:12, j=1, value = as_paragraph(
+  c("Lab testing numbers from last week may vary slightly as PTs 
+continually update lab testing data.")
+  ),
+  ref_symbols = c("*"),
+  part = "body")
 
-".\\output\\cases_deaths_15days.csv"
+CPHO_table_title=paste0("Numbers for CPHO statement - ",CPHO_table_date_title)
+
+
+
+CPHO_table_formatted<-add_header(CPHO_table_formatted,
+                        `National Indicator`=CPHO_table_title,
+                        Value=CPHO_table_title,
+                        `Cut-off Date`=CPHO_table_title) %>%
+  merge_h(part="header") %>%
+  bold(bold=TRUE, part="header") %>%
+  align(j=2, align = "right", part="body") %>%
+  fontsize(size = 14, part="all") %>%
+  fontsize(size = 16, part="header")
+
+save_as_pptx(path=paste0(".\\output\\CPHO_table_",CPHO_table_date_filename,".pptx"),CPHO_table_formatted)
+
+#for some reason, save_as_image() isn't working...
+# save_as_image(CPHO_table_formatted, "output/CPHO_table.png",webshot="webshot")
