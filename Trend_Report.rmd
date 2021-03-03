@@ -34,7 +34,6 @@ library(hms)
 library(googlesheets4)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package for the first time (https://github.com/PHACDataHub/metabaser for more info)
 library(PHACTrendR) #need to run: install_github("Michael-Elten/PHACTrendR") to install this package for the first time
-# library(kableExtra) #for saving CPHO table as image
 
 list_pt<-c("Canada",recode_PT_names_to_big(PHACTrendR::PTs_big6))
 
@@ -46,15 +45,6 @@ two_weeks_ago <- params$date - weeks(2)
 #Boolean value that returns TRUE when the report param is "trend" - allows for selective running of trend vs Nemer report
 eval_if_trend<-(params$report=="trend")
 #Note - can also use this to run certain sections of the report only, as was a priority earlier on
-```
-
-```{r Summary, echo=FALSE, results='asis', eval=eval_if_trend}
-cat(
-"# Summary
-
-* bullet 1
-* bullet 2
-* bullet 3")
 ```
 
 # COVID-19 Cases and Deaths Summary Statistics
@@ -171,6 +161,13 @@ Indicators derived from International Sources")
 ```
 
 ```{r Int C, code=xfun::read_utf8('src/02_int_slides.R'), results = "asis", message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20, eval=eval_if_trend}
+```
+
+```{r generate_summary_bullets, echo=FALSE ,eval=eval_if_trend}
+source("src/summary_bullets.R")
+```
+
+```{r print_summary_bullets, child="src/summary_bullets.Rmd",eval=eval_if_trend}
 ```
 
 

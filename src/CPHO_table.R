@@ -91,7 +91,6 @@ Value<-c(comma(new_cases),
 CPHO_table<-tibble(`National Indicator`,Value,`Cut-off Date`)
 
 CPHO_table_formatted<-flextable(CPHO_table)
-CPHO_table_formatted<-autofit(CPHO_table_formatted)
 CPHO_table_formatted <- CPHO_table_formatted %>% footnote(., i=10:12, j=1, value = as_paragraph(
   c("Lab testing numbers from last week may vary slightly as PTs 
 continually update lab testing data.")
@@ -109,9 +108,13 @@ CPHO_table_formatted<-add_header(CPHO_table_formatted,
                         `Cut-off Date`=CPHO_table_title) %>%
   merge_h(part="header") %>%
   bold(bold=TRUE, part="header") %>%
-  align(j=2, align = "right", part="body") %>%
+  align(j=2:3, align = "right", part="all") %>%
   fontsize(size = 14, part="all") %>%
-  fontsize(size = 16, part="header")
+  fontsize(size = 16, part="header") %>%
+  fontsize(i=1,size = 18, part="header")
+  
+  CPHO_table_formatted<-autofit(CPHO_table_formatted) 
+  CPHO_table_formatted<-fix_border_issues(CPHO_table_formatted, part="header")
 
 save_as_pptx(path=paste0(".\\output\\CPHO_table_",CPHO_table_date_filename,".pptx"),CPHO_table_formatted)
 

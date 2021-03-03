@@ -70,9 +70,9 @@ Testing <- rbind(National,Provincial) %>%
     
 
 #to replace the export that used to go to Yann Pelchat - awaiting confirmation that it is still needed.
-export_testing1<-Testing %>%
-  select(Jurisdiction, Week, week_tests_performed, week_positive_tests)%>%
-  filter(Jurisdiction=="Canada")
+# export_testing1<-Testing %>%
+#   select(Jurisdiction, Week, week_tests_performed, week_positive_tests)%>%
+#   filter(Jurisdiction=="Canada")
 # write.csv(export_testing1)
 
 export_testing2<-Testing %>%
@@ -116,24 +116,6 @@ write.csv(export_testing2, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPARED
     factor_PT_west_to_east(size="big",Canada_first = TRUE) %>%
     arrange(Jurisdiction)
 
-#Creating "key_" R variables for inclusion in the slide text of the .Rmd
-key_Can_weekly_tests<-scales::comma(Testing$week_tests_performed[Testing$Week_no==this_week_num&Testing$Jurisdiction=="Canada"])
-key_Can_avg_tests_per_day<-scales::comma(Testing$avg_tests_per_day[Testing$Week_no==this_week_num&Testing$Jurisdiction=="Canada"])
-key_Can_weekly_perc_positive<-percent(Testing$week_percent_positive[Testing$Week_no==this_week_num&Testing$Jurisdiction=="Canada"], accuracy = 0.1)
-
-PTs_missing_lab_days_current_week<-SALT3 %>%
-  group_by(Jurisdiction) %>%
-  filter(Start_of_week==max(Start_of_week) & !days_reported==7) %>%
-  recode_PT_names_to_small() %>%
-  mutate(text_var=paste0(Jurisdiction," (",days_reported," days of reporting)")) %>%
-  ungroup() %>%
-  select(text_var) %>%
-  as.character()
-  
-any_PTs_missing_current_week_lab_days_flag<-(length(PTs_missing_lab_days_current_week)>0)
-if (any_PTs_missing_current_week_lab_days_flag==TRUE){
-key_labtesting_table_footnote<-paste0("The following PTs did not report all 7 days in the current week: ",PHACTrendR::turn_char_vec_to_comma_list(PTs_missing_lab_days_current_week))
-}
 
 
 # Create dataset for daily testing
@@ -155,25 +137,7 @@ SALT4a <- SALT3a %>%
          percent_positive=daily_tests_positive/daily_tests_performed)
 
 
-# For footnote on python figure (daily testing)
-PTs_missing_latest_lab_date<-SALT4a %>%
-  group_by(Jurisdiction) %>%
-  filter(Date==max(Date)) %>%
-  ungroup %>%
-  filter(!Date==max(Date)) %>%
-  recode_PT_names_to_small(geo_variable = "Jurisdiction") %>%
-  mutate(Date=format(Date, "%b %d")) %>%
-  mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) %>%
-  select(text_var) %>%
-  as.character()
 
-key_lab_update<-format(max(SALT2a$Date)-1, "%B %d")
-
-any_PTs_missing_latest_lab_date_flag<-(length(PTs_missing_latest_lab_date)>0)
-
-if (any_PTs_missing_latest_lab_date_flag==TRUE){
-  key_PTs_missing_latest_lab_date<-turn_char_vec_to_comma_list(PTs_missing_latest_lab_date)
-}
 
 National_Daily_a <- SALT4a %>%
   select(Date, daily_tests_performed, daily_tests_positive, daily_tests_negative) %>%
@@ -193,3 +157,57 @@ National_Daily <- National_Daily_a %>%
   filter(Date<=max(Date)-1) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
 
 write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')
+
+
+
+##########
+#Creating "key_" R variables for inclusion in the lab slide text, and summary slide of the .Rmd
+
+
+can_current_lab_testing<-Testing %>%
+  filter(Jurisdiction=="Canada"&Week_no==max(Week_no))
+
+can_last_week_lab_testing<-Testing%>%
+  filter(Jurisdiction=="Canada"&Week_no==max(Week_no)-1)
+
+
+key_Can_weekly_tests<-scales::comma(can_current_lab_testing$week_tests_performed)
+key_Can_avg_tests_per_day<-scales::comma(can_current_lab_testing$avg_tests_per_day)
+key_Can_weekly_perc_positive<-percent(can_current_lab_testing$week_percent_positive, accuracy = 0.1)
+
+key_Can_avg_tests_change<-PHACTrendR::turn_num_to_percent_change((can_current_lab_testing$avg_tests_per_day-can_last_week_lab_testing$avg_tests_per_day)/can_last_week_lab_testing$avg_tests_per_day)
+key_Can_weekly_perc_positive_change<-PHACTrendR::turn_num_to_percent_change((can_current_lab_testing$week_percent_positive-can_last_week_lab_testing$week_percent_positive)/can_last_week_lab_testing$week_percent_positive)
+
+PTs_missing_lab_days_current_week<-SALT3 %>%
+  group_by(Jurisdiction) %>%
+  filter(Start_of_week==max(Start_of_week) & !days_reported==7) %>%
+  recode_PT_names_to_small() %>%
+  mutate(text_var=paste0(Jurisdiction," (",days_reported," days of reporting)")) %>%
+  ungroup() %>%
+  select(text_var) %>%
+  as.character()
+
+any_PTs_missing_current_week_lab_days_flag<-(length(PTs_missing_lab_days_current_week)>0)
+if (any_PTs_missing_current_week_lab_days_flag==TRUE){
+  key_labtesting_table_footnote<-paste0("The following PTs did not report all 7 days in the current week: ",PHACTrendR::turn_char_vec_to_comma_list(PTs_missing_lab_days_current_week))
+}
+
+# For footnote on python figure (daily testing)
+PTs_missing_latest_lab_date<-SALT4a %>%
+  group_by(Jurisdiction) %>%
+  filter(Date==max(Date)) %>%
+  ungroup %>%
+  filter(!Date==max(Date)) %>%
+  recode_PT_names_to_small(geo_variable = "Jurisdiction") %>%
+  mutate(Date=format(Date, "%b %d")) %>%
+  mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) %>%
+  select(text_var) %>%
+  as.character()
+
+key_lab_update<-format(max(SALT2a$Date)-1, "%B %d")
+
+any_PTs_missing_latest_lab_date_flag<-(length(PTs_missing_latest_lab_date)>0)
+
+if (any_PTs_missing_latest_lab_date_flag==TRUE){
+  key_PTs_missing_latest_lab_date<-turn_char_vec_to_comma_list(PTs_missing_latest_lab_date)
+}

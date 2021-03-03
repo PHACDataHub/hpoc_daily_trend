@@ -84,3 +84,25 @@ ggplot(int_deaths, aes(date, new_deaths_smoothed_per_million, group = location, 
                         \nUpdated Daily (Sun-Thurs). Data as of: ",format(max(int_deaths$date), "%B %d")," (International data is lagged by one day)"))
 
 cat('\n') 
+
+
+### For summary bullets slide:
+
+top_3_cases<-int_cases %>%
+  filter(date==max(date)) %>%
+  arrange(desc(new_cases_smoothed_per_million)) %>%
+  head(3) %>%
+  select(location, new_cases_smoothed_per_million) %>%
+  mutate(text_var= paste0(location, " (",comma(new_cases_smoothed_per_million),")"))
+
+key_int_top_3_cases<-PHACTrendR::turn_char_vec_to_comma_list(top_3_cases$text_var)
+
+
+top_3_deaths<-int_deaths %>%
+  filter(date==max(date)) %>%
+  arrange(desc(new_deaths_smoothed_per_million)) %>%
+  head(3) %>%
+  select(location, new_deaths_smoothed_per_million) %>%
+  mutate(text_var= paste0(location, " (",number(new_deaths_smoothed_per_million,accuracy = 0.01),")"))
+
+key_int_top_3_deaths<-PHACTrendR::turn_char_vec_to_comma_list(top_3_deaths$text_var)
