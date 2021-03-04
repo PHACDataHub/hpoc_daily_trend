@@ -143,6 +143,9 @@ key_PTs_increase_hosp<-Hosp_Metrics_Table %>%
   select(Jurisdiction, delta7h) %>%
   arrange(desc(delta7h)) %>%
   turn_num_to_percent_change(numeric_variable="delta7h",accuracy = 1) %>%
+  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+  recode_PT_names_to_small()%>%
+  mutate(delta7h=ifelse(delta7h=="0%","+<1%",delta7h)) %>%
   mutate(text_var=paste0(Jurisdiction," (",delta7h,")")) %>%
   ungroup()
 
@@ -159,6 +162,9 @@ key_PTs_increase_icu<-Hosp_Metrics_Table %>%
   select(Jurisdiction, delta7i) %>%
   arrange(desc(delta7i)) %>%
   turn_num_to_percent_change(numeric_variable="delta7i",accuracy = 1) %>%
+  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+  recode_PT_names_to_small()%>%
+  mutate(delta7i=ifelse(delta7i=="0%","+<1%",delta7i)) %>%
   mutate(text_var=paste0(Jurisdiction," (",delta7i,")")) %>%
   ungroup()
 

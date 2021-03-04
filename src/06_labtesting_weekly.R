@@ -204,7 +204,7 @@ PTs_missing_latest_lab_date<-SALT4a %>%
   select(text_var) %>%
   as.character()
 
-key_lab_update<-format(max(SALT2a$Date)-1, "%B %d")
+key_lab_update<-format(max(SALT$update_date), "%B %d")
 
 any_PTs_missing_latest_lab_date_flag<-(length(PTs_missing_latest_lab_date)>0)
 

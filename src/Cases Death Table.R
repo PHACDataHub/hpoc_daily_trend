@@ -148,6 +148,9 @@ key_PTs_increase_cases<-Case_Death_Stats %>%
   select(Jurisdiction, Weekly_Change_Cases) %>%
   arrange(desc(Weekly_Change_Cases)) %>%
   turn_num_to_percent_change(numeric_variable="Weekly_Change_Cases",accuracy = 1) %>%
+  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+  recode_PT_names_to_small()%>%
+  mutate(Weekly_Change_Cases=ifelse(Weekly_Change_Cases=="0%","+<1%",Weekly_Change_Cases)) %>%
   mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Cases,")")) %>%
   ungroup()
 
@@ -164,6 +167,9 @@ key_PTs_increase_deaths<-Case_Death_Stats %>%
   select(Jurisdiction, Weekly_Change_Deaths) %>%
   arrange(desc(Weekly_Change_Deaths)) %>%
   turn_num_to_percent_change(numeric_variable="Weekly_Change_Deaths",accuracy = 1) %>%
+  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+  recode_PT_names_to_small()%>%
+  mutate(Weekly_Change_Deaths=ifelse(Weekly_Change_Deaths=="0%","+<1%",Weekly_Change_Deaths)) %>%
   mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Deaths,")")) %>%
   ungroup()
 

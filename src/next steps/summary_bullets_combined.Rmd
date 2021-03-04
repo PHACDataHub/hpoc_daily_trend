@@ -1,0 +1,57 @@
+
+```{r, echo=FALSE}
+library(knitr)
+
+knit_engines$set(asis = function(options) {
+  if (options$echo && options$eval) knit_child(text = options$code)
+})
+
+
+normal_day=TRUE
+thursday=FALSE
+```
+
+
+
+
+```{asis normal_day_summary, eval=normal_day}
+## `r header_1`
+* `r sub_bullet_1`
+* `r sub_bullet_2`
+  + `r sub_bullet_1`
+
+## `r header_2`
+```
+
+
+
+
+```{asis Thursday_summary, eval=thursday}
+# `r title`
+
+## `r header_1`
+* `r sub_bullet_1`
+* `r sub_bullet_2`
+
+## `r optional_header`
+
+```
+
+```{as.is example, eval=TRUE}
+# Title
+
+## header1
+* sub_bullet_1`
+* sub_bullet_2`
+
+## optional_header`
+
+```
+
+# Title
+
+## header1
+* sub_bullet_1`
+* sub_bullet_2`
+
+## optional_header`

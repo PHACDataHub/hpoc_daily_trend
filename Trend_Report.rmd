@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 # Load libraries
 library(reticulate)
+library(knitr)
 library(readr)
 library(tidyverse)
 library(patchwork)
@@ -45,6 +46,12 @@ two_weeks_ago <- params$date - weeks(2)
 #Boolean value that returns TRUE when the report param is "trend" - allows for selective running of trend vs Nemer report
 eval_if_trend<-(params$report=="trend")
 #Note - can also use this to run certain sections of the report only, as was a priority earlier on
+
+day_of_week<-weekdays(Sys.Date())
+
+normal_day<-(day_of_week %in% c("Sunday","Tuesday","Wednesday"))
+monday<-(day_of_week=="Monday")
+thursday<-(day_of_week=="Thursday")
 ```
 
 # COVID-19 Cases and Deaths Summary Statistics
@@ -167,9 +174,12 @@ Indicators derived from International Sources")
 source("src/summary_bullets.R")
 ```
 
-```{r print_summary_bullets, child="src/summary_bullets.Rmd",eval=eval_if_trend}
+```{r print_summary_bullets_normal_day, child="src/summary_bullets.Rmd",eval=eval_if_trend&normal_day}
 ```
-
+```{r print_summary_bullets_monday, child="src/summary_bullets_monday.Rmd",eval=eval_if_trend&monday}
+```
+```{r print_summary_bullets_thursday, child="src/summary_bullets_thursday.Rmd",eval=eval_if_trend&thursday}
+```
 
 ```{r CPHO Table, echo=FALSE, results='asis', eval=eval_if_trend}
 source("src/CPHO_table.R")

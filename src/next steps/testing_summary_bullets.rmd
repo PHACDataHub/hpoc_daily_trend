@@ -1,0 +1,25 @@
+---
+title: "Epi Trends Report"
+subtitle: '`r format(params$date,"%B %d, %Y")`'
+output: 
+  powerpoint_presentation:
+    reference_doc: src/template.pptx
+params:
+  date: !r Sys.Date()
+  report: trend
+---
+
+
+```{r defining bullets/headers, echo=FALSE}
+title<-"Summary"
+header_1<-"this is header1"
+header_2<-"this is header2"
+sub_bullet_1<-"this is sub bullet 1"
+sub_bullet_2<-"this is sub bullet 2"
+optional_header<-"this is an optional header"
+
+
+```
+
+```{r print_summary_bullets, child='src/summary_bulletsv3.Rmd'}
+```

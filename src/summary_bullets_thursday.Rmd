@@ -1,0 +1,24 @@
+# Summary
+
+## `r summary_reporting_header`
+* `r summary_reporting_bullet_1`
+ 
+## `r summary_cases_header`
+* `r summary_cases_bullet_1`
+  + `r summary_cases_bullet_1_sub_1`
+  + `r summary_cases_bullet_1_sub_2`
+
+## `r summary_severity_header`
+* `r summary_severity_bullet_1`
+  + `r summary_severity_bullet_1_sub_1`
+  + `r summary_severity_bullet_1_sub_2`
+* `r summary_severity_bullet_2`
+  + `r summary_severity_bullet_2_sub_1`
+  + `r summary_severity_bullet_2_sub_2`
+* `r summary_severity_bullet_3`
+  + `r summary_severity_bullet_3_sub_1`
+  + `r summary_severity_bullet_3_sub_2`
+  
+## `r summary_international_header`
+* `r summary_international_bullet_1`
+* `r summary_international_bullet_2`
