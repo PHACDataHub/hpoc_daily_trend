@@ -92,8 +92,8 @@ Case_per_100K <- PT7 %>%
          Case_per_100K_7MA = (Cases_Daily_7MA/Population)*100000) %>%
   select(Jurisdiction,Date,Cases_Daily,Case_per_100K,Case_per_100K_7MA)
 
-
-write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
+# No longer running the python code as .py, rather using .rmd file, so writing/reading a csv file no longer needed!
+# write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
 
 # creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
 # Still some vars missing: Recovered_Cumulative, Recovered_Daily, Recovered_Daily_7MA, Tested_Cumulative, Tested_Daily, Tested_Daily_7MA, National_cases_currentweek, National_deaths_currentweek
@@ -138,7 +138,7 @@ key_national_7MA_deaths<-comma(Case_Death_Stats$Deaths_Daily_7MA[Case_Death_Stat
 key_national_weekly_change_deaths<-PHACTrendR::turn_num_to_percent_change(Case_Death_Stats$Weekly_Change_Deaths[Case_Death_Stats$Jurisdiction=="Canada"])
 
 key_sum_PTs_no_increase_cases<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & (Weekly_Change_Cases<0|is.na(Weekly_Change_Cases))) %>%
+  filter(!Jurisdiction=="Canada" & (round(Weekly_Change_Cases,digits=3)<=0|is.na(Weekly_Change_Cases))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()
@@ -157,7 +157,7 @@ key_PTs_increase_cases<-Case_Death_Stats %>%
 key_PTs_increase_cases<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
 
 key_sum_PTs_no_increase_deaths<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & (Weekly_Change_Deaths<0|is.na(Weekly_Change_Deaths))) %>%
+  filter(!Jurisdiction=="Canada" & (round(Weekly_Change_Deaths,digits=3)<=0|is.na(Weekly_Change_Deaths))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()

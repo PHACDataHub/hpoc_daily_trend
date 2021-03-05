@@ -133,7 +133,7 @@ key_national_icu_change<-national_hosp_stats %>%
   turn_num_to_percent_change()
 
 key_sum_PTs_no_increase_hosp<-Hosp_Metrics_Table %>%
-  filter(!Jurisdiction=="Canada" & (delta7h<0|is.na(delta7h))) %>%
+  filter(!Jurisdiction=="Canada" & (round(delta7h,digits=3)<=0|is.na(delta7h))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()
@@ -152,7 +152,7 @@ key_PTs_increase_hosp<-Hosp_Metrics_Table %>%
 key_PTs_increase_hosp<-turn_char_vec_to_comma_list(key_PTs_increase_hosp$text_var)
 
 key_sum_PTs_no_increase_icu<-Hosp_Metrics_Table %>%
-  filter(!Jurisdiction=="Canada" & (delta7i<0|is.na(delta7i))) %>%
+  filter(!Jurisdiction=="Canada" & (round(delta7i, digits = 3)<=0|is.na(delta7i))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()

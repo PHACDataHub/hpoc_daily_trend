@@ -36,7 +36,7 @@ library(googlesheets4)
 library(metabaser) #need to run: install_github("PHACDataHub/metabaser") to install this package for the first time (https://github.com/PHACDataHub/metabaser for more info)
 library(PHACTrendR) #need to run: install_github("Michael-Elten/PHACTrendR") to install this package for the first time
 
-list_pt<-c("Canada",recode_PT_names_to_big(PHACTrendR::PTs_big6))
+list_pt<-c("Canada",PHACTrendR::recode_PT_names_to_big(PHACTrendR::PTs_big6))
 
 two_weeks_ago <- params$date - weeks(2)
 
@@ -64,8 +64,6 @@ casedeath_table<-format_casedeath_table(input_table=Case_Death_Stats)
 casedeath_table
 ```
 
-# Daily COVID-19 Cases by Date of Report, Canada
-
 ```{r use_condaenv, results='asis', message=FALSE, warning=FALSE}
 use_condaenv("r-reticulate")
 ```
@@ -77,10 +75,14 @@ user=getpass.getuser()
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms'
 ```
 
-```{r Python National incidence rate figure, results='asis', message=FALSE, warning=FALSE}
-source_python("src/case_per_100k.py")
+<!-- ```{r Python National incidence rate figure, results='asis', message=FALSE, warning=FALSE} -->
+<!-- source_python("src/case_per_100k.py") -->
+<!-- ``` -->
 
+```{r lab_testing figure using rmd, child="src/case_per_100k.Rmd",eval=eval_if_trend, echo=FALSE, message=FALSE, warning=FALSE,reticulate.repl.quiet = TRUE}
 ```
+
+# Daily COVID-19 Cases by Date of Report, Canada
 
 ```{r Insert Canada case per 100K, echo=FALSE, results = 'asis', message=FALSE, warning=FALSE, out.width='100%'}
 # fig.cap=paste(key_100k_caption) #insert this if want figure caption to text (still working this out so going back to python caption)
@@ -146,17 +148,20 @@ labtesting_table<-format_labtesting_table(input_table=Testing_Metrics)
 labtesting_table
 ```
 
-```{r Laboratory table text, echo=FALSE, results='asis', eval=eval_if_trend}
+```{r Laboratory table text, echo=FALSE, message=FALSE, warning=FALSE,results='asis', eval=eval_if_trend}
 cat(
 paste0("Highlights:
 Over the past week, a daily average of ",key_Can_avg_tests_per_day," tests have been performed for COVID-19 across Canada, for a total of ",key_Can_weekly_tests," tests. The weekly percent positivity is ",key_Can_weekly_perc_positive))
 ```
 
-```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend}
-source_python("src/National_Testing.py")
+<!-- ```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend} -->
+<!-- source_python("src/National_Testing.py") -->
+<!-- ``` -->
+
+```{r lab_testing figure using rmd, child="src/national_testing.rmd",eval=eval_if_trend, echo=FALSE, message=FALSE, warning=FALSE}
 ```
 
-```{r National Testing Graphic, fig.cap=paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update),echo=FALSE, out.width='100%', eval=eval_if_trend}
+```{r National Testing Graphic, fig.cap=(key_lab_figure_footnote),echo=FALSE, out.width='100%', eval=eval_if_trend}
 knitr::include_graphics("output/Testing_National.jpg")
 ```
 

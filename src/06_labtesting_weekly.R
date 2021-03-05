@@ -1,4 +1,4 @@
-salt_raw<-import_SALT_data()
+salt_raw<-PHACTrendR::import_SALT_data()
 
 SALT <- salt_raw %>%
   select(Report.Date,Jurisdiction,Tests.Performed,Positive.Test.Results,Percent.Positive.Test.Results, Latest.Update.Date) %>%
@@ -136,9 +136,6 @@ SALT4a <- SALT3a %>%
   mutate(daily_tests_negative=daily_tests_performed-daily_tests_positive,
          percent_positive=daily_tests_positive/daily_tests_performed)
 
-
-
-
 National_Daily_a <- SALT4a %>%
   select(Date, daily_tests_performed, daily_tests_positive, daily_tests_negative) %>%
   group_by(Date) %>%
@@ -156,7 +153,8 @@ National_Daily <- National_Daily_a %>%
   filter(Date>"2021-01-23") %>%   #For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
   filter(Date<=max(Date)-1) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
 
-write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')
+# No longer running the python code as .py, rather using .rmd file, so writing/reading a csv file no longer needed!
+# write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')
 
 
 
@@ -209,5 +207,11 @@ key_lab_update<-format(max(SALT$update_date), "%B %d")
 any_PTs_missing_latest_lab_date_flag<-(length(PTs_missing_latest_lab_date)>0)
 
 if (any_PTs_missing_latest_lab_date_flag==TRUE){
-  key_PTs_missing_latest_lab_date<-turn_char_vec_to_comma_list(PTs_missing_latest_lab_date)
+  key_PTs_missing_latest_lab_date<-PHACTrendR::turn_char_vec_to_comma_list(PTs_missing_latest_lab_date)
+}
+
+if(any_PTs_missing_latest_lab_date_flag==TRUE){
+  key_lab_figure_footnote<-paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update,". ","Recent lab testing values may be underestimated as the following PTs are not caught up on lab reporting: ",key_PTs_missing_latest_lab_date)
+} else {
+  key_lab_figure_footnote<-paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update,". ")
 }

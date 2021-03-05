@@ -101,7 +101,7 @@ if (summary_severity_icu_direction=="no change"){
 summary_severity_bullet_3<-paste0(summary_severity_bullet_3_part1, summary_severity_bullet_3_part_2)
 rm(summary_severity_bullet_3_part1, summary_severity_bullet_3_part_2, summary_severity_icu_direction)
 
-summary_severity_bullet_3_sub_1<-paste0(key_sum_PTs_no_increase_icu,"/13 PTs reported a decrease or no change in weekly hospitalizations")
+summary_severity_bullet_3_sub_1<-paste0(key_sum_PTs_no_increase_icu,"/13 PTs reported a decrease or no change in weekly ICU counts")
 if(key_sum_PTs_no_increase_icu<13){
   summary_severity_bullet_3_sub_2<-paste0("Increases were reported by: ",key_PTs_increase_icu)
 } else {
