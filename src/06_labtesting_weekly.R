@@ -137,12 +137,15 @@ SALT4a <- SALT3a %>%
          percent_positive=daily_tests_positive/daily_tests_performed)
 
 National_Daily_a <- SALT4a %>%
-  select(Date, daily_tests_performed, daily_tests_positive, daily_tests_negative) %>%
+  select(Date, Jurisdiction, daily_tests_performed, daily_tests_positive, daily_tests_negative) %>%
   group_by(Date) %>%
-  summarise(across(where(is.numeric),sum)) %>%
+  summarise(across(where(is.numeric),sum),
+            .groups="drop_last") %>%
   mutate(Jurisdiction="Canada") %>%
   mutate(percent_positive = daily_tests_positive/daily_tests_performed) %>%
   arrange(Date)
+
+max_lab_test_fig_date<-max(National_Daily_a$Date-1)
 
 #Question about whether or not the "daily tests performed" should be a 7dMA. I think in SAS right now it isn't.
 National_Daily <- National_Daily_a %>%
@@ -150,8 +153,8 @@ National_Daily <- National_Daily_a %>%
   mutate(tests_performed=daily_tests_performed,
          percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
   select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
-  filter(Date>"2021-01-23") %>%   #For now adding filter here, as there is two weeks of valid test data in Dec. and then nothing until Jan.24, making for a very weird figure.
-  filter(Date<=max(Date)-1) #some PTs are reporting "current date" in SALT in the evenings, will not want to include partial day's worth of data
+  filter(Date>"2021-01-23") %>%   # can remove this filter once ready to present historical lab testing data
+  filter(Date<=max_lab_test_fig_date)
 
 # No longer running the python code as .py, rather using .rmd file, so writing/reading a csv file no longer needed!
 # write.csv(National_Daily, 'Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\testing_daily.csv')
@@ -190,17 +193,19 @@ if (any_PTs_missing_current_week_lab_days_flag==TRUE){
   key_labtesting_table_footnote<-paste0("The following PTs did not report all 7 days in the current week: ",PHACTrendR::turn_char_vec_to_comma_list(PTs_missing_lab_days_current_week))
 }
 
-# For footnote on python figure (daily testing)
+# For footnote on daily testing figure
 PTs_missing_latest_lab_date<-SALT4a %>%
   group_by(Jurisdiction) %>%
   filter(Date==max(Date)) %>%
   ungroup %>%
-  filter(!Date==max(Date)) %>%
+  filter(Date<max_lab_test_fig_date) %>%
   recode_PT_names_to_small(geo_variable = "Jurisdiction") %>%
+  factor_PT_west_to_east() %>%
+  arrange(Jurisdiction)%>%
   mutate(Date=format(Date, "%b %d")) %>%
-  mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) %>%
-  select(text_var) %>%
-  as.character()
+  mutate(text_var=paste0(Jurisdiction, " (last reported: ",Date,")")) 
+
+PTs_missing_latest_lab_date<- as.character(PTs_missing_latest_lab_date$text_var)
 
 key_lab_update<-format(max(SALT$update_date), "%B %d")
 

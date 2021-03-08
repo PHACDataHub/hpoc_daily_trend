@@ -27,7 +27,8 @@ correct_Can_7MA<-function(input_date=""){
   filter(date>= as.Date(input_date)-6 & date<= as.Date(input_date)) %>%
   group_by(Jurisdiction) %>%
   summarise(PT_case7ma=mean(numtoday),
-            PT_death7ma=mean(numdeathstoday)) %>%
+            PT_death7ma=mean(numdeathstoday),
+            .groups="drop_last") %>%
   ungroup() %>%
   summarise(can_case7ma=sum(PT_case7ma),
             can_death7ma=sum(PT_death7ma))
@@ -64,7 +65,7 @@ PT7 <- df_weekly_changes %>%
   mutate(National_Case_Proportion=PTCase7/CanadaCase7) %>%
   mutate(National_Death_Proportion=PTDeath7/CanadaDeath7) %>%
   dplyr::rename(Jurisdiction=Jurisdiction.x) %>%
-  left_join(latest_can_pop, by=c("Jurisdiction")) %>%
+  left_join(PHACTrendR::latest_can_pop, by=c("Jurisdiction")) %>%
   mutate( Cases_7MA_per100k = (Cases_Daily_7MA / Population)*100000,digits = 2,
             Deaths_7MA_per100k=(Deaths_Daily_7MA / Population)*100000,digits = 2)
 
@@ -95,7 +96,7 @@ Case_per_100K <- PT7 %>%
 # No longer running the python code as .py, rather using .rmd file, so writing/reading a csv file no longer needed!
 # write.csv(Case_per_100K,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\_Current\\Trend Report\\rmd\\case_per_100k.csv")
 
-# creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code. ----
+# creating "COVID_CaseDeath_7MA.csv" file currently exported by 01.sas file in the trend report code.
 # Still some vars missing: Recovered_Cumulative, Recovered_Daily, Recovered_Daily_7MA, Tested_Cumulative, Tested_Daily, Tested_Daily_7MA, National_cases_currentweek, National_deaths_currentweek
 export_case_death<-PT7 %>%
   rename(Cases_WeeklyPercentChange=Weekly_Change_Cases,

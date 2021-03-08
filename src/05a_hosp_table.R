@@ -15,7 +15,8 @@ corrected_Can_stats<-all_hosp_icu_adj %>%
   pivot_wider(names_from=type, values_from=cases) %>%
   group_by(Jurisdiction) %>%
   summarise(hosp_7MA=mean(hospitalized),
-            icu_7MA=mean(icu))%>%
+            icu_7MA=mean(icu),
+            .groups="drop_last")%>%
   ungroup()%>%
   summarise(Can_hosp7MA=sum(hosp_7MA, na.rm=TRUE),
             Can_icu7MA=sum(icu_7MA, na.rm=TRUE)) %>%

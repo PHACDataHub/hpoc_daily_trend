@@ -1,10 +1,19 @@
 # Filter province
+
+max_hosp_date_all_PTs<-all_hosp_data %>%
+  group_by(Date) %>%
+  summarise(total_PTs=n(),
+            .groups="drop_last") %>%
+  filter(total_PTs==30)%>% #13PTs+travellers and national number *2
+  filter(Date==max(Date)) %>%
+  select(Date)%>%
+  pull()
+
 pt_hosp_icu_filter <- all_hosp_data %>%
     filter(Date >= "2020-04-01" & !Jurisdiction=="Repatriated Travellers") %>%
     group_by(Jurisdiction) %>%
-    filter(Date != max(Date)) %>% # to prevent dip from AB
-    mutate(label = if_else(Date == max(Date), as.character(round(cases, digits = 1)), NA_character_),
-           Jurisdiction=as.character(Jurisdiction)) %>%
+    filter(Date <= max_hosp_date_all_PTs) %>% # to prevent dip from AB
+    mutate(Jurisdiction=as.character(Jurisdiction)) %>%
     recode_PT_names_to_small() %>%
   factor_PT_west_to_east()
 
@@ -39,7 +48,7 @@ ggplot(pt_hosp_icu_filter %>% filter(Jurisdiction=="CAN"), aes(Date, cases, colo
         legend.key.size = unit(3,"line"),
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)) +
-    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max(pt_hosp_icu_filter$Date), "%B %d")," as AB does not report same-day hospitalizations.",
+    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max_date_all_PTs, "%B %d")," as this is the last date with data from all PTs.",
                           "\nUpdated daily (Sun-Thurs). Data as of: ",format(max(all_hosp_data$Date), "%B %d")))
 
 cat('\n') 
