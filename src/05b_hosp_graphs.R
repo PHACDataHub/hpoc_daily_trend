@@ -48,7 +48,7 @@ ggplot(pt_hosp_icu_filter %>% filter(Jurisdiction=="CAN"), aes(Date, cases, colo
         legend.key.size = unit(3,"line"),
         text = element_text(size = 20),
         plot.caption = element_text(hjust = 0)) +
-    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max_date_all_PTs, "%B %d")," as this is the last date with data from all PTs.",
+    labs(caption = paste0("Source: Provincial and territorial website data. \nNote: Hospitalization values are up to ", format(max_hosp_date_all_PTs, "%B %d")," as this is the last date with data from all PTs.",
                           "\nUpdated daily (Sun-Thurs). Data as of: ",format(max(all_hosp_data$Date), "%B %d")))
 
 cat('\n') 

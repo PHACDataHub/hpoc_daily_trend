@@ -151,8 +151,9 @@ max_lab_test_fig_date<-max(National_Daily_a$Date-1)
 National_Daily <- National_Daily_a %>%
   # mutate(tests_performed=rollmean(daily_tests_performed,k=7,fill=NA,align="right")) %>%
   mutate(tests_performed=daily_tests_performed,
+         tests_performed_7MA=rollmean(tests_performed,k=7,fill=NA,align="right"),
          percent_positive=rollmean(percent_positive,k=7,fill=NA,align="right")) %>%
-  select(Date,Jurisdiction,tests_performed,percent_positive)  %>%
+  select(Date,Jurisdiction,tests_performed,tests_performed_7MA,percent_positive)  %>%
   filter(Date>"2021-01-23") %>%   # can remove this filter once ready to present historical lab testing data
   filter(Date<=max_lab_test_fig_date)
 
@@ -216,7 +217,7 @@ if (any_PTs_missing_latest_lab_date_flag==TRUE){
 }
 
 if(any_PTs_missing_latest_lab_date_flag==TRUE){
-  key_lab_figure_footnote<-paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update,". ","Recent lab testing values may be underestimated as the following PTs are not caught up on lab reporting: ",key_PTs_missing_latest_lab_date)
+  key_lab_figure_footnote<-paste0("Note: recent lab testing values may be underestimated as the following PTs are not caught up on lab reporting: ",key_PTs_missing_latest_lab_date, ". ","\nUpdated daily (Sun-Thurs). Data as of ",key_lab_update,".")
 } else {
   key_lab_figure_footnote<-paste0("Updated daily (Sun-Thurs). Data as of ",key_lab_update,". ")
 }

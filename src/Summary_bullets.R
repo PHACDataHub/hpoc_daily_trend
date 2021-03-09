@@ -188,7 +188,5 @@ summary_international_bullet_2<-paste0("The countries with the highest 7MA death
 # summary_international_bullet_1
 # summary_international_bullet_2
 # 
-# 
-# #Gating certain bullets based on day of week
-# day_of_week=weekdays(Sys.Date())
+
 
