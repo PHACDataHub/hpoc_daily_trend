@@ -1,6 +1,6 @@
 #using package to get data"
-df<-import_adjusted_case_death_data()
-df_raw<-import_raw_case_death_data()
+df<-PHACTrendR::import_adjusted_infobase_data()
+df_raw<-PHACTrendR::import_raw_infobase_data()
 
 df_filter <- df %>%
   filter(date >= "2020-03-08")

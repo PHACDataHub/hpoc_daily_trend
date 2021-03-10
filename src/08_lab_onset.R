@@ -1,3 +1,20 @@
+
+qry_cases_raw<-PHACTrendR::import_DISCOVER_data()
+
+qry_lab_onset <- qry_cases_raw %>%
+  janitor::clean_names() %>%
+  filter(pt != "Repatriate") %>%
+  filter(onsetdate >= "2020-03-01") %>%
+  filter(onsetdate <= (max(onsetdate - days(15)))) %>%
+  select(onsetdate, earliestlabcollectiondate) %>%
+  filter(!is.na(onsetdate)) %>%
+  mutate(delay = earliestlabcollectiondate - onsetdate) %>%
+  filter(between(delay, 0, 15)) %>% # filtering any outliers as identified in the SAS file
+  group_by(onsetdate) %>%
+  dplyr::summarise(mean_delay = mean(delay, na.rm = TRUE),
+                   daily_case = n())
+
+
 # Start plotting
 coeff <- 100
 
