@@ -64,6 +64,21 @@ casedeath_table<-format_casedeath_table(input_table=Case_Death_Stats)
 casedeath_table
 ```
 
+<!-- ```{r use_condaenv, results='asis', message=FALSE, warning=FALSE} -->
+<!-- use_condaenv("r-reticulate") -->
+<!-- ``` -->
+<!--  -->
+<!-- ```{python import_os_tarfile_urllib_packages, results='asis', message=FALSE, warning=FALSE} -->
+<!-- import os -->
+<!-- import getpass -->
+<!-- user=getpass.getuser() -->
+<!-- os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = 'C:/Users/'+user+'/AppData/Local/r-miniconda/envs/r-reticulate/Library/plugins/platforms' -->
+<!-- ``` -->
+
+<!-- ```{r Python National incidence rate figure, results='asis', message=FALSE, warning=FALSE} -->
+<!-- source_python("src/case_per_100k.py") -->
+<!-- ``` -->
+
 <!-- ```{r case rate figure using R, code=xfun::read_utf8('src/case_per_100k.R'), results='asis', message=FALSE, warning=FALSE, fig.height = 9, fig.width = 20} -->
 <!-- ``` -->
 
@@ -141,6 +156,10 @@ cat(
 paste0("Highlights:
 Over the past week, a daily average of ",key_Can_avg_tests_per_day," tests have been performed for COVID-19 across Canada, for a total of ",key_Can_weekly_tests," tests. The weekly percent positivity is ",key_Can_weekly_perc_positive))
 ```
+
+<!-- ```{r Python National lab testing figure, results='asis', message=FALSE, warning=FALSE,eval=eval_if_trend} -->
+<!-- source_python("src/National_Testing.py") -->
+<!-- ``` -->
 
 ```{r lab_testing figure using rmd, child="src/national_testing.rmd",eval=eval_if_trend, echo=FALSE, message=FALSE, warning=FALSE}
 ```

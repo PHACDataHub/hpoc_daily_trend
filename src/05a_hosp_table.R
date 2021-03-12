@@ -94,7 +94,10 @@ mutate(prov=Jurisdiction) %>%
   select(Jurisdiction,prov,Population,Date,Hosp,Hosp7MA,hospweekchange,Hosp_popadj,ICU,ICU7MA,ICUweekchange,ICU_popadj)
 
 #Note - this export crashed on me today (Feb1). When manually opened, it said file was locked for use by 'another user' - can look into wrapping it in "try()" function perhaps. 
-write_csv(export_hosp,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\Hosp_icu_historical_data.csv")
+
+tryCatch(write_csv(export_hosp,"Y:\\PHAC\\IDPCB\\CIRID\\VIPS-SAR\\EMERGENCY PREPAREDNESS AND RESPONSE HC4\\EMERGENCY EVENT\\WUHAN UNKNOWN PNEU - 2020\\EPI SUMMARY\\Trend analysis\\Case count data\\Hosp_icu_historical_data.csv"),
+         warning=function(x) "error in hosp export",
+         error=function(x) "error in hosp export")
 
 export_trend_hosp<-export_hosp %>%
   filter(Date>=max(Date)-14) %>%
@@ -139,6 +142,7 @@ key_sum_PTs_no_increase_hosp<-Hosp_Metrics_Table %>%
   count() %>%
   as.numeric()
 
+if (key_sum_PTs_no_increase_hosp<13){
 key_PTs_increase_hosp<-Hosp_Metrics_Table %>%
   filter(!Jurisdiction=="Canada" & delta7h>0) %>%
   select(Jurisdiction, delta7h) %>%
@@ -150,23 +154,25 @@ key_PTs_increase_hosp<-Hosp_Metrics_Table %>%
   mutate(text_var=paste0(Jurisdiction," (",delta7h,")")) %>%
   ungroup()
 
-key_PTs_increase_hosp<-turn_char_vec_to_comma_list(key_PTs_increase_hosp$text_var)
+key_PTs_increase_hosp<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_hosp$text_var)
+}
 
 key_sum_PTs_no_increase_icu<-Hosp_Metrics_Table %>%
   filter(!Jurisdiction=="Canada" & (round(delta7i, digits = 3)<=0|is.na(delta7i))) %>%
   ungroup() %>%
   count() %>%
   as.numeric()
-
-key_PTs_increase_icu<-Hosp_Metrics_Table %>%
-  filter(!Jurisdiction=="Canada" & delta7i>0) %>%
-  select(Jurisdiction, delta7i) %>%
-  arrange(desc(delta7i)) %>%
-  turn_num_to_percent_change(numeric_variable="delta7i",accuracy = 1) %>%
-  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
-  recode_PT_names_to_small()%>%
-  mutate(delta7i=ifelse(delta7i=="0%","+<1%",delta7i)) %>%
-  mutate(text_var=paste0(Jurisdiction," (",delta7i,")")) %>%
-  ungroup()
-
-key_PTs_increase_icu<-turn_char_vec_to_comma_list(key_PTs_increase_icu$text_var)
+if (key_sum_PTs_no_increase_icu<13){
+  key_PTs_increase_icu<-Hosp_Metrics_Table %>%
+    filter(!Jurisdiction=="Canada" & delta7i>0) %>%
+    select(Jurisdiction, delta7i) %>%
+    arrange(desc(delta7i)) %>%
+    turn_num_to_percent_change(numeric_variable="delta7i",accuracy = 1) %>%
+    mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+    recode_PT_names_to_small()%>%
+    mutate(delta7i=ifelse(delta7i=="0%","+<1%",delta7i)) %>%
+    mutate(text_var=paste0(Jurisdiction," (",delta7i,")")) %>%
+    ungroup()
+  
+  key_PTs_increase_icu<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_icu$text_var)
+}

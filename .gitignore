@@ -3,6 +3,7 @@
 *.pdf
 *.jpg
 *.png
+/output/*.csv
 .Rhistory
 .Rapp.history
 .RData

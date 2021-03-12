@@ -144,18 +144,22 @@ key_sum_PTs_no_increase_cases<-Case_Death_Stats %>%
   count() %>%
   as.numeric()
 
-key_PTs_increase_cases<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & Weekly_Change_Cases>0) %>%
-  select(Jurisdiction, Weekly_Change_Cases) %>%
-  arrange(desc(Weekly_Change_Cases)) %>%
-  turn_num_to_percent_change(numeric_variable="Weekly_Change_Cases",accuracy = 1) %>%
-  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
-  recode_PT_names_to_small()%>%
-  mutate(Weekly_Change_Cases=ifelse(Weekly_Change_Cases=="0%","+<1%",Weekly_Change_Cases)) %>%
-  mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Cases,")")) %>%
-  ungroup()
+if (key_sum_PTs_no_increase_cases<13){
+  
+  key_PTs_increase_cases<-Case_Death_Stats %>%
+    filter(!Jurisdiction=="Canada" & Weekly_Change_Cases>0) %>%
+    select(Jurisdiction, Weekly_Change_Cases) %>%
+    arrange(desc(Weekly_Change_Cases)) %>%
+    turn_num_to_percent_change(numeric_variable="Weekly_Change_Cases",accuracy = 1) %>%
+    mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+    recode_PT_names_to_small()%>%
+    mutate(Weekly_Change_Cases=ifelse(Weekly_Change_Cases=="0%","+<1%",Weekly_Change_Cases)) %>%
+    mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Cases,")")) %>%
+    ungroup()
+  
+  key_PTs_increase_cases<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
+}
 
-key_PTs_increase_cases<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_cases$text_var)
 
 key_sum_PTs_no_increase_deaths<-Case_Death_Stats %>%
   filter(!Jurisdiction=="Canada" & (round(Weekly_Change_Deaths,digits=3)<=0|is.na(Weekly_Change_Deaths))) %>%
@@ -163,19 +167,20 @@ key_sum_PTs_no_increase_deaths<-Case_Death_Stats %>%
   count() %>%
   as.numeric()
 
-key_PTs_increase_deaths<-Case_Death_Stats %>%
-  filter(!Jurisdiction=="Canada" & Weekly_Change_Deaths>0) %>%
-  select(Jurisdiction, Weekly_Change_Deaths) %>%
-  arrange(desc(Weekly_Change_Deaths)) %>%
-  turn_num_to_percent_change(numeric_variable="Weekly_Change_Deaths",accuracy = 1) %>%
-  mutate(Jurisdiction=as.character(Jurisdiction)) %>%
-  recode_PT_names_to_small()%>%
-  mutate(Weekly_Change_Deaths=ifelse(Weekly_Change_Deaths=="0%","+<1%",Weekly_Change_Deaths)) %>%
-  mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Deaths,")")) %>%
-  ungroup()
-
-key_PTs_increase_deaths<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
-
+if (key_sum_PTs_no_increase_deaths<13){
+  key_PTs_increase_deaths<-Case_Death_Stats %>%
+    filter(!Jurisdiction=="Canada" & Weekly_Change_Deaths>0) %>%
+    select(Jurisdiction, Weekly_Change_Deaths) %>%
+    arrange(desc(Weekly_Change_Deaths)) %>%
+    turn_num_to_percent_change(numeric_variable="Weekly_Change_Deaths",accuracy = 1) %>%
+    mutate(Jurisdiction=as.character(Jurisdiction)) %>%
+    recode_PT_names_to_small()%>%
+    mutate(Weekly_Change_Deaths=ifelse(Weekly_Change_Deaths=="0%","+<1%",Weekly_Change_Deaths)) %>%
+    mutate(text_var=paste0(Jurisdiction," (",Weekly_Change_Deaths,")")) %>%
+    ungroup()
+  
+  key_PTs_increase_deaths<-PHACTrendR::turn_char_vec_to_comma_list(key_PTs_increase_deaths$text_var)
+}
 #to automate a footnote on the cases/deaths table
 any_non_report_flag<-ifelse(nrow(df_raw[df_raw$date==max(df_raw$date)&df_raw$update==FALSE&!is.na(df_raw$update),])>0, TRUE, FALSE)
 if(any_non_report_flag==TRUE){
